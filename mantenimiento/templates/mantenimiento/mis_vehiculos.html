@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Vehículos{% endblock %}
+
+{% block content %}
+<h2>Mis Vehículos</h2>
+<ul>
+  {% for v in vehiculos %}
+    <li>{{ v.placa }} - {{ v.marca }} {{ v.modelo }}</li>
+  {% empty %}
+    <li>No tienes vehículos registrados.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

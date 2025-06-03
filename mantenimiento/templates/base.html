@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}AutoForge{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>AutoForge</h1>
+        <nav>
+            <a href="{% url 'mis_vehiculos' %}">Mis Vehículos</a> |
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <hr>
+        <p style="text-align:center;">&copy; 2025 AutoForge</p>
+    </footer>
+</body>
+</html>

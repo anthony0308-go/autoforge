@@ -1,0 +1,11 @@
+syntax: glob
+
+env/
+__pycache__/
+*.py[cod]
+db.sqlite3
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
