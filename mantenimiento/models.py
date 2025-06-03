@@ -1,5 +1,41 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .managers import UsuarioManager
 
+#ESTO TAMBIÉN PAL ADMIN
+class Usuarios(AbstractBaseUser, PermissionsMixin):
+    id_usuario = models.AutoField(primary_key=True)
+    id_rol = models.ForeignKey('Roles', models.DO_NOTHING, db_column='id_rol')
+    nombre_completo = models.CharField(max_length=150)
+    email = models.EmailField(unique=True, max_length=100)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    password_hash = models.CharField(max_length=255, blank=True, null=True)
+    activo = models.BooleanField(default=True)
+    dui = models.CharField(unique=True, max_length=20, blank=True, null=True)
+    direccion = models.TextField(blank=True, null=True)
+    carnet_empleado = models.CharField(unique=True, max_length=50, blank=True, null=True)
+    fecha_creacion_usuario = models.DateTimeField(blank=True, null=True)
+
+    # INCLUYENDO ESTO PAL ADMIN
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nombre_completo', 'dui', 'id_rol']
+    # ESTO PAL ADMIN
+    objects = UsuarioManager()
+
+    def __str__(self):
+        return self.email
+
+    def set_password(self, raw_password):
+        from django.contrib.auth.hashers import make_password
+        self.password_hash = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        from django.contrib.auth.hashers import check_password
+        return check_password(raw_password, self.password_hash)
+
+    class Meta:
+        managed = False
+        db_table = 'usuarios'
 
 class FotografiasVehiculo(models.Model):
     id_fotografia = models.AutoField(primary_key=True)

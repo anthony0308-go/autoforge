@@ -1,0 +1,13 @@
+{% extends 'mantenimiento/base.html' %}
+
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Detalle del vehículo</h2>
+  <div class="bg-white p-4 rounded shadow text-black">
+    <p><strong>Placa:</strong> {{ vehiculo.placa }}</p>
+    <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
+    <p><strong>Modelo:</strong> {{ vehiculo.modelo }}</p>
+    <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
+    <p><strong>Color:</strong> {{ vehiculo.color }}</p>
+  </div>
+  <a href="{% url 'listar_vehiculos' %}" class="text-blue-500 underline mt-4 inline-block">← Volver al listado</a>
+{% endblock %}

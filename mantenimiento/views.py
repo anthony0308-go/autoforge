@@ -1,69 +1,71 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse
-from .forms import LoginForm  # asume que ya tienes un formulario personalizado
-from .models import Vehiculos, Mantenimientos, Repuestos, Usuarios
+from django.contrib.auth import authenticate
+from .forms import LoginForm
+from .models import Usuarios, Vehiculos
+from .utils import obtener_usuario_actual
 
 
-@csrf_protect
 def login_view(request):
     form = LoginForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+    error = None
 
-            user = authenticate(request, username=username, password=password)
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
 
-            if user:
-                login(request, user)
-                return redirect('inicio')  # Cambia a tu ruta principal
-            else:
-                form.add_error(None, 'Usuario o contraseña incorrectos.')
-    return render(request, 'login.html', {'form': form})
+        usuario = authenticate(request, username=username, password=password)
 
+        if usuario:
+            request.session['usuario_id'] = usuario.id_usuario
+            return redirect('inicio')
+        else:
+            error = "Usuario o contraseña incorrectos."
 
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+    return render(request, 'mantenimiento/login.html', {'form': form, 'error': error})
 
 
-@login_required
-def inicio(request):
-    return render(request, 'inicio.html')
-
-
-@login_required
 def listar_vehiculos(request):
-    vehiculos = Vehiculos.objects.all()
+    usuario = obtener_usuario_actual(request)
+    if not usuario:
+        return redirect('login')
+    
+    vehiculos = Vehiculos.objects.filter(id_usuario_propietario=usuario)
     return render(request, 'vehiculos/listar.html', {'vehiculos': vehiculos})
 
 
-@login_required
+def logout_view(request):
+    request.session.flush()
+    return redirect('login')
+
+
+def inicio(request):
+    usuario = obtener_usuario_actual(request)
+    if not usuario:
+        return redirect('login')
+    return render(request, 'inicio.html', {'usuario': usuario})
+
 def detalle_vehiculo(request, vehiculo_id):
-    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
-    mantenimientos = Mantenimientos.objects.filter(id_vehiculo=vehiculo)
-    return render(request, 'vehiculos/detalle.html', {
-        'vehiculo': vehiculo,
-        'mantenimientos': mantenimientos
-    })
+    usuario = obtener_usuario_actual(request)
+    if not usuario:
+        return redirect('login')
 
+    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id, id_usuario_propietario=usuario)
+    return render(request, 'vehiculos/detalle.html', {'vehiculo': vehiculo})
 
-@login_required
 def registrar_mantenimiento(request, vehiculo_id):
-    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
-    if request.method == 'POST':
-        # lógica para guardar el mantenimiento desde un formulario
-        pass
-    return render(request, 'mantenimientos/registrar.html', {'vehiculo': vehiculo})
+    usuario = obtener_usuario_actual(request)
+    if not usuario:
+        return redirect('login')
 
+    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id, id_usuario_propietario=usuario)
+    return render(request, 'vehiculos/registrar_mantenimiento.html', {'vehiculo': vehiculo})
 
-@login_required
 def listar_repuestos(request):
+    usuario = obtener_usuario_actual(request)
+    if not usuario:
+        return redirect('login')
+
     repuestos = Repuestos.objects.all()
     return render(request, 'repuestos/listar.html', {'repuestos': repuestos})
-

@@ -112,6 +112,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+AUTHENTICATION_BACKENDS = ['mantenimiento.auth_backend.UsuarioBackend']
+
+AUTH_USER_MODEL = 'mantenimiento.Usuarios' #ESTO LO AÑADI PARA LO DE ADMIN
 
 
 # Internationalization

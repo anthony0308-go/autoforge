@@ -1,10 +1,8 @@
 from django import forms
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-
+from .models import Usuarios
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label="Usuario", max_length=150, required=True)
+    username = forms.CharField(label="Correo", max_length=100, required=True)
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput, required=True)
 
     def clean(self):
@@ -14,11 +12,14 @@ class LoginForm(forms.Form):
 
         if username and password:
             try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
+                usuario = Usuarios.objects.get(email=username)
+            except Usuarios.DoesNotExist:
                 self.add_error('username', 'Este usuario no existe.')
                 return
 
-            user = authenticate(username=username, password=password)
-            if user is None:
+            if not usuario.activo:
+                self.add_error('username', 'Este usuario está inactivo.')
+                return
+
+            if usuario.password_hash != password:
                 self.add_error('password', 'Contraseña incorrecta.')
