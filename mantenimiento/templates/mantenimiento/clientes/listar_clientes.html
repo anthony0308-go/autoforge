@@ -1,0 +1,33 @@
+{% extends "mantenimiento/base.html" %}
+{% block title %}Clientes | AutoForge{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4 text-[#D7141A]">Listado de Clientes</h2>
+
+<table class="min-w-full bg-white shadow rounded">
+    <thead class="bg-[#263238] text-white">
+        <tr>
+            <th class="px-4 py-2 text-left">Nombre</th>
+            <th class="px-4 py-2 text-left">Correo</th>
+            <th class="px-4 py-2 text-left">Teléfono</th>
+            <th class="px-4 py-2">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+        <tr class="border-b hover:bg-gray-100">
+            <td class="px-4 py-2">{{ cliente.nombre_completo }}</td>
+            <td class="px-4 py-2">{{ cliente.email }}</td>
+            <td class="px-4 py-2">{{ cliente.telefono }}</td>
+            <td class="px-4 py-2 text-center">
+                <a href="{% url 'detalle_cliente' cliente.id_usuario %}" class="text-blue-600 hover:underline">Ver</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="px-4 py-4 text-center text-gray-500">No hay clientes registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

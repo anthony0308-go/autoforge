@@ -1,0 +1,22 @@
+{% extends "mantenimiento/base.html" %}
+{% block title %}Inicio | AutoForge{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-[#D7141A] mb-4">Panel de Inicio - AutoForge</h1>
+
+<p class="text-gray-700">Bienvenido, {{ usuario.nombre_completo }}.</p>
+
+<div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white p-4 shadow rounded">
+        <h2 class="font-semibold text-lg mb-2">Clientes</h2>
+        <p>Gestiona la información de los clientes y sus vehículos.</p>
+        <a href="{% url 'clientes_listado' %}" class="text-blue-600 hover:underline">Ver clientes</a>
+    </div>
+
+    <div class="bg-white p-4 shadow rounded">
+        <h2 class="font-semibold text-lg mb-2">Mantenimientos</h2>
+        <p>Consulta y registra mantenimientos realizados.</p>
+        <a href="{% url 'mantenimientos_listado' %}" class="text-blue-600 hover:underline">Ver mantenimientos</a>
+    </div>
+</div>
+{% endblock %}

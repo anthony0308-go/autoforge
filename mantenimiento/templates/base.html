@@ -3,25 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}AutoForge{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-    <header>
-        <h1>AutoForge</h1>
-        <nav>
-            <a href="{% url 'mis_vehiculos' %}">Mis Vehículos</a> |
-            <a href="{% url 'logout' %}">Cerrar sesión</a>
-        </nav>
-        <hr>
+<body class="bg-white text-[#263238] min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-[#263238] text-white shadow">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                <img src="{% static 'img/autoforge-logo-white.png' %}" alt="AutoForge Logo" class="h-8 w-auto">
+                <span class="text-xl font-semibold">AutoForge</span>
+            </a>
+
+            <!-- Menú de navegación -->
+            <nav class="flex space-x-6 text-sm font-medium">
+                <a href="{% url 'panel_admin' %}" class="hover:text-[#D7141A]">Inicio</a>
+                <a href="{% url 'clientes_listado' %}" class="hover:text-[#D7141A]">Clientes</a>
+                <a href="{% url 'mantenimientos_listado' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
+                <a href="{% url 'logout' %}" class="hover:text-[#D7141A]">Salir</a>
+            </nav>
+        </div>
     </header>
 
-    <main>
+    <!-- Contenido principal -->
+    <main class="flex-grow container mx-auto px-4 py-6">
         {% block content %}
+        <!-- Aquí se inserta el contenido específico de cada página -->
         {% endblock %}
     </main>
 
-    <footer>
-        <hr>
-        <p style="text-align:center;">&copy; 2025 AutoForge</p>
+    <!-- Footer -->
+    <footer class="bg-[#263238] text-white text-center py-3 text-sm mt-10">
+        AutoForge © {{ year|default:"2025" }} - Taller de Vehículos
     </footer>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>
