@@ -34,13 +34,13 @@ def logout_view(request):
 #@login_required
 def inicio(request):
     usuario = obtener_usuario_actual(request)
-    return render(request, '/mantenimiento/inicio.html', {'usuario': usuario})
+    return render(request, '/mantenimiento/vehiculos/inicio.html', {'usuario': usuario})
 
 
 #@login_required
 def listar_clientes(request):
     clientes = Usuarios.objects.filter(id_rol__nombre_rol='Cliente')
-    return render(request, '/mantenimiento/clientes/listar_clientes.html', {'clientes': clientes})
+    return render(request, 'mantenimiento/clientes/listar_clientes.html', {'clientes': clientes})
 
 
 #@login_required
