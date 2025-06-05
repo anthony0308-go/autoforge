@@ -14,6 +14,9 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
     direccion = models.TextField(blank=True, null=True)
     carnet_empleado = models.CharField(unique=True, max_length=50, blank=True, null=True)
     fecha_creacion_usuario = models.DateTimeField(blank=True, null=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre_completo', 'dui', 'id_rol']
@@ -24,7 +27,6 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     class Meta:
-        managed = False
         db_table = 'usuarios'
 
 
