@@ -109,9 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-AUTHENTICATION_BACKENDS = ['mantenimiento.auth_backend.UsuarioBackend']
 
-AUTH_USER_MODEL = 'mantenimiento.Usuarios' #ESTO LO AÑADI PARA LO DE ADMIN
 
 
 # Internationalization
@@ -143,6 +141,6 @@ AUTH_USER_MODEL = 'mantenimiento.Usuarios'
 
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'mis_vehiculos'
+LOGIN_REDIRECT_URL = 'inicio'
 LOGOUT_REDIRECT_URL = 'login'
 # LOGIN_URL = 'login'

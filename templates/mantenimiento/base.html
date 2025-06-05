@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}AutoForge{% endblock %}</title>
@@ -8,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     {% block extra_head %}{% endblock %}
 </head>
+
 <body class="bg-white text-[#263238] min-h-screen flex flex-col">
 
     <!-- Navbar -->
@@ -23,7 +25,7 @@
             <nav class="flex space-x-6 text-sm font-medium">
                 <a href="{% url 'inicio' %}" class="hover:text-[#D7141A]">Inicio</a>
                 <a href="{% url 'listar_clientes' %}" class="hover:text-[#D7141A]">Clientes</a>
-                <a href="{% url 'mantenimientos_listado' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
+                <a href="{% url 'listar_mantenimientos' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
                 <a href="{% url 'logout' %}" class="hover:text-[#D7141A]">Salir</a>
             </nav>
         </div>
@@ -43,4 +45,5 @@
 
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
