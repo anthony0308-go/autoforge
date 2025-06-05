@@ -34,13 +34,18 @@ def logout_view(request):
 #@login_required
 def inicio(request):
     usuario = obtener_usuario_actual(request)
-    return render(request, '/mantenimiento/vehiculos/inicio.html', {'usuario': usuario})
+    return render(request, 'mantenimiento/inicio.html', {'usuario': usuario})
 
 
 #@login_required
 def listar_clientes(request):
     clientes = Usuarios.objects.filter(id_rol__nombre_rol='Cliente')
-    return render(request, 'mantenimiento/clientes/listar_clientes.html', {'clientes': clientes})
+
+    context = {
+        'clientes':clientes,
+    }
+
+    return render(request, 'mantenimiento/clientes/listar_clientes.html', context)
 
 
 #@login_required
@@ -50,7 +55,7 @@ def listar_vehiculos(request):
         return redirect('login')
 
     vehiculos = Vehiculos.objects.filter(id_usuario_propietario=usuario)
-    return render(request, '/mantenimiento/vehiculos/listar.html', {'vehiculos': vehiculos})
+    return render(request, 'mantenimiento/vehiculos/listar.html', {'vehiculos': vehiculos})
 
 
 #@login_required
@@ -60,7 +65,7 @@ def detalle_vehiculo(request, vehiculo_id):
         return redirect('login')
 
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id, id_usuario_propietario=usuario)
-    return render(request, '/mantenimiento/vehiculos/detalle.html', {'vehiculo': vehiculo})
+    return render(request, 'mantenimiento/vehiculos/detalle.html', {'vehiculo': vehiculo})
 
 
 #@login_required
@@ -70,13 +75,13 @@ def registrar_mantenimiento(request, vehiculo_id):
         return redirect('login')
 
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id, id_usuario_propietario=usuario)
-    return render(request, '/mantenimiento/vehiculos/registrar_mantenimiento.html', {'vehiculo': vehiculo})
+    return render(request, 'mantenimiento/vehiculos/registrar_mantenimiento.html', {'vehiculo': vehiculo})
 
 
 #@login_required
 def listar_mantenimientos(request):
     mantenimientos = Mantenimientos.objects.select_related('id_vehiculo', 'id_usuario')
-    return render(request, '/mantenimiento/mantenimientos/listar_mantenimientos.html', {'mantenimientos': mantenimientos})
+    return render(request, 'mantenimiento/mantenimientos/listar_mantenimientos.html', {'mantenimientos': mantenimientos})
 
 
 #@login_required
@@ -86,4 +91,4 @@ def listar_repuestos(request):
         return redirect('login')
 
     repuestos = Repuestos.objects.all()
-    return render(request, '/mantenimiento/repuestos/listar.html', {'repuestos': repuestos})
+    return render(request, 'mantenimiento/repuestos/listar.html', {'repuestos': repuestos})
