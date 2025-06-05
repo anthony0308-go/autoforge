@@ -4,13 +4,17 @@ from .models import (
     Mantenimientos, MantenimientoRepuestos, Repuestos,
     MantenimientosAgendados, FotografiasVehiculo
 )
-#TODO ESTO LO AÑADI PAL AKMIN
+
 @admin.register(Usuarios)
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id_usuario', 'nombre_completo', 'email', 'telefono', 'activo', 'id_rol')
-    list_filter = ('activo', 'id_rol')
-    search_fields = ('nombre_completo', 'email', 'dui', 'carnet_empleado')
-    ordering = ('-fecha_creacion_usuario',)
+    list_display = ('id', 'nombre_completo', 'email', 'telefono', 'is_active', 'id_rol')
+    list_filter = ('is_active', 'id_rol')
+    search_fields = ('first_name', 'last_name', 'email', 'dui', 'carnet_empleado')
+    ordering = ('-date_joined',)
+
+    def nombre_completo(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
+    nombre_completo.short_description = 'Nombre completo'
 
 @admin.register(Roles)
 class RolAdmin(admin.ModelAdmin):

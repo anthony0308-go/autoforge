@@ -1,26 +1,52 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from .managers import UsuarioManager
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.base_user import BaseUserManager
 
-class Usuarios(AbstractBaseUser, PermissionsMixin):
-    id_usuario = models.AutoField(primary_key=True)
-    id_rol = models.ForeignKey('Roles', models.DO_NOTHING, db_column='id_rol')
-    nombre_completo = models.CharField(max_length=150)
-    email = models.EmailField(unique=True, max_length=100)
+
+
+class Roles(models.Model):
+    id_rol = models.AutoField(primary_key=True)
+    nombre_rol = models.CharField(unique=True, max_length=50)
+    codigo_rol = models.CharField(max_length=1, unique=True)
+
+    def __str__(self):
+        return f"{self.nombre_rol} ({self.codigo_rol})"
+
+    class Meta:
+        db_table = 'roles'
+
+class UsuarioManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El usuario debe tener un correo electrónico')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
+
+class Usuarios(AbstractUser):
+    id_rol = models.ForeignKey(Roles, on_delete=models.DO_NOTHING, db_column='id_rol', null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
-    password = models.CharField(max_length=255, blank=True, null=True)
-    activo = models.BooleanField(default=True)
     dui = models.CharField(unique=True, max_length=20, blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     carnet_empleado = models.CharField(unique=True, max_length=50, blank=True, null=True)
-    fecha_creacion_usuario = models.DateTimeField(blank=True, null=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
-
+    fecha_creacion_usuario = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    username = None
+    email = models.EmailField('email address', unique=True, max_length=100)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre_completo', 'dui', 'id_rol']
-
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'id_rol']
     objects = UsuarioManager()
 
     def __str__(self):
@@ -29,6 +55,7 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'usuarios'
 
+    
 
 class FotografiasVehiculo(models.Model):
     id_fotografia = models.AutoField(primary_key=True)
@@ -128,17 +155,6 @@ class Repuestos(models.Model):
         managed = False
         db_table = 'repuestos'
 
-
-class Roles(models.Model):
-    id_rol = models.AutoField(primary_key=True)
-    nombre_rol = models.CharField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.nombre_rol
-
-    class Meta:
-        managed = False
-        db_table = 'roles'
 
 
 class TiposMantenimiento(models.Model):

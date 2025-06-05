@@ -1,17 +1,35 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Iniciar sesión - AutoForge</title>
   <style>
     @keyframes shake {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(-5px); }
-      40% { transform: translateX(5px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-      100% { transform: translateX(0); }
+      0% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-5px);
+      }
+
+      40% {
+        transform: translateX(5px);
+      }
+
+      60% {
+        transform: translateX(-4px);
+      }
+
+      80% {
+        transform: translateX(4px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
     }
 
     .shake {
@@ -35,7 +53,7 @@
       padding: 40px;
       border-radius: 12px;
       width: 320px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.4);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
       text-align: center;
     }
 
@@ -102,34 +120,36 @@
     }
   </style>
 </head>
+
 <body>
   <div class="login-box {% if form.errors %}shake{% endif %}">
     <img src="{% static 'img/autoforge-logo-white.png' %}" alt="AutoForge Logo">
     <form method="post">
       {% csrf_token %}
-
       <label for="id_username">Usuario <span style="color:#ff5e5e">*</span></label>
       {{ form.username }}
       {% if request.method == "POST" and form.errors.username %}
-        <div class="field-error">
-          {% for error in form.errors.username %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
+      <div class="field-error">
+        {% for error in form.errors.username %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
       {% endif %}
 
       <label for="id_password">Contraseña <span style="color:#ff5e5e">*</span></label>
       {{ form.password }}
       {% if request.method == "POST" and form.errors.password %}
-        <div class="field-error">
-          {% for error in form.errors.password %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
+      <div class="field-error">
+        {% for error in form.errors.password %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
       {% endif %}
 
       <button type="submit">Entrar</button>
     </form>
+
   </div>
 </body>
+
 </html>

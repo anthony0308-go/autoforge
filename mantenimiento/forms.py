@@ -1,25 +1,25 @@
 from django import forms
-from .models import Usuarios
+from django.contrib.auth.forms import authenticate
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label="Correo", max_length=100, required=True)
+    username = forms.EmailField(label="Correo electrónico", max_length=100, required=True)
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput, required=True)
 
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
-
+        
+        # Solo verifica credenciales si ambos campos están presentes
         if username and password:
-            try:
-                usuario = Usuarios.objects.get(email=username)
-            except Usuarios.DoesNotExist:
-                self.add_error('username', 'Este usuario no existe.')
-                return
+            user = authenticate(username=username, password=password)
+            if user is None:
+                raise forms.ValidationError("Usuario o contraseña incorrectos.")
+            if not user.is_active:
+                raise forms.ValidationError("Este usuario está inactivo.")
+            # Puedes guardar el usuario autenticado si lo necesitas después
+            self.user = user
+        return cleaned_data
 
-            if not usuario.activo:
-                self.add_error('username', 'Este usuario está inactivo.')
-                return
-
-            if usuario.password_hash != password:
-                self.add_error('password', 'Contraseña incorrecta.')
+    def get_user(self):
+        return getattr(self, 'user', None)

@@ -7,23 +7,21 @@ from .models import Usuarios, Vehiculos, Repuestos, Mantenimientos
 from .utils import obtener_usuario_actual
 
 
+#Views para el login
 def login_view(request):
     form = LoginForm(request.POST or None)
     error = None
 
-    if request.method == 'POST' and form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-
-        usuario = authenticate(request, username=username, password=password)
-
-        if usuario:
-            request.session['usuario_id'] = usuario.id_usuario
-            return redirect('inicio')
+    if request.method == 'POST':
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('vehiculos')
         else:
             error = "Usuario o contraseña incorrectos."
 
     return render(request, 'mantenimiento/login.html', {'form': form, 'error': error})
+
 
 
 def logout_view(request):

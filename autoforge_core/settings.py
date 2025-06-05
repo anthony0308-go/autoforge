@@ -55,10 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'autoforge_core.urls'
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'mis_vehiculos'
-LOGOUT_REDIRECT_URL = 'login'
-# LOGIN_URL = 'login'
+
 
 TEMPLATES = [
     {
@@ -88,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'autoforge',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'Lexter1737yt!',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -140,3 +137,12 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'mantenimiento.Usuarios'
+
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'mis_vehiculos'
+LOGOUT_REDIRECT_URL = 'login'
+# LOGIN_URL = 'login'
