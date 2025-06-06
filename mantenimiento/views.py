@@ -8,6 +8,9 @@ from .models import Usuarios, Vehiculos, Repuestos, Mantenimientos
 from .utils import obtener_usuario_actual
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -104,29 +107,9 @@ def eliminar_repuesto(request, repuesto_id):
     if request.method == 'POST':
         repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
         repuesto.delete()
-
-        # Recalcular los repuestos visibles
-        buscar = request.GET.get('buscar', '')
-        repuestos = Repuestos.objects.all()
-        if buscar:
-            repuestos = repuestos.filter(
-                Q(nombre_repuesto__icontains=buscar) |
-                Q(marca_repuesto__icontains=buscar)
-            )
-
-        paginator = Paginator(repuestos, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        html = render_to_string('mantenimiento/repuestos/tabla_repuestos.html', {
-            'repuestos': page_obj,
-            'page_obj': page_obj,
-            'buscar': buscar,
-        })
-
-        return HttpResponse(html)
-
+        return HttpResponse(status=204, headers={"HX-Refresh": "true"})
     return HttpResponse(status=405)
+
 
 
 @login_required
