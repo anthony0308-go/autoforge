@@ -102,7 +102,7 @@ def eliminar_repuesto(request, repuesto_id):
     if request.method == 'POST':
         repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
         repuesto.delete()
-        return HttpResponse('<script>window.location.reload();</script>')
+        return HttpResponse('')
     return HttpResponse(status=405)
 
 

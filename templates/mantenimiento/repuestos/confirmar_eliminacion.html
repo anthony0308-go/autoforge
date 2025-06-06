@@ -3,18 +3,19 @@
     <h2 class="text-xl font-bold text-[#D7141A] mb-4">¿Eliminar repuesto?</h2>
     <p class="mb-6 text-gray-700">¿Estás seguro de que deseas eliminar <strong>{{ repuesto.nombre_repuesto }}</strong>?</p>
 
-    <form method="post"
-          hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
-          hx-target="body"
-          hx-swap="none">
-      {% csrf_token %}
-      <div class="flex justify-center gap-4">
-        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">
-          Sí, eliminar
-        </button>
-        <button type="button" onclick="cerrarModalSuavemente()" class="text-gray-600 hover:underline">Cancelar</button>
-      </div>
-    </form>
+      <form method="post"
+            hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
+            hx-target="#repuesto-{{ repuesto.id_repuesto }}"
+            hx-swap="outerHTML"
+            hx-on="htmx:afterOnLoad: cerrarModalSuavemente()">
+        {% csrf_token %}
+        <div class="flex justify-center gap-4">
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">
+            Sí, eliminar
+          </button>
+          <button type="button" onclick="cerrarModalSuavemente()" class="text-gray-600 hover:underline">Cancelar</button>
+        </div>
+      </form>
   </div>
 </div>
 
@@ -30,4 +31,7 @@
       modalContainer.innerHTML = '';
     }, 300);
   }
+  document.querySelector("form").addEventListener("htmx:afterOnLoad", function () {
+    cerrarModalSuavemente();
+  });
 </script>

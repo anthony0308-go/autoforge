@@ -19,36 +19,32 @@
           transform: scale(1);
         }
       }
-    
+
       .animate-fade-in-modal {
         animation: fadeInModal 0.3s ease-out forwards;
       }
     </style>
     <style>
-         @keyframes fadeOutModal {
-           0% {
-             opacity: 1;
-             transform: scale(1);
-           }
-           100% {
-             opacity: 0;
-             transform: scale(0.95);
-           }
-         }
-     
-         .fade-out-modal {
-           animation: fadeOutModal 0.3s ease-in forwards;
-         }
+      @keyframes fadeOutModal {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+      }
+
+      .fade-out-modal {
+        animation: fadeOutModal 0.3s ease-in forwards;
+      }
     </style>
-
-
     {% endblock %}
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
-
 </head>
 
 <body class="bg-white text-[#263238] min-h-screen flex flex-col">
-
     <!-- Navbar -->
     <header class="bg-[#263238] text-white shadow">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -82,8 +78,9 @@
 
     {% block scripts %}{% endblock %}
     <script>
-        document.body.addEventListener("htmx:afterSwap", function (e) {
-          if (e.target.id === "modal") {
+      document.body.addEventListener("htmx:afterSwap", function (e) {
+        if (e.target.id === "modal") {
+          setTimeout(() => {
             const precioInput = document.getElementById("id_precio_unitario_referencia");
             const stockInput = document.getElementById("id_stock");
 
@@ -93,53 +90,40 @@
                   e.preventDefault();
                 }
               });
-          
-              precioInput.addEventListener("input", function (e) {
-                const value = e.target.value;
-                if (value.includes(".")) {
-                  const partes = value.split(".");
-                  if (partes[1] && partes[1].length > 2) {
-                    e.target.value = parseFloat(value).toFixed(2);
-                  }
+
+              precioInput.addEventListener("input", function () {
+                let value = this.value.replace(",", ".");
+                const parts = value.split(".");
+
+                if (parts.length === 2 && parts[1].length > 2) {
+                  value = parts[0] + "." + parts[1].slice(0, 2);
+                }
+
+                if (this.value !== value) {
+                  const pos = this.selectionStart;
+                  this.value = value;
+                  this.setSelectionRange(pos, pos);
                 }
               });
             }
-        
+
             if (stockInput) {
               stockInput.addEventListener("keydown", function (e) {
                 if (["e", "E", "+", "-"].includes(e.key)) {
                   e.preventDefault();
                 }
-                });
-            
-                stockInput.addEventListener("input", function (e) {
-                  if (e.target.value < 0) {
-                    e.target.value = 0;
-                  }
-                });
-              }
+              });
+
+              stockInput.addEventListener("input", function () {
+                if (this.value < 0) {
+                  this.value = 0;
+                }
+              });
             }
-        });
-    </script>
-    <script>
-      document.body.addEventListener("htmx:afterSwap", function (e) {
-        if (e.target.id === "modal") {
-          const precioInput = document.getElementById("id_precio_unitario_referencia");
-
-          if (precioInput) {
-            // Limpiar el valor si viene con coma y convertirlo a punto automáticamente
-            precioInput.value = precioInput.value.replace(",", ".");
-
-            // También al escribir
-            precioInput.addEventListener("input", function () {
-              this.value = this.value.replace(",", ".");
-            });
-          }
+          }, 10);
         }
       });
     </script>
-
-
 </body>
 
 </html>
