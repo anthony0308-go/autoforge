@@ -1,4 +1,5 @@
 from django import forms
+from .models import Repuestos
 from django.contrib.auth import authenticate, get_user_model
 
 User = get_user_model()
@@ -33,4 +34,23 @@ class LoginForm(forms.Form):
 
     def get_user(self):
         return getattr(self, 'user', None)
+
+class RepuestoForm(forms.ModelForm):
+    class Meta:
+        model = Repuestos
+        fields = ['nombre_repuesto', 'marca_repuesto', 'descripcion', 'precio_unitario_referencia', 'stock']
+        widgets = {
+            'precio_unitario_referencia': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        precio = cleaned_data.get("precio_unitario_referencia")
+        stock = cleaned_data.get("stock")
+
+        if precio is None:
+            self.add_error("precio_unitario_referencia", "Por favor, indica el precio del repuesto.")
+
+        if stock is None:
+            self.add_error("stock", "Por favor, especifica el stock disponible.")
         

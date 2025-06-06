@@ -152,7 +152,6 @@ class Repuestos(models.Model):
         return self.nombre_repuesto
 
     class Meta:
-        managed = False
         db_table = 'repuestos'
 
 

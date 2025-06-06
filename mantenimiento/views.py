@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm
+from .forms import LoginForm, RepuestoForm
+from django.http import HttpResponse
 from .models import Usuarios, Vehiculos, Repuestos, Mantenimientos
 from .utils import obtener_usuario_actual
 
@@ -62,7 +63,32 @@ def listar_mantenimientos(request):
     mantenimientos = Mantenimientos.objects.select_related('id_vehiculo', 'id_usuario')
     return render(request, 'mantenimiento/mantenimientos/listar_mantenimientos.html', {'mantenimientos': mantenimientos})
 
+# REPUESTOS
+
 @login_required
 def listar_repuestos(request):
     repuestos = Repuestos.objects.all()
-    return render(request, 'mantenimiento/repuestos/listar.html', {'repuestos': repuestos})
+    return render(request, 'mantenimiento/repuestos/listar_repuestos.html', {'repuestos': repuestos})
+
+@login_required
+def registrar_repuesto(request):
+    if request.method == 'POST':
+        form = RepuestoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_repuestos')
+    else:
+        form = RepuestoForm()
+    return render(request, 'mantenimiento/repuestos/registrar_repuesto.html', {'form': form})
+
+@login_required
+def modal_registrar_repuesto(request):
+    if request.method == 'POST':
+        form = RepuestoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse("<script>window.location.reload();</script>")
+    else:
+        form = RepuestoForm()
+    return render(request, 'mantenimiento/repuestos/_form_modal.html', {'form': form})
+

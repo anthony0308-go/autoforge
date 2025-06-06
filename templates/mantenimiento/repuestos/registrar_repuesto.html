@@ -1,0 +1,16 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Agregar Repuesto | AutoForge{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-[#D7141A] mb-4">Agregar Repuesto</h1>
+
+<form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit"
+            class="bg-[#D7141A] text-white px-6 py-2 rounded hover:bg-red-700 font-semibold">
+        Guardar
+    </button>
+    <a href="{% url 'listar_repuestos' %}" class="ml-4 text-gray-600 hover:underline">Cancelar</a>
+</form>
+{% endblock %}

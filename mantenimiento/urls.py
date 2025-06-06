@@ -14,4 +14,8 @@ urlpatterns = [
     path('vehiculo/<int:vehiculo_id>/mantenimiento/', views.registrar_mantenimiento, name='registrar_mantenimiento'),
 
     path('repuestos/', views.listar_repuestos, name='listar_repuestos'),
+    path('repuestos/registrar/', views.registrar_repuesto, name='registrar_repuesto'),
+    path('repuestos/modal/registrar/', views.modal_registrar_repuesto, name='modal_registrar_repuesto'),
+
+
 ]
