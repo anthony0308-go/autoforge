@@ -7,7 +7,42 @@
     <title>{% block title %}AutoForge{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    {% block extra_head %}{% endblock %}
+    {% block extra_head %}
+    <style>
+      @keyframes fadeInModal {
+        0% {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    
+      .animate-fade-in-modal {
+        animation: fadeInModal 0.3s ease-out forwards;
+      }
+    </style>
+    <style>
+         @keyframes fadeOutModal {
+           0% {
+             opacity: 1;
+             transform: scale(1);
+           }
+           100% {
+             opacity: 0;
+             transform: scale(0.95);
+           }
+         }
+     
+         .fade-out-modal {
+           animation: fadeOutModal 0.3s ease-in forwards;
+         }
+    </style>
+
+
+    {% endblock %}
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
 
 </head>
@@ -46,6 +81,65 @@
     </footer>
 
     {% block scripts %}{% endblock %}
+    <script>
+        document.body.addEventListener("htmx:afterSwap", function (e) {
+          if (e.target.id === "modal") {
+            const precioInput = document.getElementById("id_precio_unitario_referencia");
+            const stockInput = document.getElementById("id_stock");
+
+            if (precioInput) {
+              precioInput.addEventListener("keydown", function (e) {
+                if (["e", "E", "+", "-"].includes(e.key)) {
+                  e.preventDefault();
+                }
+              });
+          
+              precioInput.addEventListener("input", function (e) {
+                const value = e.target.value;
+                if (value.includes(".")) {
+                  const partes = value.split(".");
+                  if (partes[1] && partes[1].length > 2) {
+                    e.target.value = parseFloat(value).toFixed(2);
+                  }
+                }
+              });
+            }
+        
+            if (stockInput) {
+              stockInput.addEventListener("keydown", function (e) {
+                if (["e", "E", "+", "-"].includes(e.key)) {
+                  e.preventDefault();
+                }
+                });
+            
+                stockInput.addEventListener("input", function (e) {
+                  if (e.target.value < 0) {
+                    e.target.value = 0;
+                  }
+                });
+              }
+            }
+        });
+    </script>
+    <script>
+      document.body.addEventListener("htmx:afterSwap", function (e) {
+        if (e.target.id === "modal") {
+          const precioInput = document.getElementById("id_precio_unitario_referencia");
+
+          if (precioInput) {
+            // Limpiar el valor si viene con coma y convertirlo a punto automáticamente
+            precioInput.value = precioInput.value.replace(",", ".");
+
+            // También al escribir
+            precioInput.addEventListener("input", function () {
+              this.value = this.value.replace(",", ".");
+            });
+          }
+        }
+      });
+    </script>
+
+
 </body>
 
 </html>

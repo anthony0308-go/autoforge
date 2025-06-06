@@ -1,29 +1,25 @@
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative transform scale-95 opacity-0 animate-fade-in-modal">
-    <h2 class="text-xl font-bold text-[#D7141A] mb-4">Agregar Repuesto</h2>
-    <form method="post" hx-post="{% url 'modal_registrar_repuesto' %}" hx-target="#modal" hx-swap="innerHTML">
+    <h2 class="text-xl font-bold text-[#D7141A] mb-4">Editar Repuesto</h2>
+    <form method="post" hx-post="{% url 'modal_editar_repuesto' repuesto.id_repuesto %}" hx-target="#modal" hx-swap="innerHTML">
       {% csrf_token %}
       <div class="space-y-3">
         {% for field in form %}
           <div>
             <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
-              {{ field.label|default:field.name|capfirst }}
+              {{ field.label }}
               {% if field.field.required %}
                 <span class="text-red-600 font-bold" title="Campo obligatorio">*</span>
               {% endif %}
             </label>
 
-
             {% if field.name == 'precio_unitario_referencia' %}
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm">$</span>
-                <input type="number" step="0.01" min="0"
-                       inputmode="decimal"
-                       pattern="^\d+(\.\d{1,2})?$"
-                       placeholder="00.00"
+                <input type="text"
                        name="{{ field.html_name }}"
                        id="id_precio_unitario_referencia"
-                       value="{{ field.value|default:'' }}"
+                       value="{{ field.value|default_if_none:'' }}"
                        {% if field.field.required %} required title="Este campo es obligatorio" {% endif %}
                        class="pl-10 w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:border-[#D7141A]">
               </div>
@@ -46,7 +42,7 @@
               <input type="{{ field.field.widget.input_type }}"
                      name="{{ field.html_name }}"
                      id="{{ field.id_for_label }}"
-                     value="{{ field.value|default:'' }}"
+                     value="{{ field.value|default_if_none:'' }}"
                      {% if field.field.required %} required title="Este campo es obligatorio" {% endif %}
                      class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:border-[#D7141A]">
             {% endif %}
@@ -59,7 +55,7 @@
       </div>
 
       <div class="mt-4 flex justify-end gap-4">
-        <button type="submit" class="bg-[#D7141A] text-white px-4 py-2 rounded hover:bg-red-700 font-semibold">Guardar</button>
+        <button type="submit" class="bg-[#D7141A] text-white px-4 py-2 rounded hover:bg-red-700 font-semibold">Guardar cambios</button>
         <button type="button" class="text-gray-600 hover:underline" onclick="cerrarModalSuavemente()">Cancelar</button>
       </div>
     </form>

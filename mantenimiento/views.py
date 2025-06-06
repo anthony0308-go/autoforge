@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RepuestoForm
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from .models import Usuarios, Vehiculos, Repuestos, Mantenimientos
 from .utils import obtener_usuario_actual
@@ -87,8 +88,40 @@ def modal_registrar_repuesto(request):
         form = RepuestoForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponse("<script>window.location.reload();</script>")
+            return HttpResponse('<script>window.location.reload();</script>')
+        else:
+            # ⚠️ Formulario inválido: lo volvemos a renderizar con errores
+            return render(request, 'mantenimiento/repuestos/_form_modal.html', {'form': form})
     else:
         form = RepuestoForm()
-    return render(request, 'mantenimiento/repuestos/_form_modal.html', {'form': form})
+        return render(request, 'mantenimiento/repuestos/_form_modal.html', {'form': form})
+    
 
+@login_required
+def eliminar_repuesto(request, repuesto_id):
+    if request.method == 'POST':
+        repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
+        repuesto.delete()
+        return HttpResponse('<script>window.location.reload();</script>')
+    return HttpResponse(status=405)
+
+
+@login_required
+def modal_confirmar_eliminacion(request, repuesto_id):
+    repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
+    return render(request, 'mantenimiento/repuestos/confirmar_eliminacion.html', {'repuesto': repuesto})
+
+
+@login_required
+def modal_editar_repuesto(request, repuesto_id):
+    repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
+
+    if request.method == 'POST':
+        form = RepuestoForm(request.POST, instance=repuesto)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('<script>window.location.reload();</script>')
+    else:
+        form = RepuestoForm(instance=repuesto)
+
+    return render(request, 'mantenimiento/repuestos/editar_form_modal.html', {'form': form, 'repuesto': repuesto})
