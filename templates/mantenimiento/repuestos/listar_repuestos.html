@@ -6,7 +6,7 @@
 
 <div class="mb-6 flex justify-between items-center">
   <form method="get" class="flex space-x-2">
-    <input type="text" name="buscar" placeholder="Buscar por nombre o marca"
+    <input type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por nombre o marca"
            class="border border-gray-300 rounded px-3 py-2 w-64 focus:outline-none focus:ring focus:border-[#D7141A]">
     <button type="submit"
             class="bg-[#D7141A] text-white px-4 py-2 rounded hover:bg-red-700 font-semibold">
@@ -22,59 +22,84 @@
   </a>
 </div>
 
-<div class="overflow-x-auto">
-  <table class="min-w-full w-full bg-white border border-gray-200 shadow rounded">
-    <thead class="bg-gray-100 text-gray-700">
-      <tr>
-        <th class="px-4 py-2 text-left">#</th>
-        <th class="px-4 py-2 text-left">Nombre</th>
-        <th class="px-4 py-2 text-left">Marca</th>
-        <th class="px-4 py-2 text-left">Precio</th>
-        <th class="px-4 py-2 text-left">Stock</th>
-        <th class="px-4 py-2 text-left">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for repuesto in repuestos %}
-      <tr class="border-t hover:bg-gray-50">
-        <td class="px-4 py-2">{{ forloop.counter }}</td>
-        <td class="px-4 py-2">{{ repuesto.nombre_repuesto }}</td>
-        <td class="px-4 py-2">{{ repuesto.marca_repuesto }}</td>
-        <td class="px-4 py-2">${{ repuesto.precio_unitario_referencia }}</td>
-        <td class="px-4 py-2">{{ repuesto.stock }}</td>
-        <td class="px-4 py-2 space-x-2 flex">
-          <button 
-            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm font-medium inline-flex items-center gap-1"
-            hx-get="{% url 'modal_editar_repuesto' repuesto.id_repuesto %}"
-            hx-target="#modal"
-            hx-swap="innerHTML">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l-4 4v3h3l10-10-3-3L9 11z"/>
-            </svg>
-            Editar
-          </button>
+<!-- Tabla con ID para HTMX -->
+<div id="tabla-repuestos">
+  <div class="overflow-x-auto">
+    <table class="min-w-full w-full bg-white border border-gray-200 shadow rounded">
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="px-4 py-2 text-left">#</th>
+          <th class="px-4 py-2 text-left">Nombre</th>
+          <th class="px-4 py-2 text-left">Marca</th>
+          <th class="px-4 py-2 text-left">Precio</th>
+          <th class="px-4 py-2 text-left">Stock</th>
+          <th class="px-4 py-2 text-left">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for repuesto in repuestos %}
+        <tr id="repuesto-{{ repuesto.id_repuesto }}" class="border-t hover:bg-gray-50">
+          <td class="px-4 py-2">{{ forloop.counter }}</td>
+          <td class="px-4 py-2">{{ repuesto.nombre_repuesto }}</td>
+          <td class="px-4 py-2">{{ repuesto.marca_repuesto }}</td>
+          <td class="px-4 py-2">${{ repuesto.precio_unitario_referencia }}</td>
+          <td class="px-4 py-2">{{ repuesto.stock }}</td>
+          <td class="px-4 py-2 space-x-2 flex">
+            <button 
+              class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm font-medium inline-flex items-center gap-1"
+              hx-get="{% url 'modal_editar_repuesto' repuesto.id_repuesto %}"
+              hx-target="#modal"
+              hx-swap="innerHTML">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 stroke-white" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232a2.828 2.828 0 114 4L7.5 21H3v-4.5l12.232-12.268z"/>
+              </svg>
+              Editar
+            </button>
+            <button
+              type="button"
+              hx-get="{% url 'modal_confirmar_eliminacion' repuesto.id_repuesto %}"
+              hx-target="#modal"
+              hx-swap="innerHTML"
+              class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium inline-flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 stroke-white" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              Eliminar
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-4 py-4 text-center text-gray-500">No se encontraron repuestos.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-          <button
-            type="button"
-            hx-get="{% url 'modal_confirmar_eliminacion' repuesto.id_repuesto %}"
-            hx-target="#modal"
-            hx-swap="innerHTML"
-            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium inline-flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7L5 7M10 11V17M14 11V17M5 7L6 19a2 2 0 002 2h8a2 2 0 002-2L19 7" />
-            </svg>
-            Eliminar
-          </button>
-
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="6" class="px-4 py-4 text-center text-gray-500">No se encontraron repuestos.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- Paginación -->
+  <div class="mt-4 flex justify-center">
+    {% if repuestos.has_other_pages %}
+      <nav class="inline-flex space-x-1">
+        {% if repuestos.has_previous %}
+          <a href="?page={{ repuestos.previous_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}"
+             class="px-3 py-1 border rounded hover:bg-gray-100">&laquo;</a>
+        {% endif %}
+        {% for num in repuestos.paginator.page_range %}
+          {% if repuestos.number == num %}
+            <span class="px-3 py-1 border rounded bg-[#D7141A] text-white">{{ num }}</span>
+          {% else %}
+            <a href="?page={{ num }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}"
+               class="px-3 py-1 border rounded hover:bg-gray-100">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if repuestos.has_next %}
+          <a href="?page={{ repuestos.next_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}"
+             class="px-3 py-1 border rounded hover:bg-gray-100">&raquo;</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Contenedor para el modal -->

@@ -5,8 +5,8 @@
 
     <form method="post"
           hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
-          hx-target="body"
-          hx-swap="none">
+          hx-target="#tabla-repuestos"
+          hx-swap="outerHTML">
       {% csrf_token %}
       <div class="flex justify-center gap-4">
         <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">
@@ -19,15 +19,9 @@
 </div>
 
 <script>
-  function cerrarModalSuavemente() {
-    const modalContainer = document.getElementById("modal");
-    const modalContent = modalContainer.querySelector("form").parentElement;
-
-    modalContent.classList.remove("animate-fade-in-modal");
-    modalContent.classList.add("fade-out-modal");
-
-    setTimeout(() => {
-      modalContainer.innerHTML = '';
-    }, 300);
-  }
+  document.addEventListener("htmx:afterSwap", function(evt) {
+    if (evt.target.closest("form")) {
+      cerrarModalSuavemente();
+    }
+  });
 </script>
