@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from .models import Usuarios, Vehiculos, Repuestos, Mantenimientos
 from .utils import obtener_usuario_actual
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -65,11 +67,30 @@ def listar_mantenimientos(request):
     return render(request, 'mantenimiento/mantenimientos/listar_mantenimientos.html', {'mantenimientos': mantenimientos})
 
 # REPUESTOS
-
 @login_required
 def listar_repuestos(request):
+    buscar = request.GET.get('buscar', '')
     repuestos = Repuestos.objects.all()
-    return render(request, 'mantenimiento/repuestos/listar_repuestos.html', {'repuestos': repuestos})
+
+    # Filtrar si hay término de búsqueda
+    if buscar:
+        repuestos = repuestos.filter(
+            Q(nombre_repuesto__icontains=buscar) |
+            Q(marca_repuesto__icontains=buscar)
+        )
+
+    # Paginación: 5 resultados por página
+    paginator = Paginator(repuestos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'mantenimiento/repuestos/listar_repuestos.html', {
+        'repuestos': page_obj,
+        'buscar': buscar,
+        'page_obj': page_obj,
+    })
+
+
 
 @login_required
 def registrar_repuesto(request):
