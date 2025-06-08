@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura de Mantenimiento</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .box { padding: 20px; border: 1px solid #ccc; max-width: 600px; margin: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>AutoForge - Factura de Mantenimiento</h2>
+    <p><strong>Cliente:</strong> {{ cliente.first_name }} {{ cliente.last_name }}</p>
+    <p><strong>Vehículo:</strong> {{ mantenimiento.id_vehiculo }}</p>
+    <p><strong>Fecha:</strong> {{ mantenimiento.fecha_ingreso|date:"d/m/Y H:i" }}</p>
+
+    <h4>Diagnóstico:</h4>
+    <p>{{ mantenimiento.diagnostico_taller|default:"Sin diagnóstico." }}</p>
+
+    <h4>Trabajos realizados:</h4>
+    <p>{{ mantenimiento.trabajos_realizados|default:"Sin detalle." }}</p>
+
+    <h4>Repuestos utilizados:</h4>
+    {% if repuestos %}
+    <table>
+      <thead>
+        <tr>
+          <th>Repuesto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rep in repuestos %}
+        <tr>
+          <td>{{ rep.id_repuesto }}</td>
+          <td>{{ rep.cantidad_utilizada }}</td>
+          <td>${{ rep.precio_unitario_al_momento|floatformat:2 }}</td>
+          <td>${{ rep.subtotal|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No se registraron repuestos.</p>
+    {% endif %}
+
+    <h4 style="margin-top: 20px;">Resumen:</h4>
+    <p><strong>Mano de obra:</strong> ${{ mantenimiento.costo_mano_obra|default_if_none:"0.00"|floatformat:2 }}</p>
+    <p><strong>Otros cargos:</strong> ${{ mantenimiento.otros_cargos|default_if_none:"0.00"|floatformat:2 }}</p>
+    <p><strong>Descuentos:</strong> ${{ mantenimiento.descuentos|default_if_none:"0.00"|floatformat:2 }}</p>
+    <p><strong>Total pagado:</strong> <strong>${{ mantenimiento.costo_total_mantenimiento|default_if_none:"0.00"|floatformat:2 }}</strong></p>
+
+    <p style="margin-top: 30px;">Gracias por confiar en AutoForge.</p>
+  </div>
+</body>
+</html>

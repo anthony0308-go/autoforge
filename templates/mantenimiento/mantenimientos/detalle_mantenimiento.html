@@ -1,0 +1,115 @@
+{% extends "mantenimiento/base.html" %}
+{% block title %}Detalle de Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-xl shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">
+    Detalle de Mantenimiento #{{ mantenimiento.id_mantenimiento }}
+  </h2>
+
+  <!-- BOTÓN para programar próximo mantenimiento -->
+  <div class="mb-8 text-right">
+    <a href="{% url 'agendar_mantenimiento' mantenimiento.id_vehiculo.id_vehiculo %}"
+       class="inline-flex items-center gap-2 px-5 py-2 bg-[#D7141A] text-white rounded shadow hover:bg-[#B21316] transition">
+      📅 Programar Próximo Mantenimiento
+    </a>
+  </div>
+
+  <!-- DATOS DEL MANTENIMIENTO -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-gray-800">
+    <div><strong>Vehículo:</strong> {{ mantenimiento.id_vehiculo }}</div>
+    <div><strong>Tipo:</strong> {{ mantenimiento.id_tipo_mantenimiento|default:"-" }}</div>
+    <div><strong>Fecha de ingreso:</strong> {{ mantenimiento.fecha_ingreso|date:"d/m/Y H:i" }}</div>
+    {% if mantenimiento.fecha_salida %}
+      <div><strong>Fecha de salida:</strong> {{ mantenimiento.fecha_salida|date:"d/m/Y H:i" }}</div>
+    {% endif %}
+    <div><strong>Kilometraje actual:</strong> {{ mantenimiento.kilometraje_actual }}</div>
+    {% if mantenimiento.estado %}
+      <div><strong>Estado:</strong> {{ mantenimiento.estado }}</div>
+    {% endif %}
+  </div>
+
+  <!-- DESCRIPCIONES -->
+  <div class="space-y-5 mb-8">
+    <div>
+      <h3 class="text-lg font-semibold text-[#263238]">🔧 Problema reportado por el cliente</h3>
+      <p class="bg-gray-50 p-3 rounded border border-gray-200">
+        {{ mantenimiento.descripcion_problema_cliente|default:"(Sin descripción)" }}
+      </p>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-[#263238]">🛠️ Diagnóstico del taller</h3>
+      <p class="bg-gray-50 p-3 rounded border border-gray-200">
+        {{ mantenimiento.diagnostico_taller|default:"(Sin diagnóstico)" }}
+      </p>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-[#263238]">🔩 Trabajos realizados</h3>
+      <p class="bg-gray-50 p-3 rounded border border-gray-200">
+        {{ mantenimiento.trabajos_realizados|default:"(Sin detalles)" }}
+      </p>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-[#263238]">📝 Observaciones</h3>
+      <p class="bg-gray-50 p-3 rounded border border-gray-200">
+        {{ mantenimiento.observaciones_mantenimiento|default:"(Sin observaciones)" }}
+      </p>
+    </div>
+  </div>
+
+  <!-- REPUESTOS -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-[#263238] mb-3">🔧 Repuestos utilizados</h3>
+    {% if repuestos %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 text-sm">
+          <thead class="bg-[#263238] text-white">
+            <tr>
+              <th class="px-4 py-2 text-left">Repuesto</th>
+              <th class="px-4 py-2 text-left">Cantidad</th>
+              <th class="px-4 py-2 text-left">Precio unitario</th>
+              <th class="px-4 py-2 text-left">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rep in repuestos %}
+              <tr class="border-b">
+                <td class="px-4 py-2">{{ rep.id_repuesto }}</td>
+                <td class="px-4 py-2">{{ rep.cantidad_utilizada }}</td>
+                <td class="px-4 py-2">${{ rep.precio_unitario_al_momento|floatformat:2 }}</td>
+                <td class="px-4 py-2 font-semibold">${{ rep.subtotal|floatformat:2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-gray-500 italic">No se registraron repuestos para este mantenimiento.</p>
+    {% endif %}
+  </div>
+
+  <!-- RESUMEN FINAL -->
+  <div class="bg-gray-100 rounded-lg p-6 shadow-md text-sm text-right space-y-2">
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Mano de obra:</span>
+      <span>${{ mantenimiento.costo_mano_obra|default_if_none:"0.00"|floatformat:2 }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Total repuestos:</span>
+      <span>${{ mantenimiento.costo_total_repuestos|default_if_none:"0.00"|floatformat:2 }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Otros cargos:</span>
+      <span>${{ mantenimiento.otros_cargos|default_if_none:"0.00"|floatformat:2 }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Descuentos:</span>
+      <span class="text-[#1565C0]">-${{ mantenimiento.descuentos|default_if_none:"0.00"|floatformat:2 }}</span>
+    </div>
+    <div class="flex justify-between font-bold text-xl text-[#D7141A] border-t pt-3 mt-2">
+      <span>Total mantenimiento:</span>
+      <span>${{ mantenimiento.costo_total_mantenimiento|default_if_none:"0.00"|floatformat:2 }}</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "mantenimiento/base.html" %}
+{% block title %}Programar Próximo Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-8 text-[#D7141A]">📅 Programar Próximo Mantenimiento</h2>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <div>
+      <label class="block font-semibold mb-1 text-gray-700">🚗 Vehículo</label>
+      {{ form.id_vehiculo }}
+    </div>
+
+    <div>
+      <label class="block font-semibold mb-1 text-gray-700">🔧 Tipo de mantenimiento sugerido</label>
+      {{ form.id_tipo_mantenimiento_sugerido }}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">📆 Fecha programada</label>
+        {{ form.fecha_programada }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">📍 Kilometraje programado</label>
+        {{ form.kilometraje_programado }}
+      </div>
+    </div>
+
+    <div>
+      <label class="block font-semibold mb-1 text-gray-700">📝 Notas adicionales</label>
+      {{ form.notas }}
+    </div>
+
+    <div class="flex justify-between items-center mt-8">
+      <a href="{% url 'listar_mantenimientos' %}" class="text-sm text-[#1565C0] hover:underline">← Cancelar</a>
+      <button type="submit"
+              class="px-6 py-2 bg-[#D7141A] text-white rounded-lg font-semibold shadow hover:bg-[#B21316] transition">
+        💾 Guardar cita
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

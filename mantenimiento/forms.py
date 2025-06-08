@@ -1,5 +1,5 @@
 from django import forms
-from .models import Repuestos
+from .models import *
 from decimal import Decimal, ROUND_HALF_UP
 from django.contrib.auth import authenticate, get_user_model
 
@@ -113,4 +113,65 @@ class RepuestoForm(forms.ModelForm):
             if precio != precio.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):
                 raise forms.ValidationError("El precio debe tener como máximo 2 decimales.")
         return precio
-   
+    
+
+
+# Form principal de mantenimiento
+class MantenimientoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personaliza la opción vacía del select
+        self.fields['id_vehiculo'].empty_label = "Seleccionar vehículo"
+        self.fields['id_tipo_mantenimiento'].empty_label = "Seleccionar tipo de mantenimiento"
+
+    class Meta:
+        model = Mantenimientos
+        fields = [
+            'id_vehiculo', 'id_tipo_mantenimiento', 'fecha_ingreso', 'kilometraje_actual',
+            'descripcion_problema_cliente', 'diagnostico_taller', 'trabajos_realizados',
+            'observaciones_mantenimiento', 'costo_mano_obra', 'otros_cargos', 'descuentos'
+        ]
+        widgets = {
+            'id_vehiculo': forms.Select(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400'}),
+            'id_tipo_mantenimiento': forms.Select(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400'}),
+            'fecha_ingreso': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400'}),
+            'kilometraje_actual': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400'}),
+            'descripcion_problema_cliente': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'rows': 2}),
+            'diagnostico_taller': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'rows': 2}),
+            'trabajos_realizados': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'rows': 2}),
+            'observaciones_mantenimiento': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'rows': 2}),
+            'costo_mano_obra': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'min': 0, 'step': '0.01'}),
+            'otros_cargos': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'min': 0, 'step': '0.01'}),
+            'descuentos': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:border-blue-400', 'min': 0, 'step': '0.01'}),
+        }
+
+class MantenimientoRepuestoForm(forms.ModelForm):
+    class Meta:
+        model = MantenimientoRepuestos
+        fields = ['id_repuesto', 'cantidad_utilizada', 'precio_unitario_al_momento']
+        widgets = {
+            'id_repuesto': forms.Select(attrs={'class': 'w-full border border-gray-300 rounded px-2 py-1'}),
+            'cantidad_utilizada': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-2 py-1', 'min': 1}),
+            'precio_unitario_al_momento': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-2 py-1', 'min': 0, 'step': '0.01'}),
+        }
+
+#MantenimientosProximos
+class MantenimientoAgendadoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['id_vehiculo'].empty_label = "Seleccionar vehículo"
+        self.fields['id_tipo_mantenimiento_sugerido'].empty_label = "Seleccionar tipo de mantenimiento"
+    class Meta:
+        model = MantenimientosAgendados
+        fields = [
+            'id_vehiculo', 'id_tipo_mantenimiento_sugerido', 'fecha_programada', 'kilometraje_programado', 'notas'
+        ]
+        widgets = {
+            'fecha_programada': forms.DateInput(attrs={'type': 'date', 'class': 'w-full border border-gray-300 rounded px-3 py-2'}),
+            'kilometraje_programado': forms.NumberInput(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2'}),
+            'notas': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2', 'rows': 2}),
+        }
+
+
+
+

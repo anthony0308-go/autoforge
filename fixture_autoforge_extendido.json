@@ -1,0 +1,644 @@
+[
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$...",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Amy",
+      "last_name": "Quinn",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2020-03-21 03:47:44",
+      "id_rol": 1,
+      "telefono": "+1-623-925-9673",
+      "dui": "24507206-1",
+      "direccion": "388 Jackson Islands\nBrownbury, IN 07528",
+      "carnet_empleado": null,
+      "fecha_creacion_usuario": "2025-06-08 04:44:47.518365",
+      "email": "emma31@yahoo.com"
+    }
+  },
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$...",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Cynthia",
+      "last_name": "Castro",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-04-10 15:01:30",
+      "id_rol": 2,
+      "telefono": "868.064.7785x21354",
+      "dui": "11554269-5",
+      "direccion": "9988 Campbell Hollow\nSouth Ellenfurt, VA 56947",
+      "carnet_empleado": "EMP351",
+      "fecha_creacion_usuario": "2025-06-08 04:44:47.519509",
+      "email": "webbmark@foster.net"
+    }
+  },
+  {
+    "model": "mantenimiento.tiposmantenimiento",
+    "pk": 1,
+    "fields": {
+      "nombre_tipo": "Cambio de aceite",
+      "descripcion": "Mantenimiento básico para el motor"
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 1,
+    "fields": {
+      "nombre_repuesto": "Repuesto 1",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 1",
+      "precio_unitario_referencia": "58.67",
+      "stock": 39
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 2,
+    "fields": {
+      "nombre_repuesto": "Repuesto 2",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 2",
+      "precio_unitario_referencia": "16.53",
+      "stock": 25
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 3,
+    "fields": {
+      "nombre_repuesto": "Repuesto 3",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 3",
+      "precio_unitario_referencia": "40.81",
+      "stock": 13
+    }
+  },
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 1,
+    "fields": {
+      "id_usuario_propietario": 1,
+      "placa": "P123456",
+      "marca": "Toyota",
+      "modelo": "Corolla",
+      "anio": 2015,
+      "tipo_combustible": "Gasolina",
+      "vin": "1HGCM82633A082349",
+      "color": "Blanco",
+      "fecha_registro_vehiculo": "2025-06-08 04:44:47.520467",
+      "id_usuario_registra_vehiculo": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-03 04:44:47.520652",
+      "fecha_salida": "2025-06-05 04:44:47.520661",
+      "fecha_proximo_mantenimiento_preventivo": "2025-09-06",
+      "descripcion_problema_cliente": "Ruido extraño en el motor",
+      "diagnostico_taller": "Bomba de agua dañada",
+      "trabajos_realizados": "Cambio de bomba de agua",
+      "observaciones_mantenimiento": "Se recomienda revisión de correa",
+      "costo_mano_obra": "45.00",
+      "costo_total_repuestos": "75.00",
+      "otros_cargos": "0.00",
+      "descuentos": "0.00",
+      "costo_total_mantenimiento": "120.00",
+      "kilometraje_actual": 85000,
+      "estado": "Completado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 1,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "58.67",
+      "subtotal": "58.67",
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "16.53",
+      "subtotal": "16.53",
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientosagendados",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento_sugerido": 1,
+      "fecha_programada": "2025-09-06",
+      "kilometraje_programado": 90000,
+      "notas": "Próxima revisión general",
+      "estado_agendamiento": "Pendiente",
+      "id_mantenimiento_realizado": 1,
+      "id_usuario_agenda": 2,
+      "fecha_creacion_agenda": "2025-06-08 04:44:47.520941"
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 100,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-01T00:00:00",
+      "fecha_salida": "2025-06-03T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-02",
+      "descripcion_problema_cliente": "Maiores eos eum nemo atque.",
+      "diagnostico_taller": "Similique doloribus veritatis minus iure.",
+      "trabajos_realizados": "Hic soluta consequuntur fuga enim nam soluta.",
+      "observaciones_mantenimiento": "Modi ducimus deserunt quasi.",
+      "costo_mano_obra": 89.09,
+      "costo_total_repuestos": 91.55,
+      "otros_cargos": 6.28,
+      "descuentos": 4.93,
+      "costo_total_mantenimiento": 181.98999999999998,
+      "kilometraje_actual": 83443,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2000,
+    "fields": {
+      "id_mantenimiento": 100,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": 17.03,
+      "subtotal": 17.03,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2001,
+    "fields": {
+      "id_mantenimiento": 100,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 24.84,
+      "subtotal": 74.52,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 101,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-02T00:00:00",
+      "fecha_salida": "2025-06-04T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-03",
+      "descripcion_problema_cliente": "Harum minus aperiam quis dicta tempore aut recusandae.",
+      "diagnostico_taller": "Dignissimos quos cumque modi. Hic quo iure deserunt iste.",
+      "trabajos_realizados": "Libero velit quam amet aliquam magnam.",
+      "observaciones_mantenimiento": "Aut laboriosam voluptas.",
+      "costo_mano_obra": 51.45,
+      "costo_total_repuestos": 160.74,
+      "otros_cargos": 9.17,
+      "descuentos": 3.27,
+      "costo_total_mantenimiento": 218.08999999999997,
+      "kilometraje_actual": 29420,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2002,
+    "fields": {
+      "id_mantenimiento": 101,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 38.08,
+      "subtotal": 114.24,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2003,
+    "fields": {
+      "id_mantenimiento": 101,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 15.5,
+      "subtotal": 46.5,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 102,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-03T00:00:00",
+      "fecha_salida": "2025-06-05T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-04",
+      "descripcion_problema_cliente": "Id veniam id quibusdam nihil non modi. Maiores ipsa natus.",
+      "diagnostico_taller": "Architecto fugit dolore harum quam.",
+      "trabajos_realizados": "Dicta quasi ea aspernatur occaecati ab.",
+      "observaciones_mantenimiento": "Natus harum officiis rem.",
+      "costo_mano_obra": 66.26,
+      "costo_total_repuestos": 187.62,
+      "otros_cargos": 5.37,
+      "descuentos": 2.84,
+      "costo_total_mantenimiento": 256.41,
+      "kilometraje_actual": 64143,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2004,
+    "fields": {
+      "id_mantenimiento": 102,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 44.16,
+      "subtotal": 132.48,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2005,
+    "fields": {
+      "id_mantenimiento": 102,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 18.38,
+      "subtotal": 55.14,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 103,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-04T00:00:00",
+      "fecha_salida": "2025-06-06T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-05",
+      "descripcion_problema_cliente": "Architecto expedita maiores quisquam quia.",
+      "diagnostico_taller": "Reiciendis recusandae odio et voluptas nesciunt quis.",
+      "trabajos_realizados": "Odit et quisquam perferendis iusto ut.",
+      "observaciones_mantenimiento": "Architecto sint voluptatum.",
+      "costo_mano_obra": 78.23,
+      "costo_total_repuestos": 101.27,
+      "otros_cargos": 19.61,
+      "descuentos": 7.5,
+      "costo_total_mantenimiento": 191.61,
+      "kilometraje_actual": 33970,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2006,
+    "fields": {
+      "id_mantenimiento": 103,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 18.67,
+      "subtotal": 56.01,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2007,
+    "fields": {
+      "id_mantenimiento": 103,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 2,
+      "precio_unitario_al_momento": 22.63,
+      "subtotal": 45.26,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 104,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-05T00:00:00",
+      "fecha_salida": "2025-06-07T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-06",
+      "descripcion_problema_cliente": "Distinctio dolorum quidem similique ea a.",
+      "diagnostico_taller": "Eos ab dolores sapiente quaerat nisi at qui.",
+      "trabajos_realizados": "Ullam a temporibus unde.",
+      "observaciones_mantenimiento": "Numquam mollitia hic.",
+      "costo_mano_obra": 46.84,
+      "costo_total_repuestos": 113.34,
+      "otros_cargos": 8.53,
+      "descuentos": 0.79,
+      "costo_total_mantenimiento": 167.92000000000002,
+      "kilometraje_actual": 87527,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2008,
+    "fields": {
+      "id_mantenimiento": 104,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": 43.17,
+      "subtotal": 43.17,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2009,
+    "fields": {
+      "id_mantenimiento": 104,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 23.39,
+      "subtotal": 70.17,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 105,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-06T00:00:00",
+      "fecha_salida": "2025-06-08T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-07",
+      "descripcion_problema_cliente": "Nam quae aut magnam maiores. Maiores at deserunt voluptas.",
+      "diagnostico_taller": "Voluptas accusamus ipsum possimus blanditiis quibusdam.",
+      "trabajos_realizados": "Eligendi vitae nemo repellat possimus.",
+      "observaciones_mantenimiento": "Beatae asperiores atque eius.",
+      "costo_mano_obra": 102.14,
+      "costo_total_repuestos": 159.24,
+      "otros_cargos": 9.69,
+      "descuentos": 8.93,
+      "costo_total_mantenimiento": 262.14,
+      "kilometraje_actual": 39402,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2010,
+    "fields": {
+      "id_mantenimiento": 105,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 2,
+      "precio_unitario_al_momento": 16.8,
+      "subtotal": 33.6,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2011,
+    "fields": {
+      "id_mantenimiento": 105,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 41.88,
+      "subtotal": 125.64,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 106,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-07T00:00:00",
+      "fecha_salida": "2025-06-09T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-08",
+      "descripcion_problema_cliente": "Cupiditate reiciendis neque at sapiente.",
+      "diagnostico_taller": "Ducimus illo doloremque sint.",
+      "trabajos_realizados": "Officia iste repudiandae quidem tempore.",
+      "observaciones_mantenimiento": "Odio nostrum et qui optio.",
+      "costo_mano_obra": 118.62,
+      "costo_total_repuestos": 62.72,
+      "otros_cargos": 16.75,
+      "descuentos": 4.98,
+      "costo_total_mantenimiento": 193.11,
+      "kilometraje_actual": 34022,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2012,
+    "fields": {
+      "id_mantenimiento": 106,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": 42.14,
+      "subtotal": 42.14,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2013,
+    "fields": {
+      "id_mantenimiento": 106,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": 20.58,
+      "subtotal": 20.58,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 107,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-08T00:00:00",
+      "fecha_salida": "2025-06-10T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-09",
+      "descripcion_problema_cliente": "Expedita enim dolorem sint eveniet dolor consequatur.",
+      "diagnostico_taller": "Recusandae debitis quisquam beatae eveniet odit similique.",
+      "trabajos_realizados": "Vel nostrum accusamus quis.",
+      "observaciones_mantenimiento": "Tempore vel qui porro.",
+      "costo_mano_obra": 105.65,
+      "costo_total_repuestos": 134.09,
+      "otros_cargos": 7.0,
+      "descuentos": 3.66,
+      "costo_total_mantenimiento": 243.08,
+      "kilometraje_actual": 78988,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2014,
+    "fields": {
+      "id_mantenimiento": 107,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": 15.98,
+      "subtotal": 15.98,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2015,
+    "fields": {
+      "id_mantenimiento": 107,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 39.37,
+      "subtotal": 118.11,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 108,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-09T00:00:00",
+      "fecha_salida": "2025-06-11T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-10",
+      "descripcion_problema_cliente": "Nihil cum incidunt. Veniam magni et impedit porro.",
+      "diagnostico_taller": "Nihil pariatur corrupti sint.",
+      "trabajos_realizados": "Ratione voluptates illo labore aut perspiciatis.",
+      "observaciones_mantenimiento": "Recusandae soluta quod.",
+      "costo_mano_obra": 89.29,
+      "costo_total_repuestos": 144.14,
+      "otros_cargos": 11.37,
+      "descuentos": 4.1,
+      "costo_total_mantenimiento": 240.70000000000002,
+      "kilometraje_actual": 55435,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2016,
+    "fields": {
+      "id_mantenimiento": 108,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 2,
+      "precio_unitario_al_momento": 21.52,
+      "subtotal": 43.04,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2017,
+    "fields": {
+      "id_mantenimiento": 108,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 33.7,
+      "subtotal": 101.1,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 109,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-10T00:00:00",
+      "fecha_salida": "2025-06-12T00:00:00",
+      "fecha_proximo_mantenimiento_preventivo": "2025-08-11",
+      "descripcion_problema_cliente": "Architecto praesentium ipsa in repellat corrupti alias.",
+      "diagnostico_taller": "Consequuntur laborum autem amet ducimus accusantium.",
+      "trabajos_realizados": "Inventore iure debitis facere harum hic dolorum.",
+      "observaciones_mantenimiento": "Expedita ullam optio.",
+      "costo_mano_obra": 68.43,
+      "costo_total_repuestos": 164.91,
+      "otros_cargos": 16.21,
+      "descuentos": 0.99,
+      "costo_total_mantenimiento": 248.56,
+      "kilometraje_actual": 26487,
+      "estado": "Finalizado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2018,
+    "fields": {
+      "id_mantenimiento": 109,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 26.86,
+      "subtotal": 80.58,
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2019,
+    "fields": {
+      "id_mantenimiento": 109,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 3,
+      "precio_unitario_al_momento": 28.11,
+      "subtotal": 84.33,
+      "id_usuario_agrega_repuesto": 2
+    }
+  }
+]

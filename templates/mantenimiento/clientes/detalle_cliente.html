@@ -1,0 +1,55 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Cliente: {{ cliente.get_full_name }}{% endblock %}
+
+{% block content %}
+<h2 class="text-xl font-bold mb-4 text-[#D7141A]">Detalle del Cliente</h2>
+
+<div class="bg-white p-4 rounded shadow text-black mb-6">
+  <p><strong>Nombre:</strong> {{ cliente.get_full_name }}</p>
+  <p><strong>Correo:</strong> {{ cliente.email }}</p>
+  <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
+</div>
+
+<h3 class="text-lg font-semibold mb-2 text-blue-700">Vehículos registrados</h3>
+<ul class="list-disc ml-6 mb-6">
+  {% for v in vehiculos %}
+    <li>
+      {{ v.placa }} - {{ v.marca }} {{ v.modelo }} 
+      <a href="{% url 'detalle_vehiculo' v.id_vehiculo %}" class="text-sm text-blue-600 hover:underline">(Ver)</a>
+    </li>
+  {% empty %}
+    <li class="text-gray-500 italic">Este cliente no tiene vehículos registrados.</li>
+  {% endfor %}
+</ul>
+
+<h3 class="text-lg font-semibold mb-2 text-blue-700">Historial de mantenimientos</h3>
+{% if mantenimientos %}
+  <table class="w-full border text-sm mb-10">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="py-2 px-3 text-left">Fecha</th>
+        <th class="py-2 px-3 text-left">Vehículo</th>
+        <th class="py-2 px-3 text-left">Tipo</th>
+        <th class="py-2 px-3 text-left">Total</th>
+        <th class="py-2 px-3 text-left">Ver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mantenimientos %}
+      <tr class="border-b">
+        <td class="px-3 py-2">{{ m.fecha_ingreso|date:"d/m/Y" }}</td>
+        <td class="px-3 py-2">{{ m.id_vehiculo.placa }}</td>
+        <td class="px-3 py-2">{{ m.id_tipo_mantenimiento|default:"-" }}</td>
+        <td class="px-3 py-2">${{ m.costo_total_mantenimiento|floatformat:2 }}</td>
+        <td class="px-3 py-2">
+          <a href="{% url 'detalle_mantenimiento' m.id_mantenimiento %}" class="text-blue-600 hover:underline">Ver</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-gray-500 italic">Este cliente aún no tiene mantenimientos registrados.</p>
+{% endif %}
+<a href="{% url 'listar_clientes' %}" class="text-blue-500 underline mt-4 inline-block">← Volver al listado</a>
+{% endblock %}

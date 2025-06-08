@@ -1,33 +1,60 @@
 {% extends "mantenimiento/base.html" %}
-{% block title %}Mantenimientos | AutoForge{% endblock %}
+{% block title %}Mantenimientos{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-4 text-[#D7141A]">Mantenimientos Realizados</h2>
+<h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Mantenimientos</h2>
 
-<table class="min-w-full bg-white shadow rounded">
+<form method="get" class="mb-6 flex gap-2">
+  <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar por placa o tipo..."
+         class="flex-1 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D7141A]">
+  <button type="submit"
+          class="px-4 py-2 bg-[#1565C0] text-white font-semibold rounded hover:bg-[#0D47A1] transition">
+    Buscar
+  </button>
+</form>
+
+<div class="flex flex-wrap gap-4 mb-6">
+  <a href="{% url 'crear_mantenimiento' %}"
+     class="px-5 py-2 bg-[#1565C0] text-white rounded-md shadow hover:bg-[#0D47A1] transition">
+    + Nuevo Mantenimiento
+  </a>
+  <a href="{% url 'agendar_mantenimiento_manual' %}"
+     class="px-5 py-2 bg-[#D7141A] text-white rounded-md shadow hover:bg-[#B21316] transition">
+    📅 Programar Próximo Mantenimiento
+  </a>
+</div>
+
+<div class="overflow-x-auto bg-white shadow-md rounded-lg">
+  <table class="min-w-full table-auto border-collapse">
     <thead class="bg-[#263238] text-white">
-        <tr>
-            <th class="px-4 py-2 text-left">Vehículo</th>
-            <th class="px-4 py-2 text-left">Cliente</th>
-            <th class="px-4 py-2 text-left">Fecha</th>
-            <th class="px-4 py-2 text-left">Tipo</th>
-            <th class="px-4 py-2 text-left">Costo</th>
-        </tr>
+      <tr>
+        <th class="py-3 px-4 text-left">#</th>
+        <th class="py-3 px-4 text-left">Vehículo</th>
+        <th class="py-3 px-4 text-left">Tipo</th>
+        <th class="py-3 px-4 text-left">Ingreso</th>
+        <th class="py-3 px-4 text-left">Total</th>
+        <th class="py-3 px-4 text-left">Opciones</th>
+      </tr>
     </thead>
-    <tbody>
-        {% for m in mantenimientos %}
-        <tr class="border-b hover:bg-gray-100">
-            <td class="px-4 py-2">{{ m.id_vehiculo.placa }}</td>
-            <td class="px-4 py-2">{{ m.id_usuario.nombre_completo }}</td>
-            <td class="px-4 py-2">{{ m.fecha|date:"d/m/Y" }}</td>
-            <td class="px-4 py-2">{{ m.tipo }}</td>
-            <td class="px-4 py-2">$ {{ m.costo }}</td>
+    <tbody class="text-sm text-gray-800">
+      {% for mant in mantenimientos %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-2 px-4 font-semibold">{{ mant.id_mantenimiento }}</td>
+          <td class="py-2 px-4">{{ mant.id_vehiculo }}</td>
+          <td class="py-2 px-4">{{ mant.id_tipo_mantenimiento|default:"(No especificado)" }}</td>
+          <td class="py-2 px-4">{{ mant.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+          <td class="py-2 px-4 font-semibold">${{ mant.costo_total_mantenimiento|floatformat:2 }}</td>
+          <td class="py-2 px-4">
+            <a href="{% url 'detalle_mantenimiento' mant.id_mantenimiento %}"
+               class="text-[#1565C0] font-semibold hover:underline">Ver</a>
+          </td>
         </tr>
-        {% empty %}
+      {% empty %}
         <tr>
-            <td colspan="5" class="px-4 py-4 text-center text-gray-500">No hay mantenimientos registrados.</td>
+          <td colspan="6" class="py-4 px-4 text-center text-gray-500 italic">No hay mantenimientos registrados.</td>
         </tr>
-        {% endfor %}
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+</div>
 {% endblock %}

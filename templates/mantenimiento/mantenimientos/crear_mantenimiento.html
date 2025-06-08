@@ -1,0 +1,235 @@
+{% extends "mantenimiento/base.html" %}
+{% block title %}Nuevo Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-8 text-[#D7141A]">Registrar Mantenimiento</h2>
+
+  <form method="post" id="mantenimiento-form" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- Datos generales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Vehículo</label>
+        {{ form.id_vehiculo }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Tipo de mantenimiento</label>
+        {{ form.id_tipo_mantenimiento }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Fecha de ingreso</label>
+        {{ form.fecha_ingreso }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Kilometraje actual</label>
+        {{ form.kilometraje_actual }}
+      </div>
+    </div>
+
+    <!-- Descripciones -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Descripción del problema</label>
+        {{ form.descripcion_problema_cliente }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Diagnóstico del taller</label>
+        {{ form.diagnostico_taller }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Trabajos realizados</label>
+        {{ form.trabajos_realizados }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Observaciones</label>
+        {{ form.observaciones_mantenimiento }}
+      </div>
+    </div>
+
+    <!-- Costos -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Costo mano de obra ($)</label>
+        {{ form.costo_mano_obra }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Otros cargos ($)</label>
+        {{ form.otros_cargos }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Descuentos ($)</label>
+        {{ form.descuentos }}
+      </div>
+    </div>
+
+    <!-- Repuestos -->
+    <div class="mt-10">
+      <h3 class="text-lg font-bold mb-3 text-[#263238]">🔧 Repuestos utilizados</h3>
+      {{ formset.management_form }}
+      <div class="overflow-x-auto">
+        <table class="min-w-full mb-4 border border-gray-200 rounded" id="tabla-repuestos">
+          <thead class="bg-gray-100 text-sm">
+            <tr>
+              <th class="py-2 px-3 text-left">Repuesto</th>
+              <th class="py-2 px-3 text-left">Cantidad</th>
+              <th class="py-2 px-3 text-left">Precio Unitario</th>
+              <th class="py-2 px-3 text-left">Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for repform in formset %}
+              <tr class="fila-repuesto border-b">
+                <td class="px-3 py-2">{{ repform.id_repuesto }}</td>
+                <td class="px-3 py-2">{{ repform.cantidad_utilizada }}</td>
+                <td class="px-3 py-2">{{ repform.precio_unitario_al_momento }}</td>
+                <td class="px-3 py-2 text-center">
+                  {% if repform.instance.pk %}{{ repform.DELETE }}{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="agregar-repuesto"
+                class="px-4 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">
+          + Agregar repuesto
+        </button>
+        <button type="button" id="eliminar-repuesto"
+                class="px-4 py-2 bg-[#D7141A] text-white rounded hover:bg-[#B21316] transition">
+          – Quitar último
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón submit -->
+    <div class="text-center md:text-right">
+      <button type="submit"
+              class="px-6 py-2 mt-6 bg-[#1565C0] text-white rounded-lg font-semibold shadow hover:bg-[#0D47A1] transition">
+        💾 Guardar Mantenimiento
+      </button>
+    </div>
+  </form>
+
+  <!-- Mini resumen tipo factura -->
+  <div id="resumen-factura" class="bg-gray-100 rounded-lg p-6 mt-10 shadow max-w-xl mx-auto text-sm">
+    <h3 class="text-lg font-semibold mb-3 text-[#263238]">🧾 Resumen del Mantenimiento</h3>
+    <ul id="detalle-repuestos" class="mb-3 space-y-1 text-gray-800"></ul>
+    <div class="flex justify-between border-t pt-2 mt-2">
+      <span>Mano de obra:</span>
+      <span id="resumen-mano-obra">$0.00</span>
+    </div>
+    <div class="flex justify-between">
+      <span>Otros cargos:</span>
+      <span id="resumen-otros-cargos">$0.00</span>
+    </div>
+    <div class="flex justify-between">
+      <span>Descuentos:</span>
+      <span id="resumen-descuentos">$0.00</span>
+    </div>
+    <div class="flex justify-between font-bold text-[#D7141A] text-lg border-t pt-2 mt-2">
+      <span>Total mantenimiento:</span>
+      <span id="resumen-total">$0.00</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function parseDecimal(val) {
+      val = (val || '').replace(',', '.');
+      return isNaN(val) || val === '' ? 0 : parseFloat(val);
+    }
+
+    function actualizarFactura() {
+      let totalRepuestos = 0;
+      let detalleHtml = "";
+
+      document.querySelectorAll(".fila-repuesto").forEach(function (fila) {
+        // Verifica existencia de los campos antes de operar
+        const select = fila.querySelector("select");
+        const nombreRepuesto = select ? (select.options[select.selectedIndex]?.text || "Repuesto") : "Repuesto";
+
+        const cantidadInput = fila.querySelector("input[name$='cantidad_utilizada']");
+        const precioInput = fila.querySelector("input[name$='precio_unitario_al_momento']");
+
+        if (!cantidadInput || !precioInput) return;  // Si alguno no existe, saltar esta fila
+
+        const cantidad = parseDecimal(cantidadInput.value);
+        const precio = parseDecimal(precioInput.value);
+        const subtotal = cantidad * precio;
+
+        if (cantidad > 0 && precio > 0) {
+          detalleHtml += `<li class="flex justify-between">
+          <span>${nombreRepuesto} x${cantidad}</span>
+          <span>$${subtotal.toFixed(2)}</span>
+        </li>`;
+          totalRepuestos += subtotal;
+        }
+      });
+
+      // Resumen de repuestos
+      document.getElementById("detalle-repuestos").innerHTML = detalleHtml || "<li>No hay repuestos agregados.</li>";
+
+      // Mano de obra, otros, descuentos
+      let manoObraInput = document.getElementById("id_costo_mano_obra");
+      let otrosInput = document.getElementById("id_otros_cargos");
+      let descuentosInput = document.getElementById("id_descuentos");
+
+      let manoObra = manoObraInput ? parseDecimal(manoObraInput.value) : 0;
+      let otros = otrosInput ? parseDecimal(otrosInput.value) : 0;
+      let descuentos = descuentosInput ? parseDecimal(descuentosInput.value) : 0;
+
+      document.getElementById("resumen-mano-obra").textContent = `$${manoObra.toFixed(2)}`;
+      document.getElementById("resumen-otros-cargos").textContent = `$${otros.toFixed(2)}`;
+      document.getElementById("resumen-descuentos").textContent = `$${descuentos.toFixed(2)}`;
+      document.getElementById("resumen-total").textContent = `$${(manoObra + totalRepuestos + otros - descuentos).toFixed(2)}`;
+    }
+
+    document.getElementById("mantenimiento-form").addEventListener("input", actualizarFactura);
+    actualizarFactura();
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const tabla = document.getElementById("tabla-repuestos").querySelector("tbody");
+  const btnAgregar = document.getElementById("agregar-repuesto");
+  const btnEliminar = document.getElementById("eliminar-repuesto");
+  const totalForms = document.querySelector("#id_mantenimientorepuestos_set-TOTAL_FORMS");
+
+  btnAgregar.addEventListener("click", function () {
+    const formCount = parseInt(totalForms.value);
+    const lastRow = tabla.querySelector("tr:last-child");
+    const newRow = lastRow.cloneNode(true);
+
+    // Actualiza los atributos name/id para que sean únicos
+    newRow.querySelectorAll("input, select").forEach(function (input) {
+      const name = input.name.replace(/\d+/, formCount);
+      const id = input.id.replace(/\d+/, formCount);
+      input.name = name;
+      input.id = id;
+      input.value = "";
+    });
+
+    tabla.appendChild(newRow);
+    totalForms.value = formCount + 1;
+
+    actualizarFactura();  // Actualiza total
+  });
+
+  btnEliminar.addEventListener("click", function () {
+    const rows = tabla.querySelectorAll("tr");
+    if (rows.length > 1) {
+      tabla.removeChild(rows[rows.length - 1]);
+      totalForms.value = parseInt(totalForms.value) - 1;
+      actualizarFactura();
+    }
+  });
+});
+</script>
+{% endblock %}

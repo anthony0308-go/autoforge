@@ -70,7 +70,7 @@ class FotografiasVehiculo(models.Model):
         return str(self.tipo_fotografia)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fotografias_vehiculo'
 
 
@@ -87,7 +87,7 @@ class MantenimientoRepuestos(models.Model):
         return str(self.id_repuesto)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'mantenimiento_repuestos'
 
 
@@ -116,7 +116,7 @@ class Mantenimientos(models.Model):
         return f"Mantenimiento {self.id_mantenimiento} - Vehículo {self.id_vehiculo}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'mantenimientos'
 
 
@@ -136,7 +136,7 @@ class MantenimientosAgendados(models.Model):
         return f"Agendado {self.fecha_programada} para {self.id_vehiculo}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'mantenimientos_agendados'
 
 
@@ -165,7 +165,7 @@ class TiposMantenimiento(models.Model):
         return self.nombre_tipo
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tipos_mantenimiento'
 
 
@@ -186,5 +186,5 @@ class Vehiculos(models.Model):
         return self.placa
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'vehiculos'

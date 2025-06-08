@@ -7,6 +7,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     path('clientes/', views.listar_clientes, name='listar_clientes'),
+    path('clientes/<int:cliente_id>/', views.detalle_cliente, name='detalle_cliente'),
     path('mantenimientos/', views.listar_mantenimientos, name='listar_mantenimientos'),
 
     path('vehiculos/', views.listar_vehiculos, name='listar_vehiculos'),
@@ -20,7 +21,14 @@ urlpatterns = [
     path('repuestos/eliminar/<int:repuesto_id>/', views.eliminar_repuesto, name='eliminar_repuesto'),
     path('repuestos/confirmar_eliminacion/<int:repuesto_id>/', views.modal_confirmar_eliminacion, name='modal_confirmar_eliminacion'),
 
+    path('mantenimientos/', views.listar_mantenimientos, name='listar_mantenimientos'),
+    path('mantenimientos/crear/', views.crear_mantenimiento, name='crear_mantenimiento'),
+    path('mantenimientos/<int:mantenimiento_id>/', views.detalle_mantenimiento, name='detalle_mantenimiento'),
+    path('mantenimientos/<int:vehiculo_id>/agendar/', views.agendar_mantenimiento, name='agendar_mantenimiento'),
+    path('mantenimientos/agendados/', views.listar_mantenimientos_agendados, name='listar_mantenimientos_agendados'),
+    path('mantenimientos/agendar/', views.agendar_mantenimiento, name='agendar_mantenimiento_manual'),
 
 
+    
 
 ]

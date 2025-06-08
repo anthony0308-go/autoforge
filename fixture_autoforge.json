@@ -1,0 +1,164 @@
+[
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$...",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Amy",
+      "last_name": "Quinn",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2020-03-21 03:47:44",
+      "id_rol": 1,
+      "telefono": "+1-623-925-9673",
+      "dui": "24507206-1",
+      "direccion": "388 Jackson Islands\nBrownbury, IN 07528",
+      "carnet_empleado": null,
+      "fecha_creacion_usuario": "2025-06-08 04:44:47.518365",
+      "email": "emma31@yahoo.com"
+    }
+  },
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$...",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Cynthia",
+      "last_name": "Castro",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-04-10 15:01:30",
+      "id_rol": 2,
+      "telefono": "868.064.7785x21354",
+      "dui": "11554269-5",
+      "direccion": "9988 Campbell Hollow\nSouth Ellenfurt, VA 56947",
+      "carnet_empleado": "EMP351",
+      "fecha_creacion_usuario": "2025-06-08 04:44:47.519509",
+      "email": "webbmark@foster.net"
+    }
+  },
+  {
+    "model": "mantenimiento.tiposmantenimiento",
+    "pk": 1,
+    "fields": {
+      "nombre_tipo": "Cambio de aceite",
+      "descripcion": "Mantenimiento básico para el motor"
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 1,
+    "fields": {
+      "nombre_repuesto": "Repuesto 1",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 1",
+      "precio_unitario_referencia": "58.67",
+      "stock": 39
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 2,
+    "fields": {
+      "nombre_repuesto": "Repuesto 2",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 2",
+      "precio_unitario_referencia": "16.53",
+      "stock": 25
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 3,
+    "fields": {
+      "nombre_repuesto": "Repuesto 3",
+      "marca_repuesto": "GENERIC",
+      "descripcion": "Descripción del repuesto 3",
+      "precio_unitario_referencia": "40.81",
+      "stock": 13
+    }
+  },
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 1,
+    "fields": {
+      "id_usuario_propietario": 1,
+      "placa": "P123456",
+      "marca": "Toyota",
+      "modelo": "Corolla",
+      "anio": 2015,
+      "tipo_combustible": "Gasolina",
+      "vin": "1HGCM82633A082349",
+      "color": "Blanco",
+      "fecha_registro_vehiculo": "2025-06-08 04:44:47.520467",
+      "id_usuario_registra_vehiculo": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2025-06-03 04:44:47.520652",
+      "fecha_salida": "2025-06-05 04:44:47.520661",
+      "fecha_proximo_mantenimiento_preventivo": "2025-09-06",
+      "descripcion_problema_cliente": "Ruido extraño en el motor",
+      "diagnostico_taller": "Bomba de agua dañada",
+      "trabajos_realizados": "Cambio de bomba de agua",
+      "observaciones_mantenimiento": "Se recomienda revisión de correa",
+      "costo_mano_obra": "45.00",
+      "costo_total_repuestos": "75.00",
+      "otros_cargos": "0.00",
+      "descuentos": "0.00",
+      "costo_total_mantenimiento": "120.00",
+      "kilometraje_actual": 85000,
+      "estado": "Completado",
+      "id_usuario_abre_orden": 2,
+      "id_usuario_mecanico_asignado": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 1,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "58.67",
+      "subtotal": "58.67",
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "16.53",
+      "subtotal": "16.53",
+      "id_usuario_agrega_repuesto": 2
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientosagendados",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento_sugerido": 1,
+      "fecha_programada": "2025-09-06",
+      "kilometraje_programado": 90000,
+      "notas": "Próxima revisión general",
+      "estado_agendamiento": "Pendiente",
+      "id_mantenimiento_realizado": 1,
+      "id_usuario_agenda": 2,
+      "fecha_creacion_agenda": "2025-06-08 04:44:47.520941"
+    }
+  }
+]
