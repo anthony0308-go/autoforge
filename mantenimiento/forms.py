@@ -176,6 +176,7 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 
 
 #ClienteForm y VehiculoForm
+
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Usuarios
@@ -191,18 +192,23 @@ class ClienteForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        # Asignamos el rol de cliente automáticamente
         rol_cliente = Roles.objects.get(codigo_rol='C')
         instance.id_rol = rol_cliente
-        instance.username = None  # Explicitamente nulo (aunque no se usa)
+        instance.username = None
         if commit:
             instance.save()
         return instance
 
+
 class VehiculoForm(forms.ModelForm):
+    foto_frontal = forms.ImageField(required=True, label="Foto Frontal")
+    foto_lateral_izquierda = forms.ImageField(required=True, label="Foto Lateral Izquierda")
+    foto_lateral_derecha = forms.ImageField(required=True, label="Foto Lateral Derecha")
+    foto_trasera = forms.ImageField(required=True, label="Foto Trasera")
+
     class Meta:
         model = Vehiculos
-        fields = ['placa', 'marca', 'modelo', 'anio', 'tipo_combustible', 'vin', 'color']
+        exclude = ['id_usuario_propietario', 'id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
         widgets = {
             'placa': forms.TextInput(attrs={'class': 'form-input'}),
             'marca': forms.TextInput(attrs={'class': 'form-input'}),
@@ -212,3 +218,4 @@ class VehiculoForm(forms.ModelForm):
             'vin': forms.TextInput(attrs={'class': 'form-input'}),
             'color': forms.TextInput(attrs={'class': 'form-input'}),
         }
+

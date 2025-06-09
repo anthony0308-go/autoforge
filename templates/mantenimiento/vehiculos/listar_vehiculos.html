@@ -3,7 +3,15 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6 text-center text-[#D7141A]">Listado de Vehículos</h1>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-[#D7141A]">Listado de Vehículos</h1>
+
+    {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+    <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#1565C0] text-white rounded-md shadow hover:bg-[#0D47A1] transition">
+      + Registrar Vehículo
+    </a>
+    {% endif %}
+  </div>
 
   <div class="overflow-x-auto bg-white rounded-2xl shadow-lg">
     <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -29,14 +37,13 @@
           <td class="px-6 py-4">{{ vehiculo.modelo }}</td>
           <td class="px-6 py-4">{{ vehiculo.anio }}</td>
           <td class="px-6 py-4">{{ vehiculo.placa }}</td>
-            <td class="px-6 py-4 space-x-2">
-              {% if request.user.is_superuser and request.user.id_rol.codigo_rol == 'A' %}
-              <a href="{% url 'registrar_vehiculo' %}" class="text-[#4CAF50] hover:underline">Registrar Vehículo</a>
+          <td class="px-6 py-4 space-x-2">
+            {% if request.user.is_superuser and request.user.id_rol.codigo_rol == 'A' %}
               <a href="{% url 'editar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#1565C0] hover:underline">Editar</a>
               <a href="{% url 'eliminar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#D7141A] hover:underline">Eliminar</a>
-              {% endif %}
-              <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="text-[#4CAF50] hover:underline">Ver Detalle</a>
-            </td>
+            {% endif %}
+            <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="text-[#4CAF50] hover:underline">Ver Detalle</a>
+          </td>
         </tr>
         {% empty %}
         <tr>

@@ -18,6 +18,8 @@ from django.utils import timezone
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.contrib import messages
 from django.utils.crypto import get_random_string
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 
 def login_view(request):
@@ -72,22 +74,14 @@ def listar_vehiculos(request):
 def detalle_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
     mantenimientos = Mantenimientos.objects.filter(id_vehiculo=vehiculo).order_by('-fecha_ingreso')
+    fotos = FotografiasVehiculo.objects.filter(id_vehiculo=vehiculo)
+
     return render(request, 'mantenimiento/vehiculos/detalle_vehiculo.html', {
         'vehiculo': vehiculo,
         'mantenimientos': mantenimientos,
+        'fotos': fotos,
     })
 
-
-@login_required
-def registrar_mantenimiento(request, vehiculo_id):
-    usuario = obtener_usuario_actual(request)
-    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id, id_usuario_propietario=usuario)
-    return render(request, 'mantenimiento/vehiculos/registrar_mantenimiento.html', {'vehiculo': vehiculo})
-
-@login_required
-def listar_mantenimientos(request):
-    mantenimientos = Mantenimientos.objects.select_related('id_vehiculo', 'id_usuario')
-    return render(request, 'mantenimiento/mantenimientos/listar_mantenimientos.html', {'mantenimientos': mantenimientos})
 
 # REPUESTOS
 
@@ -381,25 +375,46 @@ def crear_cliente_y_vehiculo(request):
 
     if request.method == 'POST':
         cliente_form = ClienteForm(request.POST)
-        vehiculo_form = VehiculoForm(request.POST)
+        vehiculo_form = VehiculoForm(request.POST, request.FILES)
 
         if cliente_form.is_valid() and vehiculo_form.is_valid():
             try:
                 with transaction.atomic():
-                    # Crear cliente con contraseña aleatoria
+                    # Crear cliente
                     cliente = cliente_form.save(commit=False)
                     cliente.id_rol = Cliente
                     generated_password = get_random_string(length=10)
                     cliente.set_password(generated_password)
                     cliente.save()
 
-                    # Crear vehículo vinculado al cliente
+                    # Crear vehículo
                     vehiculo = vehiculo_form.save(commit=False)
                     vehiculo.id_usuario_propietario = cliente
                     vehiculo.id_usuario_registra_vehiculo = request.user
+                    vehiculo.fecha_registro_vehiculo = timezone.now()
                     vehiculo.save()
 
-                    # Enviar correo con la contraseña
+                    # Subir fotos
+                    fotos = {
+                        'foto_frontal': 'frontal',
+                        'foto_lateral_izquierda': 'lateral izquierda',
+                        'foto_lateral_derecha': 'lateral derecha',
+                        'foto_trasera': 'trasera'
+                    }
+
+                    for campo, tipo in fotos.items():
+                        archivo = request.FILES.get(campo)
+                        if archivo:
+                            FotografiasVehiculo.objects.create(
+                                id_vehiculo=vehiculo,
+                                tipo_fotografia=tipo,
+                                url_fotografia=archivo,
+                                descripcion_foto=f"Foto {tipo}",
+                                fecha_subida=timezone.now(),
+                                id_usuario_sube_foto=request.user
+                            )
+
+                    # Enviar correo
                     send_mail(
                         subject='Bienvenido a AutoForge',
                         message=f'Hola {cliente.first_name}, tu cuenta ha sido creada. Tu contraseña temporal es: {generated_password}',
@@ -407,11 +422,17 @@ def crear_cliente_y_vehiculo(request):
                         recipient_list=[cliente.email],
                         fail_silently=False,
                     )
+
                     messages.success(request, 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.')
                     return redirect('listar_clientes')
+
             except Exception as e:
-                messages.error(request, f"Ocurrió un error: {str(e)}")
+                messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+
         else:
+            # Mostrar errores en consola
+            print("Errores en cliente_form:", cliente_form.errors)
+            print("Errores en vehiculo_form:", vehiculo_form.errors)
             messages.error(request, "Por favor corrige los errores del formulario.")
 
     else:
@@ -422,3 +443,34 @@ def crear_cliente_y_vehiculo(request):
         'cliente_form': cliente_form,
         'vehiculo_form': vehiculo_form,
     })
+    
+    
+#registrar vehiculo
+def registrar_vehiculo(request):
+    if request.method == 'POST':
+        form = VehiculoForm(request.POST)
+        if form.is_valid():
+            vehiculo = form.save(commit=False)
+            vehiculo.id_usuario_registra_vehiculo = request.user
+            vehiculo.save()
+            return redirect('listar_vehiculos')
+    else:
+        form = VehiculoForm()
+    return render(request, 'mantenimiento/vehiculos/registrar_vehiculo.html', {'form': form})
+
+@login_required
+def editar_vehiculo(request, vehiculo_id):
+    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
+    form = VehiculoForm(request.POST or None, instance=vehiculo)
+    if form.is_valid():
+        form.save()
+        return redirect('listar_vehiculos')
+    return render(request, 'mantenimiento/vehiculos/editar_vehiculo.html', {'form': form, 'vehiculo': vehiculo})
+
+@login_required
+def eliminar_vehiculo(request, vehiculo_id):
+    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
+    if request.method == 'POST':
+        vehiculo.delete()
+        return redirect('listar_vehiculos')
+    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {'vehiculo': vehiculo})
