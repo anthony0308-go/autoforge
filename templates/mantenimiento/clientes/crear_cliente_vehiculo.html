@@ -5,21 +5,20 @@
 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
   <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Registrar Cliente y Vehículo</h2>
 
-  {% comment %} {% if messages %}
-  <ul class="mb-4">
-    {% for message in messages %}
-      <li class="p-3 rounded text-white 
-                 {% if message.tags == 'error' %}bg-red-600
-                 {% elif message.tags == 'success' %}bg-green-600
-                 {% else %}bg-gray-600{% endif %}">
-        {{ message }}
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %} {% endcomment %}
+  {% if messages %}
+    <ul class="mb-4">
+      {% for message in messages %}
+        <li class="p-3 rounded text-white
+                   {% if message.tags == 'error' %}bg-red-600
+                   {% elif message.tags == 'success' %}bg-green-600
+                   {% else %}bg-gray-600{% endif %}">
+          {{ message }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
-
-  <form method="post" class="space-y-6">
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
     {% csrf_token %}
 
     <!-- DATOS DEL CLIENTE -->
@@ -90,6 +89,31 @@
       </div>
     </fieldset>
 
+    <!-- FOTOS DEL VEHÍCULO -->
+    <fieldset class="border border-gray-300 p-4 rounded">
+      <legend class="text-lg font-semibold text-gray-700 px-2">Fotografías del Vehículo</legend>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium">Foto frontal</label>
+          {{ vehiculo_form.foto_frontal }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Foto lateral izquierda</label>
+          {{ vehiculo_form.foto_lateral_izquierda }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Foto lateral derecha</label>
+          {{ vehiculo_form.foto_lateral_derecha }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Foto trasera</label>
+          {{ vehiculo_form.foto_trasera }}
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- BOTÓN SUBMIT -->
     <div class="text-right">
       <button type="submit" class="px-6 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">
         💾 Guardar cliente y vehículo

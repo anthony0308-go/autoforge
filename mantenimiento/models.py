@@ -60,7 +60,7 @@ class Usuarios(AbstractUser):
 class FotografiasVehiculo(models.Model):
     id_fotografia = models.AutoField(primary_key=True)
     id_vehiculo = models.ForeignKey('Vehiculos', models.DO_NOTHING, db_column='id_vehiculo')
-    url_fotografia = models.TextField()
+    url_fotografia = models.ImageField(upload_to='vehiculos/')
     tipo_fotografia = models.CharField(max_length=20)
     descripcion_foto = models.TextField(blank=True, null=True)
     fecha_subida = models.DateTimeField(blank=True, null=True)

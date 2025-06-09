@@ -1,21 +1,32 @@
 {% extends 'mantenimiento/base.html' %}
-{% block title %}Detalle de Vehículo{% endblock %}
+{% block title %}Detalle del Vehículo{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8 mt-6">
-  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">🚗 Detalle del Vehículo</h2>
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
+  <h2 class="text-2xl font-bold mb-6 text-[#D7141A]">Detalle del Vehículo</h2>
 
-  <div class="space-y-3 text-gray-800">
-    <p><strong>Placa:</strong> {{ vehiculo.placa }}</p>
-    <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
-    <p><strong>Modelo:</strong> {{ vehiculo.modelo }}</p>
-    <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
-    <p><strong>Color:</strong> {{ vehiculo.color|default:"No especificado" }}</p>
-    <p><strong>Combustible:</strong> {{ vehiculo.tipo_combustible|default:"No especificado" }}</p>
-    <p><strong>VIN:</strong> {{ vehiculo.vin|default:"No registrado" }}</p>
-    <p><strong>Propietario:</strong> {{ vehiculo.id_usuario_propietario.get_full_name }}</p>
-    <p><strong>Registrado por:</strong> {{ vehiculo.id_usuario_registra_vehiculo.get_full_name }}</p>
-    <p><strong>Fecha de registro:</strong> {{ vehiculo.fecha_registro_vehiculo|date:"d/m/Y H:i" }}</p>
+  <div class="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-800">
+    <div><strong>Placa:</strong> {{ vehiculo.placa }}</div>
+    <div><strong>Marca:</strong> {{ vehiculo.marca }}</div>
+    <div><strong>Modelo:</strong> {{ vehiculo.modelo }}</div>
+    <div><strong>Año:</strong> {{ vehiculo.anio }}</div>
+    <div><strong>Color:</strong> {{ vehiculo.color }}</div>
+    <div><strong>Tipo de combustible:</strong> {{ vehiculo.tipo_combustible }}</div>
+    <div class="col-span-2"><strong>VIN:</strong> {{ vehiculo.vin }}</div>
   </div>
+
+  <h3 class="text-lg font-semibold text-gray-700 mb-4">📷 Fotografías del Vehículo</h3>
+  {% if fotos %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {% for foto in fotos %}
+        <div class="text-center">
+          <img src="{{ foto.url_fotografia.url }}" alt="{{ foto.tipo_fotografia }}" class="w-full h-36 object-cover rounded border">
+          <p class="text-xs mt-1 text-gray-600">{{ foto.tipo_fotografia|capfirst }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-gray-500 italic">No se han subido fotografías para este vehículo.</p>
+  {% endif %}
 </div>
 {% endblock %}
