@@ -73,15 +73,17 @@ def listar_vehiculos(request):
 @login_required
 def detalle_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
+
     mantenimientos = Mantenimientos.objects.filter(id_vehiculo=vehiculo).order_by('-fecha_ingreso')
+    mantenimientos_agendados = MantenimientosAgendados.objects.filter(id_vehiculo=vehiculo).order_by('-fecha_programada')
     fotos = FotografiasVehiculo.objects.filter(id_vehiculo=vehiculo)
 
     return render(request, 'mantenimiento/vehiculos/detalle_vehiculo.html', {
         'vehiculo': vehiculo,
         'mantenimientos': mantenimientos,
+        'mantenimientos_agendados': mantenimientos_agendados,
         'fotos': fotos,
     })
-
 
 # REPUESTOS
 
@@ -490,20 +492,59 @@ def registrar_vehiculo(request):
         form = VehiculoForm()
     return render(request, 'mantenimiento/vehiculos/registrar_vehiculo.html', {'form': form})
 
+# Editar vehículo
 @login_required
 def editar_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
-    form = VehiculoForm(request.POST or None, instance=vehiculo)
-    if form.is_valid():
-        form.save()
-        return redirect('listar_vehiculos')
-    return render(request, 'mantenimiento/vehiculos/editar_vehiculo.html', {'form': form, 'vehiculo': vehiculo})
+
+    if request.method == 'POST':
+        form = VehiculoForm(request.POST, request.FILES, instance=vehiculo)
+        if form.is_valid():
+            with transaction.atomic():
+                vehiculo = form.save()
+
+                tipos_fotos = {
+                    'foto_frontal': 'frontal',
+                    'foto_lateral_izquierda': 'lateral izquierda',
+                    'foto_lateral_derecha': 'lateral derecha',
+                    'foto_trasera': 'trasera',
+                }
+
+                for campo, tipo in tipos_fotos.items():
+                    archivo = request.FILES.get(campo)
+                    if archivo:
+                        FotografiasVehiculo.objects.update_or_create(
+                            id_vehiculo=vehiculo,
+                            tipo_fotografia=tipo,
+                            defaults={
+                                'url_fotografia': archivo,
+                                'id_usuario_sube_foto': request.user,
+                                'fecha_subida': timezone.now()
+                            }
+                        )
+
+                messages.success(request, 'Vehículo actualizado correctamente.')
+                return redirect('detalle_vehiculo', vehiculo_id=vehiculo.id_vehiculo)
+        else:
+            messages.error(request, 'Corrige los errores en el formulario.')
+    else:
+        form = VehiculoForm(instance=vehiculo)
+
+    return render(request, 'mantenimiento/vehiculos/editar_vehiculo.html', {
+        'form': form,
+        'vehiculo': vehiculo
+    })
+
 
 @login_required
 def eliminar_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
+
     if request.method == 'POST':
         vehiculo.delete()
+        messages.success(request, 'Vehículo eliminado correctamente.')
         return redirect('listar_vehiculos')
-    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {'vehiculo': vehiculo})
 
+    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {
+        'vehiculo': vehiculo
+    })

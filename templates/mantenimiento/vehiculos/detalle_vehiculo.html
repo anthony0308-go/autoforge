@@ -2,9 +2,10 @@
 {% block title %}Detalle del Vehículo{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
+<div class="max-w-5xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
   <h2 class="text-2xl font-bold mb-6 text-[#D7141A]">Detalle del Vehículo</h2>
 
+  <!-- Información del vehículo -->
   <div class="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-800">
     <div><strong>Placa:</strong> {{ vehiculo.placa }}</div>
     <div><strong>Marca:</strong> {{ vehiculo.marca }}</div>
@@ -15,18 +16,69 @@
     <div class="col-span-2"><strong>VIN:</strong> {{ vehiculo.vin }}</div>
   </div>
 
-  <h3 class="text-lg font-semibold text-gray-700 mb-4">📷 Fotografías del Vehículo</h3>
+  <!-- Fotografías -->
+  <h3 class="text-xl font-semibold mt-6 text-gray-700">📷 Fotografías del Vehículo</h3>
   {% if fotos %}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
       {% for foto in fotos %}
         <div class="text-center">
           <img src="{{ foto.url_fotografia.url }}" alt="{{ foto.tipo_fotografia }}" class="w-full h-36 object-cover rounded border">
-          <p class="text-xs mt-1 text-gray-600">{{ foto.tipo_fotografia|capfirst }}</p>
+          <p class="text-sm mt-1 text-gray-600">{{ foto.tipo_fotografia|capfirst }}</p>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <p class="text-gray-500 italic">No se han subido fotografías para este vehículo.</p>
+    <p class="text-gray-500 italic mt-2">No se han subido fotografías para este vehículo.</p>
+  {% endif %}
+
+  <!-- Mantenimientos realizados -->
+  <h3 class="text-xl font-semibold mt-10 text-gray-700">🛠️ Mantenimientos realizados</h3>
+  {% if mantenimientos %}
+    <table class="w-full mt-2 table-auto text-sm border rounded shadow">
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="p-2">#</th>
+          <th class="p-2">Tipo</th>
+          <th class="p-2">Ingreso</th>
+          <th class="p-2">Estado</th>
+          <th class="p-2">Total</th>
+          <th class="p-2">Ver</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in mantenimientos %}
+        <tr class="border-t">
+          <td class="p-2">{{ m.id_mantenimiento }}</td>
+          <td class="p-2">{{ m.id_tipo_mantenimiento.nombre_tipo|default:"-" }}</td>
+          <td class="p-2">{{ m.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+          <td class="p-2">{{ m.estado|default:"-" }}</td>
+          <td class="p-2">${{ m.costo_total_mantenimiento|floatformat:2 }}</td>
+          <td class="p-2">
+            <a href="{% url 'detalle_mantenimiento' m.id_mantenimiento %}" class="text-[#1565C0] hover:underline">Ver</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-gray-500 italic mt-2">Este vehículo no tiene mantenimientos registrados.</p>
+  {% endif %}
+
+  <!-- Próximos mantenimientos agendados -->
+  <h3 class="text-xl font-semibold mt-10 text-gray-700">📅 Próximos mantenimientos agendados</h3>
+  {% if mantenimientos_agendados %}
+    <ul class="mt-2 space-y-2 text-sm">
+      {% for ag in mantenimientos_agendados %}
+        <li class="border-l-4 border-[#D7141A] bg-gray-50 p-3 rounded shadow-sm">
+          <div><strong>Tipo:</strong> {{ ag.id_tipo_mantenimiento_sugerido.nombre_tipo|default:"-" }}</div>
+          <div><strong>Fecha:</strong> {{ ag.fecha_programada|date:"d/m/Y" }}</div>
+          <div><strong>Kilometraje:</strong> {{ ag.kilometraje_programado|default:"-" }}</div>
+          <div><strong>Estado:</strong> {{ ag.estado_agendamiento|default:"Pendiente" }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 italic mt-2">No hay mantenimientos agendados para este vehículo.</p>
   {% endif %}
 </div>
 {% endblock %}

@@ -2,12 +2,18 @@
 {% block title %}Eliminar Vehículo{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto bg-white shadow-md rounded-xl p-8 mt-6 text-center">
-  <h2 class="text-2xl font-bold text-[#D7141A] mb-4">¿Estás seguro de eliminar el vehículo <br><span class="text-black">{{ vehiculo.placa }}</span>?</h2>
-  <form method="post" class="space-x-4 mt-6">
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-8 mt-6 text-center">
+  <h2 class="text-2xl font-bold text-[#D7141A] mb-6">¿Eliminar este vehículo?</h2>
+
+  <p class="text-gray-700 mb-4">
+    Estás a punto de eliminar el vehículo con placa <strong>{{ vehiculo.placa }}</strong> ({{ vehiculo.marca }} {{ vehiculo.modelo }}).
+    Esta acción no se puede deshacer.
+  </p>
+
+  <form method="post" class="flex justify-center gap-4">
     {% csrf_token %}
-    <a href="{% url 'listar_vehiculos' %}" class="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancelar</a>
-    <button type="submit" class="px-6 py-2 bg-[#D7141A] text-white rounded hover:bg-red-700">Eliminar</button>
+    <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="px-5 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancelar</a>
+    <button type="submit" class="px-5 py-2 bg-[#D7141A] text-white rounded hover:bg-red-800">Eliminar</button>
   </form>
 </div>
 {% endblock %}
