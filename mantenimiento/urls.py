@@ -28,7 +28,6 @@ urlpatterns = [
     path('mantenimientos/agendados/', views.listar_mantenimientos_agendados, name='listar_mantenimientos_agendados'),
     path('mantenimientos/agendar/', views.agendar_mantenimiento, name='agendar_mantenimiento_manual'),
 
-
-    
+    path('clientes/crear/', views.crear_cliente_y_vehiculo, name='crear_cliente'),
 
 ]

@@ -1,0 +1,21 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Detalle de Vehículo{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">🚗 Detalle del Vehículo</h2>
+
+  <div class="space-y-3 text-gray-800">
+    <p><strong>Placa:</strong> {{ vehiculo.placa }}</p>
+    <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
+    <p><strong>Modelo:</strong> {{ vehiculo.modelo }}</p>
+    <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
+    <p><strong>Color:</strong> {{ vehiculo.color|default:"No especificado" }}</p>
+    <p><strong>Combustible:</strong> {{ vehiculo.tipo_combustible|default:"No especificado" }}</p>
+    <p><strong>VIN:</strong> {{ vehiculo.vin|default:"No registrado" }}</p>
+    <p><strong>Propietario:</strong> {{ vehiculo.id_usuario_propietario.get_full_name }}</p>
+    <p><strong>Registrado por:</strong> {{ vehiculo.id_usuario_registra_vehiculo.get_full_name }}</p>
+    <p><strong>Fecha de registro:</strong> {{ vehiculo.fecha_registro_vehiculo|date:"d/m/Y H:i" }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,55 +1,35 @@
 {% extends 'mantenimiento/base.html' %}
-{% block title %}Cliente: {{ cliente.get_full_name }}{% endblock %}
+{% block title %}Detalle de Cliente{% endblock %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4 text-[#D7141A]">Detalle del Cliente</h2>
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">🧑 Detalle del Cliente</h2>
 
-<div class="bg-white p-4 rounded shadow text-black mb-6">
-  <p><strong>Nombre:</strong> {{ cliente.get_full_name }}</p>
-  <p><strong>Correo:</strong> {{ cliente.email }}</p>
-  <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
+    <p><strong>Nombre:</strong> {{ cliente.get_full_name }}</p>
+    <p><strong>Correo:</strong> {{ cliente.email }}</p>
+    <p><strong>Teléfono:</strong> {{ cliente.telefono|default:"No registrado" }}</p>
+    <p><strong>DUI:</strong> {{ cliente.dui|default:"No registrado" }}</p>
+    <p><strong>Dirección:</strong> {{ cliente.direccion|default:"No registrada" }}</p>
+    <p><strong>Fecha de creación:</strong> {{ cliente.fecha_creacion_usuario|date:"d/m/Y H:i" }}</p>
+  </div>
 
-<h3 class="text-lg font-semibold mb-2 text-blue-700">Vehículos registrados</h3>
-<ul class="list-disc ml-6 mb-6">
-  {% for v in vehiculos %}
-    <li>
-      {{ v.placa }} - {{ v.marca }} {{ v.modelo }} 
-      <a href="{% url 'detalle_vehiculo' v.id_vehiculo %}" class="text-sm text-blue-600 hover:underline">(Ver)</a>
-    </li>
-  {% empty %}
-    <li class="text-gray-500 italic">Este cliente no tiene vehículos registrados.</li>
-  {% endfor %}
-</ul>
+  <hr class="my-6">
 
-<h3 class="text-lg font-semibold mb-2 text-blue-700">Historial de mantenimientos</h3>
-{% if mantenimientos %}
-  <table class="w-full border text-sm mb-10">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="py-2 px-3 text-left">Fecha</th>
-        <th class="py-2 px-3 text-left">Vehículo</th>
-        <th class="py-2 px-3 text-left">Tipo</th>
-        <th class="py-2 px-3 text-left">Total</th>
-        <th class="py-2 px-3 text-left">Ver</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in mantenimientos %}
-      <tr class="border-b">
-        <td class="px-3 py-2">{{ m.fecha_ingreso|date:"d/m/Y" }}</td>
-        <td class="px-3 py-2">{{ m.id_vehiculo.placa }}</td>
-        <td class="px-3 py-2">{{ m.id_tipo_mantenimiento|default:"-" }}</td>
-        <td class="px-3 py-2">${{ m.costo_total_mantenimiento|floatformat:2 }}</td>
-        <td class="px-3 py-2">
-          <a href="{% url 'detalle_mantenimiento' m.id_mantenimiento %}" class="text-blue-600 hover:underline">Ver</a>
-        </td>
-      </tr>
+  <h3 class="text-2xl font-bold mb-4 text-[#263238]">🚘 Vehículos registrados</h3>
+  {% if vehiculos %}
+    <ul class="space-y-2">
+      {% for vehiculo in vehiculos %}
+        <li class="bg-gray-100 p-3 rounded shadow text-sm flex justify-between items-center">
+          <div>
+            <span class="font-semibold">{{ vehiculo.placa }}</span> - {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
+          </div>
+          <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="text-[#1565C0] hover:underline text-sm font-medium">Ver detalles</a>
+        </li>
       {% endfor %}
-    </tbody>
-  </table>
-{% else %}
-  <p class="text-gray-500 italic">Este cliente aún no tiene mantenimientos registrados.</p>
-{% endif %}
-<a href="{% url 'listar_clientes' %}" class="text-blue-500 underline mt-4 inline-block">← Volver al listado</a>
+    </ul>
+  {% else %}
+    <p class="text-gray-500 italic">Este cliente aún no tiene vehículos registrados.</p>
+  {% endif %}
+</div>
 {% endblock %}

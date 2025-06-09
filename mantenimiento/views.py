@@ -16,6 +16,8 @@ from django.forms import inlineformset_factory
 from django.db import transaction
 from django.utils import timezone
 from django.core.mail import send_mail, EmailMultiAlternatives
+from django.contrib import messages
+from django.utils.crypto import get_random_string
 
 
 def login_view(request):
@@ -54,15 +56,23 @@ def listar_clientes(request):
 
 @login_required
 def listar_vehiculos(request):
-    usuario = obtener_usuario_actual(request)
-    vehiculos = Vehiculos.objects.filter(id_usuario_propietario=usuario)
-    return render(request, 'mantenimiento/vehiculos/listar.html', {'vehiculos': vehiculos})
+    user = request.user
+    if user.is_superuser or user.id_rol.codigo_rol == 'A':
+        # Admin ve todos los vehículos
+        vehiculos = Vehiculos.objects.all()
+    else:
+        # Cliente solo ve sus vehículos
+        vehiculos = Vehiculos.objects.filter(id_usuario_propietario=user)
+
+    return render(request, 'mantenimiento/vehiculos/listar_vehiculos.html', {
+        'vehiculos': vehiculos
+    })
 
 @login_required
 def detalle_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
     mantenimientos = Mantenimientos.objects.filter(id_vehiculo=vehiculo).order_by('-fecha_ingreso')
-    return render(request, 'vehiculos/detalle_vehiculo.html', {
+    return render(request, 'mantenimiento/vehiculos/detalle_vehiculo.html', {
         'vehiculo': vehiculo,
         'mantenimientos': mantenimientos,
     })
@@ -173,32 +183,45 @@ def crear_mantenimiento(request):
     if request.method == 'POST':
         form = MantenimientoForm(request.POST)
         formset = MantenimientoRepuestoFormSet(request.POST)
+
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
                 mantenimiento = form.save(commit=False)
                 mantenimiento.id_usuario_abre_orden = request.user
-                mantenimiento.save()
 
-                total_repuestos = 0
+                total_repuestos = Decimal('0.00')
                 for f in formset:
                     if f.cleaned_data and not f.cleaned_data.get('DELETE', False):
                         cantidad = f.cleaned_data['cantidad_utilizada'] or 0
-                        precio = f.cleaned_data['precio_unitario_al_momento'] or 0
-                        subtotal = cantidad * float(precio)
+                        precio = f.cleaned_data['precio_unitario_al_momento'] or Decimal('0.00')
+                        subtotal = Decimal(cantidad) * precio
                         total_repuestos += subtotal
 
+                # Calcular todos los campos ANTES del save
+                mano_obra = form.cleaned_data.get('costo_mano_obra') or Decimal('0.00')
+                otros = form.cleaned_data.get('otros_cargos') or Decimal('0.00')
+                desc = form.cleaned_data.get('descuentos') or Decimal('0.00')
+                mantenimiento.costo_total_repuestos = total_repuestos
+                mantenimiento.costo_total_mantenimiento = mano_obra + total_repuestos + otros - desc
+
+                mantenimiento.save()  # ← Ahora sí con los totales calculados
+
+                for f in formset:
+                    if f.cleaned_data and not f.cleaned_data.get('DELETE', False):
+                        cantidad = f.cleaned_data['cantidad_utilizada'] or 0
+                        precio = f.cleaned_data['precio_unitario_al_momento'] or Decimal('0.00')
+                        subtotal = Decimal(cantidad) * precio
                         repuesto = f.save(commit=False)
                         repuesto.id_mantenimiento = mantenimiento
                         repuesto.subtotal = subtotal
                         repuesto.save()
 
                 # Totales
-                mano_obra = form.cleaned_data.get('costo_mano_obra') or 0
-                otros = form.cleaned_data.get('otros_cargos') or 0
-                desc = form.cleaned_data.get('descuentos') or 0
+                mano_obra = form.cleaned_data.get('costo_mano_obra') or Decimal('0.00')
+                otros = form.cleaned_data.get('otros_cargos') or Decimal('0.00')
+                desc = form.cleaned_data.get('descuentos') or Decimal('0.00')
                 mantenimiento.costo_total_repuestos = total_repuestos
                 mantenimiento.costo_total_mantenimiento = mano_obra + total_repuestos + otros - desc
-                mantenimiento.save()
 
                 # 🔔 Enviar correo tipo factura
                 vehiculo = mantenimiento.id_vehiculo
@@ -341,8 +364,61 @@ def detalle_cliente(request, cliente_id):
     vehiculos = cliente.vehiculos_set.all()
     mantenimientos = Mantenimientos.objects.filter(id_vehiculo__id_usuario_propietario=cliente).order_by('-fecha_ingreso')
 
-    return render(request, 'clientes/detalle_cliente.html', {
+    return render(request, 'mantenimiento/clientes/detalle_cliente.html', {
         'cliente': cliente,
         'vehiculos': vehiculos,
         'mantenimientos': mantenimientos,
+    })
+
+
+#Views para cliente y vehiculo
+@login_required
+def crear_cliente_y_vehiculo(request):
+    Cliente = Roles.objects.filter(codigo_rol='C').first()
+    if not Cliente:
+        messages.error(request, "No existe un rol con código 'C'.")
+        return redirect('listar_clientes')
+
+    if request.method == 'POST':
+        cliente_form = ClienteForm(request.POST)
+        vehiculo_form = VehiculoForm(request.POST)
+
+        if cliente_form.is_valid() and vehiculo_form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Crear cliente con contraseña aleatoria
+                    cliente = cliente_form.save(commit=False)
+                    cliente.id_rol = Cliente
+                    generated_password = get_random_string(length=10)
+                    cliente.set_password(generated_password)
+                    cliente.save()
+
+                    # Crear vehículo vinculado al cliente
+                    vehiculo = vehiculo_form.save(commit=False)
+                    vehiculo.id_usuario_propietario = cliente
+                    vehiculo.id_usuario_registra_vehiculo = request.user
+                    vehiculo.save()
+
+                    # Enviar correo con la contraseña
+                    send_mail(
+                        subject='Bienvenido a AutoForge',
+                        message=f'Hola {cliente.first_name}, tu cuenta ha sido creada. Tu contraseña temporal es: {generated_password}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[cliente.email],
+                        fail_silently=False,
+                    )
+                    messages.success(request, 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.')
+                    return redirect('listar_clientes')
+            except Exception as e:
+                messages.error(request, f"Ocurrió un error: {str(e)}")
+        else:
+            messages.error(request, "Por favor corrige los errores del formulario.")
+
+    else:
+        cliente_form = ClienteForm()
+        vehiculo_form = VehiculoForm()
+
+    return render(request, 'mantenimiento/clientes/crear_cliente_vehiculo.html', {
+        'cliente_form': cliente_form,
+        'vehiculo_form': vehiculo_form,
     })

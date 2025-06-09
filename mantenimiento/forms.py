@@ -175,3 +175,40 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 
 
 
+#ClienteForm y VehiculoForm
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Usuarios
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-input'}),
+            'dui': forms.TextInput(attrs={'class': 'form-input'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-textarea', 'rows': 3}),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # Asignamos el rol de cliente automáticamente
+        rol_cliente = Roles.objects.get(codigo_rol='C')
+        instance.id_rol = rol_cliente
+        instance.username = None  # Explicitamente nulo (aunque no se usa)
+        if commit:
+            instance.save()
+        return instance
+
+class VehiculoForm(forms.ModelForm):
+    class Meta:
+        model = Vehiculos
+        fields = ['placa', 'marca', 'modelo', 'anio', 'tipo_combustible', 'vin', 'color']
+        widgets = {
+            'placa': forms.TextInput(attrs={'class': 'form-input'}),
+            'marca': forms.TextInput(attrs={'class': 'form-input'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-input'}),
+            'anio': forms.NumberInput(attrs={'class': 'form-input'}),
+            'tipo_combustible': forms.TextInput(attrs={'class': 'form-input'}),
+            'vin': forms.TextInput(attrs={'class': 'form-input'}),
+            'color': forms.TextInput(attrs={'class': 'form-input'}),
+        }

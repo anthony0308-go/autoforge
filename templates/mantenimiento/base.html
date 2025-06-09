@@ -57,8 +57,14 @@
 
       <nav class="flex space-x-6 text-sm font-medium">
         <a href="{% url 'inicio' %}" class="hover:text-[#D7141A]">Inicio</a>
+        {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
         <a href="{% url 'listar_clientes' %}" class="hover:text-[#D7141A]">Clientes</a>
+        {% endif %}
+        <!-- Mostrar Mantenimientos -->
+        {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
         <a href="{% url 'listar_mantenimientos' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
+        {% endif %}
+        <a href="{% url 'listar_vehiculos' %}" class="hover:text-[#D7141A]">Vehículos</a>
         <a href="{% url 'logout' %}" class="hover:text-[#D7141A]">Salir</a>
       </nav>
     </div>

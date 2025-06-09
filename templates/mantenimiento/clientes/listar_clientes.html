@@ -2,34 +2,47 @@
 {% block title %}Clientes | AutoForge{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-4 text-[#D7141A]">Listado de Clientes</h2>
+<h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Clientes registrados</h2>
 
-<table class="min-w-full bg-white shadow rounded">
+<div class="flex justify-between items-center mb-4">
+  <form method="get" class="flex gap-2">
+    <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar cliente..."
+           class="border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D7141A]">
+    <button type="submit"
+            class="px-4 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition font-semibold">Buscar</button>
+  </form>
+  <a href="{% url 'crear_cliente' %}" class="px-4 py-2 bg-[#1565C0] text-white rounded shadow hover:bg-[#0D47A1] transition font-semibold">
+    + Nuevo Cliente
+  </a>
+</div>
+
+<div class="overflow-x-auto bg-white shadow-md rounded-lg">
+  <table class="min-w-full table-auto border-collapse">
     <thead class="bg-[#263238] text-white">
-        <tr>
-            <th class="px-4 py-2 text-left">Nombre</th>
-            <th class="px-4 py-2 text-left">Correo</th>
-            <th class="px-4 py-2 text-left">Teléfono</th>
-            <th class="px-4 py-2">Acciones</th>
-        </tr>
+      <tr>
+        <th class="py-3 px-4 text-left">Nombre</th>
+        <th class="py-3 px-4 text-left">Correo</th>
+        <th class="py-3 px-4 text-left">Teléfono</th>
+        <th class="py-3 px-4 text-left">Acciones</th>
+      </tr>
     </thead>
-    <tbody>
-        {% for cliente in clientes %}
-        <tr class="border-b hover:bg-gray-100">
-            <td class="px-4 py-2">{{ cliente.nombre_completo }}</td>
-            <td class="px-4 py-2">{{ cliente.email }}</td>
-            <td class="px-4 py-2">{{ cliente.telefono }}</td>
-            <td class="px-4 py-2 text-center">
-                <a href="{% url 'detalle_cliente' cliente.id_usuario %}" class="text-blue-600 hover:underline">Ver</a>
-            </td>
+    <tbody class="text-sm text-gray-800">
+      {% for cliente in clientes %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-2 px-4">{{ cliente.get_full_name }}</td>
+          <td class="py-2 px-4">{{ cliente.email }}</td>
+          <td class="py-2 px-4">{{ cliente.telefono }}</td>
+          <td class="py-2 px-4">
+            <a href="{% url 'detalle_cliente' cliente.id %}" class="text-[#1565C0] font-semibold hover:underline">Ver</a>
+          </td>
         </tr>
-        {% empty %}
+      {% empty %}
         <tr>
-            <td colspan="4" class="px-4 py-4 text-center text-gray-500">No hay clientes registrados.</td>
+          <td colspan="4" class="py-4 text-center text-gray-500 italic">No hay clientes registrados.</td>
         </tr>
-        {% endfor %}
+      {% endfor %}
     </tbody>
-</table>
-
+  </table>
+</div>
 
 {% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Registrar Cliente{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
+  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Registrar Cliente y Vehículo</h2>
+
+  {% comment %} {% if messages %}
+  <ul class="mb-4">
+    {% for message in messages %}
+      <li class="p-3 rounded text-white 
+                 {% if message.tags == 'error' %}bg-red-600
+                 {% elif message.tags == 'success' %}bg-green-600
+                 {% else %}bg-gray-600{% endif %}">
+        {{ message }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %} {% endcomment %}
+
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- DATOS DEL CLIENTE -->
+    <fieldset class="border border-gray-300 p-4 rounded">
+      <legend class="text-lg font-semibold text-gray-700 px-2">Información del Cliente</legend>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium">Nombre</label>
+          {{ cliente_form.first_name }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Apellido</label>
+          {{ cliente_form.last_name }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Correo electrónico</label>
+          {{ cliente_form.email }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Teléfono</label>
+          {{ cliente_form.telefono }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">DUI</label>
+          {{ cliente_form.dui }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium">Dirección</label>
+          {{ cliente_form.direccion }}
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- DATOS DEL VEHICULO -->
+    <fieldset class="border border-gray-300 p-4 rounded">
+      <legend class="text-lg font-semibold text-gray-700 px-2">Información del Vehículo</legend>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium">Placa</label>
+          {{ vehiculo_form.placa }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Marca</label>
+          {{ vehiculo_form.marca }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Modelo</label>
+          {{ vehiculo_form.modelo }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Año</label>
+          {{ vehiculo_form.anio }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Color</label>
+          {{ vehiculo_form.color }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Tipo de combustible</label>
+          {{ vehiculo_form.tipo_combustible }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium">VIN</label>
+          {{ vehiculo_form.vin }}
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="text-right">
+      <button type="submit" class="px-6 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">
+        💾 Guardar cliente y vehículo
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
