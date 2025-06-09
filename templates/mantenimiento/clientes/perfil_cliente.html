@@ -1,0 +1,128 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Perfil del Cliente | AutoForge{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="relative w-full min-h-screen bg-white py-12 px-4 flex justify-center overflow-hidden">
+
+  <!-- LOGO DE FONDO DIFUMINADO -->
+  <img src="{% static 'img/SVG/Logo_oscuro.svg' %}" alt="Logo AutoForge"
+       class="absolute w-[500px] max-w-none opacity-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0" />
+
+  <!-- CONTENEDOR -->
+  <div class="max-w-4xl w-full relative z-10">
+    <div class="rounded-3xl border border-black/10 bg-white/30 backdrop-blur-2xl shadow-2xl p-10 text-[#263238]">
+
+      <!-- TÍTULO + BOTÓN -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#D7141A] flex items-center gap-2">
+          <i class="fas fa-user-circle"></i> Perfil del Cliente
+        </h2>
+        <a href="{% url 'editar_perfil_cliente' %}" 
+           class="inline-flex items-center gap-2 px-5 py-2 bg-[#D7141A] text-white font-medium rounded hover:bg-[#b31217] transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 stroke-white fill-none" viewBox="0 0 24 24">
+            <path d="M12 20h9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Editar Información
+        </a>
+      </div>
+
+      <!-- INFORMACIÓN -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base md:text-lg leading-relaxed mb-10">
+        <div>
+          <span class="block font-semibold text-[#263238]/80">Nombre completo:</span>
+          <p>{{ cliente.first_name }} {{ cliente.last_name }}</p>
+        </div>
+        <div>
+          <span class="block font-semibold text-[#263238]/80">Correo electrónico:</span>
+          <p>{{ cliente.email }}</p>
+        </div>
+        <div>
+          <span class="block font-semibold text-[#263238]/80">Teléfono:</span>
+          <p>{{ cliente.telefono|default:"No registrado" }}</p>
+        </div>
+        <div>
+          <span class="block font-semibold text-[#263238]/80">DUI:</span>
+          <p>{{ cliente.dui|default:"No registrado" }}</p>
+        </div>
+        <div class="md:col-span-2">
+          <span class="block font-semibold text-[#263238]/80">Dirección:</span>
+          <p>{{ cliente.direccion|default:"No registrada" }}</p>
+        </div>
+      </div>
+
+      <!-- VEHÍCULOS -->
+      <div class="mb-10">
+        <h3 class="text-lg font-semibold text-[#D7141A] mb-3 flex items-center gap-2">
+          <i class="fas fa-car-side"></i> Vehículos Registrados
+        </h3>
+        {% if vehiculos %}
+        <div class="overflow-x-auto rounded-xl">
+          <table class="w-full table-auto text-sm text-[#263238] bg-white/40 backdrop-blur rounded-lg overflow-hidden">
+            <thead class="bg-[#D7141A]/90 text-white">
+              <tr>
+                <th class="px-4 py-2 text-left">Placa</th>
+                <th class="px-4 py-2 text-left">Marca</th>
+                <th class="px-4 py-2 text-left">Modelo</th>
+                <th class="px-4 py-2 text-left">Año</th>
+                <th class="px-4 py-2 text-left">Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in vehiculos %}
+              <tr class="hover:bg-[#D7141A]/10 transition">
+                <td class="px-4 py-2">{{ v.placa }}</td>
+                <td class="px-4 py-2">{{ v.marca }}</td>
+                <td class="px-4 py-2">{{ v.modelo }}</td>
+                <td class="px-4 py-2">{{ v.anio }}</td>
+                <td class="px-4 py-2">{{ v.color }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-sm text-[#263238]/70">No hay vehículos registrados.</p>
+        {% endif %}
+      </div>
+
+      <!-- MANTENIMIENTOS -->
+      <div>
+        <h3 class="text-lg font-semibold text-[#D7141A] mb-3 flex items-center gap-2">
+          <i class="fas fa-tools"></i> Historial de Mantenimientos
+        </h3>
+        {% if mantenimientos %}
+        <div class="overflow-x-auto rounded-xl">
+          <table class="w-full table-auto text-sm text-[#263238] bg-white/40 backdrop-blur rounded-lg overflow-hidden">
+            <thead class="bg-[#D7141A]/90 text-white">
+              <tr>
+                <th class="px-4 py-2 text-left">Vehículo</th>
+                <th class="px-4 py-2 text-left">Fecha</th>
+                <th class="px-4 py-2 text-left">Tipo</th>
+                <th class="px-4 py-2 text-left">Costo</th>
+                <th class="px-4 py-2 text-left">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in mantenimientos %}
+              <tr class="hover:bg-[#D7141A]/10 transition">
+                <td class="px-4 py-2">{{ m.id_vehiculo.placa }}</td>
+                <td class="px-4 py-2">{{ m.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+                <td class="px-4 py-2">{{ m.id_tipo_mantenimiento.nombre_tipo|default:"General" }}</td>
+                <td class="px-4 py-2">${{ m.costo_total_mantenimiento|default:"0.00" }}</td>
+                <td class="px-4 py-2">{{ m.estado|default:"Desconocido" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-sm text-[#263238]/70">No hay mantenimientos registrados.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

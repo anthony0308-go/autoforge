@@ -29,5 +29,9 @@ urlpatterns = [
     path('mantenimientos/agendar/', views.agendar_mantenimiento, name='agendar_mantenimiento_manual'),
 
     path('clientes/crear/', views.crear_cliente_y_vehiculo, name='crear_cliente'),
+    path('perfil/', views.perfil_cliente, name='perfil_cliente'),
+    path('perfil/editar/', views.editar_perfil_cliente, name='editar_perfil_cliente'),
+
+
 
 ]

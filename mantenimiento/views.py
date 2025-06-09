@@ -422,3 +422,33 @@ def crear_cliente_y_vehiculo(request):
         'cliente_form': cliente_form,
         'vehiculo_form': vehiculo_form,
     })
+
+@login_required
+def perfil_cliente(request):
+    cliente = request.user  # Asumiendo que el usuario autenticado es el cliente
+    vehiculos = Vehiculos.objects.filter(id_usuario_propietario=cliente)
+    mantenimientos = Mantenimientos.objects.filter(id_vehiculo__in=vehiculos).order_by('-fecha_ingreso')
+
+    return render(request, 'mantenimiento/clientes/perfil_cliente.html', {
+        'cliente': cliente,
+        'vehiculos': vehiculos,
+        'mantenimientos': mantenimientos,
+    })
+
+@login_required
+def editar_perfil_cliente(request):
+    cliente = request.user
+
+    if request.method == 'POST':
+        form = ClienteForm(instance=cliente, data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tu información fue actualizada correctamente.")
+            return redirect('perfil_cliente')
+    else:
+        form = ClienteForm(instance=cliente)
+
+    return render(request, 'mantenimiento/clientes/editar_perfil.html', {
+        'form': form,
+        'cliente': cliente
+    })

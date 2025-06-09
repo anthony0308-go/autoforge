@@ -1,6 +1,7 @@
 from django import forms
 from .models import *
 from decimal import Decimal, ROUND_HALF_UP
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, get_user_model
 
 User = get_user_model()
@@ -181,20 +182,45 @@ class ClienteForm(forms.ModelForm):
         model = Usuarios
         fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'email': forms.EmailInput(attrs={'class': 'form-input'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-input'}),
-            'dui': forms.TextInput(attrs={'class': 'form-input'}),
-            'direccion': forms.Textarea(attrs={'class': 'form-textarea', 'rows': 3}),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'placeholder': 'Nombre'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'placeholder': 'Apellido'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'placeholder': 'Correo electrónico'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'placeholder': 'Teléfono (8 dígitos)'
+            }),
+            'dui': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'placeholder': 'DUI'
+            }),
+            'direccion': forms.Textarea(attrs={
+                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+                'rows': 3,
+                'placeholder': 'Dirección'
+            }),
         }
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if telefono and (not telefono.isdigit() or len(telefono) != 8):
+            raise ValidationError("El teléfono debe contener exactamente 8 dígitos.")
+        return telefono
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         # Asignamos el rol de cliente automáticamente
         rol_cliente = Roles.objects.get(codigo_rol='C')
         instance.id_rol = rol_cliente
-        instance.username = None  # Explicitamente nulo (aunque no se usa)
+        instance.username = None  
         if commit:
             instance.save()
         return instance
