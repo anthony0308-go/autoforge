@@ -366,8 +366,6 @@ def detalle_cliente(request, cliente_id):
         'mantenimientos': mantenimientos,
     })
 
-
-#Views para cliente y vehiculo
 @login_required
 def crear_cliente_y_vehiculo(request):
     Cliente = Roles.objects.filter(codigo_rol='C').first()
@@ -466,7 +464,11 @@ def editar_perfil_cliente(request):
     if request.method == 'POST':
         form = ClienteForm(instance=cliente, data=request.POST)
         if form.is_valid():
-            form.save()
+            cliente = form.save(commit=False)
+            password = form.cleaned_data.get('password')
+            if password:
+                cliente.set_password(password)  # Hash the password
+            cliente.save()
             messages.success(request, "Tu información fue actualizada correctamente.")
             return redirect('perfil_cliente')
     else:
