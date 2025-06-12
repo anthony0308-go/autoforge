@@ -1,5 +1,4 @@
 {% extends 'mantenimiento/base.html' %}
-{% block title %}Registrar Cliente{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
@@ -20,11 +19,10 @@
 
   <form method="post" enctype="multipart/form-data" class="space-y-6">
     {% csrf_token %}
-
+    
     <!-- DATOS DEL CLIENTE -->
     <fieldset class="border border-gray-300 p-4 rounded">
       <legend class="text-lg font-semibold text-gray-700 px-2">Información del Cliente</legend>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
           <label class="block text-sm font-medium">Nombre</label>
@@ -53,10 +51,9 @@
       </div>
     </fieldset>
 
-    <!-- DATOS DEL VEHICULO -->
+    <!-- DATOS DEL VEHÍCULO -->
     <fieldset class="border border-gray-300 p-4 rounded">
       <legend class="text-lg font-semibold text-gray-700 px-2">Información del Vehículo</legend>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
           <label class="block text-sm font-medium">Placa</label>
@@ -92,7 +89,6 @@
     <!-- FOTOS DEL VEHÍCULO -->
     <fieldset class="border border-gray-300 p-4 rounded">
       <legend class="text-lg font-semibold text-gray-700 px-2">Fotografías del Vehículo</legend>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
           <label class="block text-sm font-medium">Foto frontal</label>
@@ -121,4 +117,31 @@
     </div>
   </form>
 </div>
+
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const telefonoInput = document.querySelector('#id_telefono');
+            const duiInput = document.querySelector('#id_dui');
+
+            // Mascara para el teléfono: ####-####
+            telefonoInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');  // Eliminar todo lo no numérico
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);  // Insertar guion
+                }
+                e.target.value = value;
+            });
+
+            // Mascara para el DUI: #######-#
+            duiInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');  // Eliminar todo lo no numérico
+                if (value.length > 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);  // Insertar guion
+                }
+                e.target.value = value;
+            });
+        });
+    </script>
+{% endblock %}
 {% endblock %}

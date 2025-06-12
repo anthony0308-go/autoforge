@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 
 from autoforge_core import settings
 from .forms import *
@@ -447,6 +448,7 @@ def crear_cliente_y_vehiculo(request):
     })
 
 
+
 @login_required
 def perfil_cliente(request):
     cliente = request.user  # Asumiendo que el usuario autenticado es el cliente
@@ -464,11 +466,31 @@ def editar_perfil_cliente(request):
     cliente = request.user
 
     if request.method == 'POST':
-        form = ClienteForm(instance=cliente, data=request.POST)
+        form = ClienteForm(request.POST, instance=cliente)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Tu información fue actualizada correctamente.")
-            return redirect('perfil_cliente')
+            usuario = form.save()
+            # Si cambió la contraseña, mantén la sesión activa y manda correo
+            if form.cleaned_data.get('password'):
+                update_session_auth_hash(request, usuario)
+                send_mail(
+                    subject='Cambio de Contraseña en AutoForge',
+                    message=f'Hola {cliente.first_name},\n\nTu contraseña ha sido cambiada exitosamente en AutoForge.',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[cliente.email],
+                    fail_silently=False,
+                )
+            # AJAX o redirección normal
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': "Tu información fue actualizada correctamente."})
+            else:
+                messages.success(request, "Tu información fue actualizada correctamente.")
+                return redirect('perfil_cliente')
+        else:
+            errors = form.errors.get_json_data()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': errors})
+            else:
+                messages.error(request, "Por favor corrige los errores del formulario.")
     else:
         form = ClienteForm(instance=cliente)
 
@@ -476,7 +498,6 @@ def editar_perfil_cliente(request):
         'form': form,
         'cliente': cliente
     })
-
     
     
 #registrar vehiculo

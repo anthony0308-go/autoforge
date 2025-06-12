@@ -1,69 +1,175 @@
 {% extends 'mantenimiento/base.html' %}
-{% block title %}Editar Perfil | AutoForge{% endblock %}
-
-{% load static %}
+{% block title %}
+  Editar Perfil | AutoForge
+{% endblock %}
 
 {% block content %}
-<div class="relative w-full min-h-screen bg-white py-12 px-4 flex justify-center overflow-hidden">
+  <div class="relative w-full min-h-screen bg-white py-12 px-4 flex justify-center overflow-hidden">
+    <!-- LOGO DE FONDO DIFUMINADO -->
+    {% comment %} <img src="{% static 'img/SVG/Logo_oscuro.svg' %}" alt="Logo AutoForge" class="absolute w-[500px] max-w-none opacity-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0" /> {% endcomment %}
 
-  <!-- LOGO DE FONDO DIFUMINADO -->
-  <img src="{% static 'img/SVG/Logo_oscuro.svg' %}" alt="Logo AutoForge"
-       class="absolute w-[500px] max-w-none opacity-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0" />
+    <!-- CONTENEDOR -->
+    <div class="max-w-4xl w-full relative z-10">
+      <div class="rounded-3xl border border-black/10 bg-white/30 backdrop-blur-2xl shadow-2xl p-10 text-[#263238]">
+        <!-- TÍTULO -->
+        <h2 class="text-3xl md:text-4xl font-bold text-[#D7141A] mb-8 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 stroke-[#D7141A] fill-none" viewBox="0 0 24 24">
+            <path d="M12 20h9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>Editar Información
+        </h2>
 
-  <!-- CONTENEDOR -->
-  <div class="max-w-4xl w-full relative z-10">
-    <div class="rounded-3xl border border-black/10 bg-white/30 backdrop-blur-2xl shadow-2xl p-10 text-[#263238]">
+        <!-- Mostrar errores de validación -->
+        {% if form.errors %}
+          <div class="mb-4">
+            <ul class="errorlist">
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
 
-      <!-- TÍTULO -->
-      <h2 class="text-3xl md:text-4xl font-bold text-[#D7141A] mb-8 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 stroke-[#D7141A] fill-none" viewBox="0 0 24 24">
-          <path d="M12 20h9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Editar Información
-      </h2>
+        <!-- FORMULARIO -->
+        <form id="editarPerfilForm" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base md:text-lg leading-relaxed">
+          {% csrf_token %}
 
-      <!-- FORMULARIO -->
-      <form method="post" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base md:text-lg leading-relaxed">
-        {% csrf_token %}
+          <div>
+            <label class="block font-semibold text-[#263238]/80 mb-1">Nombre</label>
+            {{ form.first_name }}
+          </div>
+          <div>
+            <label class="block font-semibold text-[#263238]/80 mb-1">Apellido</label>
+            {{ form.last_name }}
+          </div>
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-[#263238]/80 mb-1">Correo electrónico</label>
+            {{ form.email }}
+          </div>
+          <div>
+            <label class="block font-semibold text-[#263238]/80 mb-1">Teléfono</label>
+            {{ form.telefono }}
+          </div>
+          <div>
+            <label class="block font-semibold text-[#263238]/80 mb-1">DUI</label>
+            {{ form.dui }}
+          </div>
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-[#263238]/80 mb-1">Dirección</label>
+            {{ form.direccion }}
+          </div>
 
-        <div>
-          <label class="block font-semibold text-[#263238]/80 mb-1">Nombre</label>
-          {{ form.first_name }}
-        </div>
-        <div>
-          <label class="block font-semibold text-[#263238]/80 mb-1">Apellido</label>
-          {{ form.last_name }}
-        </div>
-        <div class="md:col-span-2">
-          <label class="block font-semibold text-[#263238]/80 mb-1">Correo electrónico</label>
-          {{ form.email }}
-        </div>
-        <div>
-          <label class="block font-semibold text-[#263238]/80 mb-1">Teléfono</label>
-          {{ form.telefono }}
-        </div>
-        <div>
-          <label class="block font-semibold text-[#263238]/80 mb-1">DUI</label>
-          {{ form.dui }}
-        </div>
-        <div class="md:col-span-2">
-          <label class="block font-semibold text-[#263238]/80 mb-1">Dirección</label>
-          {{ form.direccion }}
-        </div>
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-[#263238]/80 mb-1">Nueva Contraseña</label>
+            {{ form.password }}
+          </div>
 
-        <div class="md:col-span-2 text-right mt-6">
-          <button type="submit"
-                  class="inline-flex items-center gap-2 px-6 py-2 bg-[#D7141A] text-white font-medium rounded hover:bg-[#b31217] transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 stroke-white fill-none" viewBox="0 0 24 24">
-              <path d="M17 3v4a1 1 0 0 0 1 1h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5ZM17 17h.01M9 10h6v6H9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Guardar Cambios
-          </button>
-        </div>
-      </form>
+          <div class="md:col-span-2 text-right mt-6">
+            <button type="submit" class="inline-flex items-center gap-2 px-6 py-2 bg-[#D7141A] text-white font-medium rounded hover:bg-[#b31217] transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 stroke-white fill-none" viewBox="0 0 24 24">
+                <path d="M17 3v4a1 1 0 0 0 1 1h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M21 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5ZM17 17h.01M9 10h6v6H9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Teléfono: ####-####
+      const telefonoInput = document.querySelector('#id_telefono');
+      if (telefonoInput) {
+        telefonoInput.setAttribute('maxlength', 9);
+
+        // Formatea valor inicial
+        let value = telefonoInput.value.replace(/\D/g, '').slice(0,8);
+        if (value.length > 4) {
+          value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        }
+        telefonoInput.value = value;
+
+        telefonoInput.addEventListener('input', function (e) {
+          let value = e.target.value.replace(/\D/g, '').slice(0,8);
+          if (value.length > 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4, 8);
+          }
+          e.target.value = value;
+        });
+      }
+
+      // DUI: ########-#
+      const duiInput = document.querySelector('#id_dui');
+      if (duiInput) {
+        duiInput.setAttribute('maxlength', 10);
+
+        // Formatea valor inicial
+        let value = duiInput.value.replace(/\D/g, '').slice(0,9);
+        if (value.length > 8) {
+          value = value.substring(0, 8) + '-' + value.substring(8, 9);
+        }
+        duiInput.value = value;
+
+        duiInput.addEventListener('input', function (e) {
+          let value = e.target.value.replace(/\D/g, '').slice(0,9);
+          if (value.length > 8) {
+            value = value.substring(0, 8) + '-' + value.substring(8, 9);
+          }
+          e.target.value = value;
+        });
+      }
+
+      // Manejo del envío del formulario por AJAX
+      const form = document.getElementById("editarPerfilForm");
+      if (form) {
+        form.addEventListener("submit", function(event) {
+          event.preventDefault();
+          const formData = new FormData(form);
+
+          fetch("{% url 'editar_perfil_cliente' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: 'Éxito',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+              }).then(() => {
+                window.location.href = "/perfil/"; // Cambia la URL si es necesario
+              });
+            } else {
+              if (data.errors) {
+                let errorMessages = "";
+                for (const [field, errors] of Object.entries(data.errors)) {
+                  errorMessages += `${field}: `;
+                  errors.forEach(e => errorMessages += e.message + "<br>");
+                }
+                Swal.fire('Error', errorMessages, 'error');
+              } else {
+                Swal.fire('Error', 'Hubo un error al guardar los datos. Inténtalo de nuevo.', 'error');
+              }
+            }
+          })
+          .catch(error => {
+            Swal.fire('Error', 'Hubo un error inesperado. Inténtalo de nuevo.', 'error');
+          });
+        });
+      }
+    });
+  </script>
 {% endblock %}

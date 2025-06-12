@@ -3,6 +3,8 @@ from .models import *
 from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.hashers import make_password
+import re
 
 User = get_user_model()
 
@@ -173,15 +175,21 @@ class MantenimientoAgendadoForm(forms.ModelForm):
             'notas': forms.Textarea(attrs={'class': 'w-full border border-gray-300 rounded px-3 py-2', 'rows': 2}),
         }
 
-
-
-
 #ClienteForm y VehiculoForm
-
 class ClienteForm(forms.ModelForm):
+    password = forms.CharField(
+        label='Nueva Contraseña',
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'Deja en blanco para mantener la contraseña actual'
+        })
+    )
+
     class Meta:
         model = Usuarios
-        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']  # NO INCLUYAS 'password' aquí
+
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
@@ -212,21 +220,25 @@ class ClienteForm(forms.ModelForm):
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
-        if telefono and (not telefono.isdigit() or len(telefono) != 8):
-            raise ValidationError("El teléfono debe contener exactamente 8 dígitos.")
+        if telefono and not re.match(r'^\d{4}-\d{4}$', telefono):
+            raise ValidationError("El teléfono debe tener el formato 1234-5678.")
         return telefono
 
+    def clean_dui(self):
+        dui = self.cleaned_data.get('dui')
+        if dui and not re.match(r'^\d{8}-\d{1}$', dui):
+            raise ValidationError("El DUI debe tener el formato 12345678-9.")
+        return dui
+
     def save(self, commit=True):
-        instance = super().save(commit=False)
-        rol_cliente = Roles.objects.get(codigo_rol='C')
-        instance.id_rol = rol_cliente
-
-        instance.username = None  
-
-
+        usuario = super().save(commit=False)
+        nueva_contraseña = self.cleaned_data.get('password')
+        if nueva_contraseña:
+            usuario.set_password(nueva_contraseña)  # Cifra correctamente la nueva contraseña
+        # Si el campo está vacío, NO modifica la contraseña
         if commit:
-            instance.save()
-        return instance
+            usuario.save()
+        return usuario
 
 
 class VehiculoForm(forms.ModelForm):
