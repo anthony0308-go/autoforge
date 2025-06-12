@@ -1,4 +1,5 @@
 {% extends 'mantenimiento/base.html' %}
+{% load static %}
 {% block title %}
   Editar Perfil | AutoForge
 {% endblock %}
@@ -6,7 +7,7 @@
 {% block content %}
   <div class="relative w-full min-h-screen bg-white py-12 px-4 flex justify-center overflow-hidden">
     <!-- LOGO DE FONDO DIFUMINADO -->
-    {% comment %} <img src="{% static 'img/SVG/Logo_oscuro.svg' %}" alt="Logo AutoForge" class="absolute w-[500px] max-w-none opacity-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0" /> {% endcomment %}
+      <img src="{% static 'img/SVG/Logo_oscuro.svg' %}" alt="Logo AutoForge" class="absolute w-[500px] max-w-none opacity-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"/>
 
     <!-- CONTENEDOR -->
     <div class="max-w-4xl w-full relative z-10">
