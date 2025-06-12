@@ -169,10 +169,37 @@ class TiposMantenimiento(models.Model):
         db_table = 'tipos_mantenimiento'
 
 
+TIPOS_PLACA = [
+    ("P", "Vehículo particular"),
+    ("A", "Vehículo de alquiler"),
+    ("AB", "Autobús"),
+    ("C", "Vehículo de carga"),
+    ("M", "Motocicleta particular"),
+    ("H", "Vehículo del Estado"),
+    ("N", "Vehículo de instituciones autónomas"),
+    ("O", "Organismo internacional"),
+    ("CD", "Cuerpo diplomático"),
+    ("CC", "Cuerpo consular"),
+    ("MI", "Misión internacional"),
+    ("U", "Uso municipal"),
+    ("E", "Vehículo escolar"),
+    ("T", "Transporte público (colectivo)"),
+    ("TC", "Transporte de carga comercial"),
+    ("R", "Remolque"),
+    ("TR", "Tractor o maquinaria agrícola/industrial"),
+    ("F", "Fuerza Armada"),
+    ("D", "Vehículo en demostración (agencia/concesionario)"),
+    ("Z", "Vehículo de zona franca o especial"),
+    ("B", "Mototaxi / Tricimoto / Bicimoto"),
+    ("V", "Vehículo temporal o de visitante"),
+    ("POL", "POLIZA (Placa provisional)"),
+]
+
 class Vehiculos(models.Model):
     id_vehiculo = models.AutoField(primary_key=True)
     id_usuario_propietario = models.ForeignKey(Usuarios, models.DO_NOTHING, db_column='id_usuario_propietario')
     placa = models.CharField(unique=True, max_length=10)
+    tipo_placa = models.CharField(max_length=4, choices=TIPOS_PLACA, default="P")
     marca = models.CharField(max_length=50)
     modelo = models.CharField(max_length=50)
     anio = models.IntegerField(blank=True, null=True)

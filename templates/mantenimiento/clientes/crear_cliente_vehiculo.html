@@ -1,147 +1,340 @@
 {% extends 'mantenimiento/base.html' %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
-  <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Registrar Cliente y Vehículo</h2>
+  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
+    <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Registrar Cliente y Vehículo</h2>
 
-  {% if messages %}
-    <ul class="mb-4">
-      {% for message in messages %}
-        <li class="p-3 rounded text-white
-                   {% if message.tags == 'error' %}bg-red-600
-                   {% elif message.tags == 'success' %}bg-green-600
-                   {% else %}bg-gray-600{% endif %}">
-          {{ message }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+    <form id="crearClienteVehiculoForm" method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
 
-  <form method="post" enctype="multipart/form-data" class="space-y-6">
-    {% csrf_token %}
-    
-    <!-- DATOS DEL CLIENTE -->
-    <fieldset class="border border-gray-300 p-4 rounded">
-      <legend class="text-lg font-semibold text-gray-700 px-2">Información del Cliente</legend>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label class="block text-sm font-medium">Nombre</label>
-          {{ cliente_form.first_name }}
+      <!-- DATOS DEL CLIENTE -->
+      <fieldset class="border border-gray-300 p-4 rounded">
+        <legend class="text-lg font-semibold text-gray-700 px-2">Información del Cliente</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="block text-sm font-medium">Nombre</label>
+            {{ cliente_form.first_name }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Apellido</label>
+            {{ cliente_form.last_name }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Correo electrónico</label>
+            {{ cliente_form.email }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Teléfono</label>
+            {{ cliente_form.telefono }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">DUI</label>
+            {{ cliente_form.dui }}
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium">Dirección</label>
+            {{ cliente_form.direccion }}
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Apellido</label>
-          {{ cliente_form.last_name }}
+      </fieldset>
+
+      <!-- DATOS DEL VEHÍCULO -->
+      <fieldset class="border border-gray-300 p-4 rounded">
+        <legend class="text-lg font-semibold text-gray-700 px-2">Información del Vehículo</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="block text-sm font-medium">Tipo de Placa</label>
+            {{ vehiculo_form.tipo_placa }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Placa</label>
+            {{ vehiculo_form.placa }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Marca</label>
+            {{ vehiculo_form.marca }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Modelo</label>
+            {{ vehiculo_form.modelo }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Año</label>
+            {{ vehiculo_form.anio }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Color</label>
+            {{ vehiculo_form.color }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Tipo de combustible</label>
+            {{ vehiculo_form.tipo_combustible }}
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium">VIN</label>
+            {{ vehiculo_form.vin }}
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Correo electrónico</label>
-          {{ cliente_form.email }}
+      </fieldset>
+
+      <!-- FOTOS DEL VEHÍCULO -->
+      <fieldset class="border border-gray-300 p-4 rounded">
+        <legend class="text-lg font-semibold text-gray-700 px-2">Fotografías del Vehículo</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="block text-sm font-medium">Foto frontal</label>
+            {{ vehiculo_form.foto_frontal }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Foto lateral izquierda</label>
+            {{ vehiculo_form.foto_lateral_izquierda }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Foto lateral derecha</label>
+            {{ vehiculo_form.foto_lateral_derecha }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Foto trasera</label>
+            {{ vehiculo_form.foto_trasera }}
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Teléfono</label>
-          {{ cliente_form.telefono }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">DUI</label>
-          {{ cliente_form.dui }}
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium">Dirección</label>
-          {{ cliente_form.direccion }}
-        </div>
+      </fieldset>
+
+      <!-- BOTÓN SUBMIT -->
+      <div class="text-right">
+        <button type="submit" class="px-6 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">💾 Guardar cliente y vehículo</button>
       </div>
-    </fieldset>
+    </form>
+  </div>
 
-    <!-- DATOS DEL VEHÍCULO -->
-    <fieldset class="border border-gray-300 p-4 rounded">
-      <legend class="text-lg font-semibold text-gray-700 px-2">Información del Vehículo</legend>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label class="block text-sm font-medium">Placa</label>
-          {{ vehiculo_form.placa }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Marca</label>
-          {{ vehiculo_form.marca }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Modelo</label>
-          {{ vehiculo_form.modelo }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Año</label>
-          {{ vehiculo_form.anio }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Color</label>
-          {{ vehiculo_form.color }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Tipo de combustible</label>
-          {{ vehiculo_form.tipo_combustible }}
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium">VIN</label>
-          {{ vehiculo_form.vin }}
-        </div>
-      </div>
-    </fieldset>
+ {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Máscaras para teléfono, DUI y placa
+  const telefonoInput = document.querySelector('#id_telefono')
+  if (telefonoInput) {
+    telefonoInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '')
+      if (value.length > 4) {
+        value = value.substring(0, 4) + '-' + value.substring(4, 8)
+      }
+      e.target.value = value
+    })
+  }
+  const duiInput = document.querySelector('#id_dui')
+  if (duiInput) {
+    duiInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '')
+      if (value.length > 8) {
+        value = value.substring(0, 8) + '-' + value.substring(8, 9)
+      }
+      e.target.value = value
+    })
+  }
+  const placaInput = document.querySelector('#id_placa')
+  if (placaInput) {
+    placaInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '').slice(0, 6)
+      e.target.value = value
+    })
+  }
+  const vinInput = document.querySelector('#id_vin')
+  if (vinInput) {
+    vinInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 17)
+      e.target.value = value
+    })
+  }
 
-    <!-- FOTOS DEL VEHÍCULO -->
-    <fieldset class="border border-gray-300 p-4 rounded">
-      <legend class="text-lg font-semibold text-gray-700 px-2">Fotografías del Vehículo</legend>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label class="block text-sm font-medium">Foto frontal</label>
-          {{ vehiculo_form.foto_frontal }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Foto lateral izquierda</label>
-          {{ vehiculo_form.foto_lateral_izquierda }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Foto lateral derecha</label>
-          {{ vehiculo_form.foto_lateral_derecha }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Foto trasera</label>
-          {{ vehiculo_form.foto_trasera }}
-        </div>
-      </div>
-    </fieldset>
+  // Validación y AJAX para envío de formulario
+  const form = document.getElementById('crearClienteVehiculoForm')
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault()
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
 
-    <!-- BOTÓN SUBMIT -->
-    <div class="text-right">
-      <button type="submit" class="px-6 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">
-        💾 Guardar cliente y vehículo
-      </button>
-    </div>
-  </form>
-</div>
+      // --- 1. Validar campos de cliente ---
+      const camposCliente = [
+        { id: 'id_first_name', label: 'Nombre' },
+        { id: 'id_last_name', label: 'Apellido' },
+        { id: 'id_email', label: 'Correo electrónico' },
+        { id: 'id_telefono', label: 'Teléfono' },
+        { id: 'id_dui', label: 'DUI' },
+        { id: 'id_direccion', label: 'Dirección' }
+      ]
+      let camposVaciosCliente = []
+      let errores = []
 
-{% block scripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const telefonoInput = document.querySelector('#id_telefono');
-            const duiInput = document.querySelector('#id_dui');
+      for (const campo of camposCliente) {
+        const input = document.getElementById(campo.id)
+        if (input && !input.value.trim()) {
+          camposVaciosCliente.push(campo.label)
+        }
+      }
 
-            // Mascara para el teléfono: ####-####
-            telefonoInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, '');  // Eliminar todo lo no numérico
-                if (value.length > 4) {
-                    value = value.substring(0, 4) + '-' + value.substring(4, 8);  // Insertar guion
-                }
-                e.target.value = value;
+      // Validar correo
+      const emailInput = document.getElementById('id_email')
+      if (emailInput && emailInput.value.trim()) {
+        const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+        if (!re.test(emailInput.value.trim())) {
+          errores.push('El correo electrónico no es válido.')
+        }
+      }
+
+      // Validar teléfono
+      const telInput = document.getElementById('id_telefono')
+      if (telInput && telInput.value.trim() && !/^\d{4}-\d{4}$/.test(telInput.value.trim())) {
+        errores.push('El teléfono debe tener el formato 1234-5678.')
+      }
+
+      // Validar DUI
+      if (duiInput && duiInput.value.trim() && !/^\d{8}-\d{1}$/.test(duiInput.value.trim())) {
+        errores.push('El DUI debe tener el formato 12345678-9.')
+      }
+
+      // --- 2. Validar campos del Vehículo ---
+      const camposVehiculo = [
+        { id: 'id_tipo_placa', label: 'Tipo de placa' },
+        { id: 'id_placa', label: 'Placa' },
+        { id: 'id_marca', label: 'Marca' },
+        { id: 'id_modelo', label: 'Modelo' },
+        { id: 'id_anio', label: 'Año' },
+        { id: 'id_color', label: 'Color' },
+        { id: 'id_tipo_combustible', label: 'Tipo de combustible' },
+        { id: 'id_vin', label: 'VIN' }
+      ]
+      let camposVaciosVehiculo = []
+      for (const campo of camposVehiculo) {
+        const input = document.getElementById(campo.id)
+        if (input && !input.value.trim()) {
+          camposVaciosVehiculo.push(campo.label)
+        }
+      }
+
+      // Validar placa (6 dígitos)
+      if (placaInput && placaInput.value.trim() && !/^\d{6}$/.test(placaInput.value.trim())) {
+        errores.push('La placa debe tener exactamente 6 dígitos numéricos.')
+      }
+
+      // Validar VIN (17 caracteres alfanuméricos)
+      if (vinInput && vinInput.value.trim() && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vinInput.value.trim())) {
+        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).')
+      }
+
+      // --- 3. Validar fotos ---
+      const camposFotos = [
+        { id: 'id_foto_frontal', label: 'Foto frontal' },
+        { id: 'id_foto_lateral_izquierda', label: 'Foto lateral izquierda' },
+        { id: 'id_foto_lateral_derecha', label: 'Foto lateral derecha' },
+        { id: 'id_foto_trasera', label: 'Foto trasera' }
+      ]
+      let faltantes = []
+      for (const campo of camposFotos) {
+        const input = document.getElementById(campo.id)
+        if (input && !input.value) {
+          faltantes.push(campo.label)
+        }
+      }
+
+      // --- ALERTAS visuales (NO se envía AJAX si hay errores visuales) ---
+      if (camposVaciosCliente.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos - Cliente',
+          html: 'Debes completar los siguientes campos:<br><b>' + camposVaciosCliente.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (camposVaciosVehiculo.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos - Vehículo',
+          html: 'Debes completar los siguientes campos:<br><b>' + camposVaciosVehiculo.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (errores.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Errores de formato',
+          html: errores.join('<br>'),
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (faltantes.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan fotografías',
+          html: 'Debes seleccionar las siguientes fotos:<br><b>' + faltantes.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+
+      // --- 4. Enviar por AJAX ---
+      const formData = new FormData(form)
+      fetch("{% url 'crear_cliente' %}", {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(response => response.json().catch(() => null))
+        .then(data => {
+          if (!data) {
+            Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
+              submitButton.disabled = false;
             });
-
-            // Mascara para el DUI: #######-#
-            duiInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, '');  // Eliminar todo lo no numérico
-                if (value.length > 8) {
-                    value = value.substring(0, 8) + '-' + value.substring(8, 9);  // Insertar guion
-                }
-                e.target.value = value;
+            return;
+          }
+          if (data.success) {
+            Swal.fire({
+              title: '¡Éxito!',
+              text: data.message,
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              window.location.href = "{% url 'listar_clientes' %}"
             });
+          } else {
+            let errorMessages = ''
+            if (data.errors) {
+              if (data.errors.cliente_form) {
+                for (const [field, errors] of Object.entries(data.errors.cliente_form)) {
+                  errors.forEach(e => (errorMessages += `Cliente - ${field}: ${e.message}<br>`))
+                }
+              }
+              if (data.errors.vehiculo_form) {
+                for (const [field, errors] of Object.entries(data.errors.vehiculo_form)) {
+                  errors.forEach(e => (errorMessages += `Vehículo - ${field}: ${e.message}<br>`))
+                }
+              }
+              if (data.errors.general) {
+                errorMessages += data.errors.general + '<br>'
+              }
+            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              html: errorMessages || 'Revisa los campos obligatorios.',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              submitButton.disabled = false;
+            });
+          }
+        })
+        .catch(() => {
+          Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
+            submitButton.disabled = false;
+          });
         });
-    </script>
+    })
+  }
+})
+</script>
 {% endblock %}
 {% endblock %}

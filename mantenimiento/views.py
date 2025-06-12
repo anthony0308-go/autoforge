@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.forms import inlineformset_factory
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.utils import timezone
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.contrib import messages
@@ -373,6 +373,11 @@ def detalle_cliente(request, cliente_id):
 def crear_cliente_y_vehiculo(request):
     Cliente = Roles.objects.filter(codigo_rol='C').first()
     if not Cliente:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'errors': {'general': 'No existe un rol con código C.'}},
+                status=400
+            )
         messages.error(request, "No existe un rol con código 'C'.")
         return redirect('listar_clientes')
 
@@ -380,9 +385,9 @@ def crear_cliente_y_vehiculo(request):
         cliente_form = ClienteForm(request.POST)
         vehiculo_form = VehiculoForm(request.POST, request.FILES)
 
-        if cliente_form.is_valid() and vehiculo_form.is_valid():
-            try:
-                with transaction.atomic():
+        try:
+            with transaction.atomic():
+                if cliente_form.is_valid() and vehiculo_form.is_valid():
                     # Crear cliente
                     cliente = cliente_form.save(commit=False)
                     cliente.id_rol = Cliente
@@ -404,7 +409,6 @@ def crear_cliente_y_vehiculo(request):
                         'foto_lateral_derecha': 'lateral derecha',
                         'foto_trasera': 'trasera'
                     }
-
                     for campo, tipo in fotos.items():
                         archivo = request.FILES.get(campo)
                         if archivo:
@@ -426,17 +430,42 @@ def crear_cliente_y_vehiculo(request):
                         fail_silently=False,
                     )
 
-                    messages.success(request, 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.')
-                    return redirect('listar_clientes')
+                    # RESPUESTA EXITOSA
+                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.'
+                        })
+                    else:
+                        messages.success(request, 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.')
+                        return redirect('listar_clientes')
+                else:
+                    # Formulario inválido, retornar errores
+                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                        return JsonResponse({
+                            'success': False,
+                            'errors': {
+                                'cliente_form': cliente_form.errors.get_json_data(),
+                                'vehiculo_form': vehiculo_form.errors.get_json_data(),
+                            }
+                        }, status=400)
+                    messages.error(request, "Por favor corrige los errores del formulario.")
 
-            except Exception as e:
-                messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
-
-        else:
-            # Mostrar errores en consola
-            print("Errores en cliente_form:", cliente_form.errors)
-            print("Errores en vehiculo_form:", vehiculo_form.errors)
-            messages.error(request, "Por favor corrige los errores del formulario.")
+        except IntegrityError as e:
+            # Errores de unicidad (DUI, email, etc.)
+            if 'usuarios_dui_key' in str(e):
+                msg = "El DUI ingresado ya está registrado para otro usuario."
+            elif 'usuarios_email_key' in str(e):
+                msg = "El correo electrónico ya está registrado para otro usuario."
+            else:
+                msg = "Ocurrió un error de integridad en los datos. Verifica que no estés duplicando información única."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'general': msg}}, status=400)
+            messages.error(request, msg)
+        except Exception as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'general': f"Ocurrió un error inesperado: {str(e)}"}}, status=400)
+            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
 
     else:
         cliente_form = ClienteForm()
@@ -446,8 +475,6 @@ def crear_cliente_y_vehiculo(request):
         'cliente_form': cliente_form,
         'vehiculo_form': vehiculo_form,
     })
-
-
 
 @login_required
 def perfil_cliente(request):

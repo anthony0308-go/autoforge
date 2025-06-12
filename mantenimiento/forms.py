@@ -177,6 +177,55 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 
 #ClienteForm y VehiculoForm
 class ClienteForm(forms.ModelForm):
+    first_name = forms.CharField(
+        label='Nombre',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'Nombre'
+        })
+    )
+    last_name = forms.CharField(
+        label='Apellido',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'Apellido'
+        })
+    )
+    email = forms.EmailField(
+        label='Correo electrónico',
+        required=False,
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'Correo electrónico'
+        })
+    )
+    telefono = forms.CharField(
+        label='Teléfono',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'Teléfono (8 dígitos)'
+        })
+    )
+    dui = forms.CharField(
+        label='DUI',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'placeholder': 'DUI'
+        })
+    )
+    direccion = forms.CharField(
+        label='Dirección',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
+            'rows': 3,
+            'placeholder': 'Dirección'
+        })
+    )
     password = forms.CharField(
         label='Nueva Contraseña',
         required=False,
@@ -188,35 +237,7 @@ class ClienteForm(forms.ModelForm):
 
     class Meta:
         model = Usuarios
-        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']  # NO INCLUYAS 'password' aquí
-
-        widgets = {
-            'first_name': forms.TextInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'Nombre'
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'Apellido'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'Correo electrónico'
-            }),
-            'telefono': forms.TextInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'Teléfono (8 dígitos)'
-            }),
-            'dui': forms.TextInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'DUI'
-            }),
-            'direccion': forms.Textarea(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'rows': 3,
-                'placeholder': 'Dirección'
-            }),
-        }
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
@@ -242,21 +263,122 @@ class ClienteForm(forms.ModelForm):
 
 
 class VehiculoForm(forms.ModelForm):
-    foto_frontal = forms.ImageField(required=True, label="Foto Frontal")
-    foto_lateral_izquierda = forms.ImageField(required=True, label="Foto Lateral Izquierda")
-    foto_lateral_derecha = forms.ImageField(required=True, label="Foto Lateral Derecha")
-    foto_trasera = forms.ImageField(required=True, label="Foto Trasera")
+    tipo_placa = forms.ChoiceField(
+        label="Tipo de Placa",
+        choices=Vehiculos._meta.get_field('tipo_placa').choices,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-input'})
+    )
+    placa = forms.CharField(
+        label="Placa",
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'maxlength': 6,
+            'inputmode': 'numeric',
+            'pattern': '[0-9]{6}',
+            'title': 'La placa debe tener 6 dígitos'
+        })
+    )
+    marca = forms.CharField(
+        label="Marca",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    modelo = forms.CharField(
+        label="Modelo",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    anio = forms.IntegerField(
+        label="Año",
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-input'})
+    )
+    tipo_combustible = forms.CharField(
+        label="Tipo de combustible",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    vin = forms.CharField(
+        label="VIN",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+    color = forms.CharField(
+        label="Color",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input'})
+    )
+
+    foto_frontal = forms.ImageField(
+        label="Foto Frontal",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input'})
+    )
+    foto_lateral_izquierda = forms.ImageField(
+        label="Foto Lateral Izquierda",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input'})
+    )
+    foto_lateral_derecha = forms.ImageField(
+        label="Foto Lateral Derecha",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input'})
+    )
+    foto_trasera = forms.ImageField(
+        label="Foto Trasera",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input'})
+    )
 
     class Meta:
         model = Vehiculos
         exclude = ['id_usuario_propietario', 'id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
-        widgets = {
-            'placa': forms.TextInput(attrs={'class': 'form-input'}),
-            'marca': forms.TextInput(attrs={'class': 'form-input'}),
-            'modelo': forms.TextInput(attrs={'class': 'form-input'}),
-            'anio': forms.NumberInput(attrs={'class': 'form-input'}),
-            'tipo_combustible': forms.TextInput(attrs={'class': 'form-input'}),
-            'vin': forms.TextInput(attrs={'class': 'form-input'}),
-            'color': forms.TextInput(attrs={'class': 'form-input'}),
-        }
+        # No necesitas widgets aquí, ya que todos los campos se declaran arriba con sus widgets y required=False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        campos_obligatorios = [
+            ('tipo_placa', 'Tipo de Placa'),
+            ('placa', 'Placa'),
+            ('marca', 'Marca'),
+            ('modelo', 'Modelo'),
+            ('anio', 'Año'),
+            ('tipo_combustible', 'Tipo de combustible'),
+            ('vin', 'VIN'),
+            ('color', 'Color'),
+            ('foto_frontal', 'Foto frontal'),
+            ('foto_lateral_izquierda', 'Foto lateral izquierda'),
+            ('foto_lateral_derecha', 'Foto lateral derecha'),
+            ('foto_trasera', 'Foto trasera'),
+        ]
+        errores = {}
+        for campo, label in campos_obligatorios:
+            valor = cleaned_data.get(campo)
+            if not valor:
+                errores[campo] = f'El campo "{label}" es obligatorio.'
+
+        if errores:
+            raise forms.ValidationError(errores)
+        return cleaned_data
+
+    # Validación adicional opcional en el backend
+    def clean_placa(self):
+        placa = self.cleaned_data.get('placa')
+        if placa and not placa.isdigit():
+            raise forms.ValidationError("La placa debe contener solo dígitos.")
+        if placa and len(placa) != 6:
+            raise forms.ValidationError("La placa debe tener exactamente 6 dígitos.")
+        return placa
+    
+    def clean_vin(self):
+        vin = self.cleaned_data.get('vin')
+        if vin:
+            if not vin.isalnum():
+                raise forms.ValidationError("El VIN solo debe contener letras y números.")
+            if len(vin) != 17:
+                raise forms.ValidationError("El VIN debe tener exactamente 17 caracteres.")
+        return vin
+        
+    
