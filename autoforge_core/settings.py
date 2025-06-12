@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'autoforge',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'Lexter1737yt!',
         'HOST': 'localhost',
         'PORT': '5432',
     }

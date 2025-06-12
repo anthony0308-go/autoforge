@@ -181,7 +181,7 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Usuarios
-        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion', 'password']
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
@@ -207,10 +207,6 @@ class ClienteForm(forms.ModelForm):
                 'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
                 'rows': 3,
                 'placeholder': 'Dirección'
-            }),
-            'password': forms.PasswordInput(attrs={
-                'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
-                'placeholder': 'Contraseña'
             }),
         }
 
