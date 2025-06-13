@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+
 from django.views.decorators.http import require_POST
 from autoforge_core import settings
 from .forms import *
@@ -704,42 +705,14 @@ def editar_vehiculo(request, vehiculo_id):
     
 
 @login_required
-def eliminar_vehiculo(request, id_vehiculo):
-    try:
-        vehiculo = Vehiculos.objects.get(pk=id_vehiculo)
-        if not (request.user.is_superuser or getattr(request.user.id_rol, 'codigo_rol', None) == 'A'):
-            return HttpResponseForbidden("No autorizado.")
+def eliminar_vehiculo(request, vehiculo_id):
+    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
 
-        # Guarda datos del propietario y placas ANTES de eliminar
-        propietario = vehiculo.id_usuario_propietario
-        placas = vehiculo.placa
-
+    if request.method == 'POST':
         vehiculo.delete()
+        messages.success(request, 'Vehículo eliminado correctamente.')
+        return redirect('listar_vehiculos')
 
-        # Envía el correo al propietario
-        if propietario.email:
-            send_mail(
-                subject='Vehículo eliminado de AutoForge',
-                message=f'Hola {propietario.get_full_name()},\n\nTe informamos que el vehículo con placas {placas} ha sido eliminado de tu cuenta por un administrador. Si tienes dudas, contáctanos.',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[propietario.email],
-                fail_silently=True,
-            )
-
-        return JsonResponse({'success': True, 'message': 'Vehículo eliminado correctamente. El propietario ha sido notificado por correo.'})
-    except Vehiculos.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'El vehículo no existe.'}, status=404)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
-
-@login_required
-@require_POST
-def marcar_agendado_hecho(request, agendado_id):
-    agendado = get_object_or_404(MantenimientosAgendados, pk=agendado_id)
-    # Solo admins pueden marcar como hecho
-    if not (request.user.is_superuser or (hasattr(request.user, 'id_rol') and request.user.id_rol and request.user.id_rol.codigo_rol == 'A')):
-        return JsonResponse({'ok': False, 'error': 'No autorizado.'}, status=403)
-    agendado.estado_agendamiento = 'realizado'  # o el estado que manejes
-    agendado.save()
-    return JsonResponse({'ok': True})
+    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {
+        'vehiculo': vehiculo
+    })
