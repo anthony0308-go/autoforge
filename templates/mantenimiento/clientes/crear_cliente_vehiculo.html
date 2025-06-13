@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --- AJAX y validaciones ---
-  const form = document.getElementById('crearClienteVehiculoForm');
+    const form = document.getElementById('crearClienteVehiculoForm');
   let submitEnProgreso = false;
   if (form) {
     form.addEventListener('submit', function (event) {
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const submitButton = form.querySelector('button[type="submit"]');
       if (submitButton) submitButton.disabled = true;
 
-      // Validación SOLO visual básica de campos requeridos (cliente y vehículo)
+      // 1. Cliente
       const camposCliente = [
         { id: 'id_first_name', label: 'Nombre' },
         { id: 'id_last_name', label: 'Apellido' },
@@ -168,30 +168,14 @@ document.addEventListener('DOMContentLoaded', function () {
         { id: 'id_direccion', label: 'Dirección' }
       ];
       let camposVaciosCliente = [];
-      let errores = [];
       for (const campo of camposCliente) {
         const input = document.getElementById(campo.id);
         if (input && !input.value.trim()) {
           camposVaciosCliente.push(campo.label);
         }
       }
-      // Validar correo, teléfono y DUI
-      const emailInput = document.getElementById('id_email');
-      if (emailInput && emailInput.value.trim()) {
-        const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-        if (!re.test(emailInput.value.trim())) {
-          errores.push('El correo electrónico no es válido.');
-        }
-      }
-      const telInput = document.getElementById('id_telefono');
-      if (telInput && telInput.value.trim() && !/^\d{4}-\d{4}$/.test(telInput.value.trim())) {
-        errores.push('El teléfono debe tener el formato 1234-5678.');
-      }
-      if (duiInput && duiInput.value.trim() && !/^\d{8}-\d{1}$/.test(duiInput.value.trim())) {
-        errores.push('El DUI debe tener el formato 12345678-9.');
-      }
 
-      // Validación de campos requeridos de vehículo
+      // 2. Vehículo
       const camposVehiculo = [
         { id: 'id_tipo_placa', label: 'Tipo de placa' },
         { id: 'id_placa', label: 'Placa' },
@@ -209,14 +193,8 @@ document.addEventListener('DOMContentLoaded', function () {
           camposVaciosVehiculo.push(campo.label);
         }
       }
-      if (placaInput && placaInput.value.trim() && !/^\d{6}$/.test(placaInput.value.trim())) {
-        errores.push('La placa debe tener exactamente 6 dígitos numéricos.');
-      }
-      if (vinInput && vinInput.value.trim() && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vinInput.value.trim())) {
-        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).');
-      }
 
-      // Validación de fotos requeridas
+      // 3. Fotos
       const camposFotos = [
         { id: 'id_foto_frontal', label: 'Foto frontal' },
         { id: 'id_foto_lateral_izquierda', label: 'Foto lateral izquierda' },
@@ -231,31 +209,62 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // SOLO mostrar alertas si faltan campos obligatorios (alerta útil y corta)
-      if (camposVaciosCliente.length > 0 || camposVaciosVehiculo.length > 0 || errores.length > 0 || faltantes.length > 0) {
+      // 4. Errores de formato (opcional, como en tu código actual)
+      let errores = [];
+      const emailInput = document.getElementById('id_email');
+      if (emailInput && emailInput.value.trim()) {
+        const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!re.test(emailInput.value.trim())) {
+          errores.push('El correo electrónico no es válido.');
+        }
+      }
+      const telInput = document.getElementById('id_telefono');
+      if (telInput && telInput.value.trim() && !/^\d{4}-\d{4}$/.test(telInput.value.trim())) {
+        errores.push('El teléfono debe tener el formato 1234-5678.');
+      }
+      const duiInput = document.getElementById('id_dui');
+      if (duiInput && duiInput.value.trim() && !/^\d{8}-\d{1}$/.test(duiInput.value.trim())) {
+        errores.push('El DUI debe tener el formato 12345678-9.');
+      }
+      const placaInput = document.getElementById('id_placa');
+      if (placaInput && placaInput.value.trim() && !/^\d{6}$/.test(placaInput.value.trim())) {
+        errores.push('La placa debe tener exactamente 6 dígitos numéricos.');
+      }
+      const vinInput = document.getElementById('id_vin');
+      if (vinInput && vinInput.value.trim() && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vinInput.value.trim())) {
+        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).');
+      }
+
+      // 5. Alertas
+      if (
+        camposVaciosCliente.length > 0 ||
+        camposVaciosVehiculo.length > 0 ||
+        faltantes.length > 0 ||
+        errores.length > 0
+      ) {
         let mensajes = [];
         if (camposVaciosCliente.length > 0) {
-          mensajes.push('Completa los datos obligatorios del cliente.');
+          mensajes.push('<b>Completa los datos obligatorios del cliente:</b> ' + camposVaciosCliente.join(', '));
         }
         if (camposVaciosVehiculo.length > 0) {
-          mensajes.push('Completa los datos obligatorios del vehículo.');
+          mensajes.push('<b>Completa los datos obligatorios del vehículo:</b> ' + camposVaciosVehiculo.join(', '));
         }
         if (faltantes.length > 0) {
-          mensajes.push('Faltan fotografías: <b>' + faltantes.join(', ') + '</b>');
+          mensajes.push('<b>Faltan fotografías:</b> ' + faltantes.join(', '));
         }
         if (errores.length > 0) {
-          mensajes.push(errores.join('<br>'));
+          mensajes.push('<b>Errores de formato:</b><br>' + errores.join('<br>'));
         }
         Swal.fire({
           icon: 'warning',
           title: 'Campos requeridos',
-          html: mensajes.join('<br>'),
+          html: mensajes.join('<br><br>'),
           confirmButtonText: 'OK'
         }).then(() => { submitEnProgreso = false; if (submitButton) submitButton.disabled = false; });
         return;
       }
 
-      // Envío AJAX real, solo si pasa validaciones visuales
+      // --- AJAX real (tu código normal) ---
       const formData = new FormData(form);
       fetch("{% url 'crear_cliente' %}", {
         method: 'POST',
@@ -265,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json().catch(() => null))
         .then(data => {
           if (!data) {
-            // ERROR DE RED/CONEXIÓN
             Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
               submitEnProgreso = false;
               if (submitButton) submitButton.disabled = false;
@@ -282,7 +290,6 @@ document.addEventListener('DOMContentLoaded', function () {
               window.location.href = "{% url 'listar_clientes' %}";
             });
           } else {
-            // SOLO mostramos los mensajes REALES del backend (errores específicos)
             let errorMessages = '';
             if (data.errors) {
               if (data.errors.cliente_form) {
@@ -295,12 +302,10 @@ document.addEventListener('DOMContentLoaded', function () {
                   errors.forEach(e => (errorMessages += `Vehículo - ${field}: ${e.message}<br>`));
                 }
               }
-              // SOLO esto: errores del backend (reales), sin ningún mensaje genérico extra
               if (data.errors.general) {
                 errorMessages += data.errors.general + '<br>';
               }
             }
-            // Mostrar solo si hay mensajes concretos (de validación real del backend)
             if (errorMessages) {
               Swal.fire({
                 icon: 'error',
@@ -312,7 +317,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (submitButton) submitButton.disabled = false;
               });
             } else {
-              // Si no hay mensajes REALES, no mostramos nada
               submitEnProgreso = false;
               if (submitButton) submitButton.disabled = false;
             }

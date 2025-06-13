@@ -178,7 +178,7 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     first_name = forms.CharField(
         label='Nombre',
-        required=True,  # Debe ser obligatorio
+        required=False,  
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Nombre'
@@ -186,7 +186,7 @@ class ClienteForm(forms.ModelForm):
     )
     last_name = forms.CharField(
         label='Apellido',
-        required=True,
+        required=False,  
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Apellido'
@@ -194,7 +194,7 @@ class ClienteForm(forms.ModelForm):
     )
     email = forms.EmailField(
         label='Correo electrónico',
-        required=True,
+        required=False,
         widget=forms.EmailInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Correo electrónico'
@@ -202,7 +202,7 @@ class ClienteForm(forms.ModelForm):
     )
     telefono = forms.CharField(
         label='Teléfono',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Teléfono (8 dígitos)'
@@ -210,7 +210,7 @@ class ClienteForm(forms.ModelForm):
     )
     dui = forms.CharField(
         label='DUI',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'DUI'
@@ -218,7 +218,7 @@ class ClienteForm(forms.ModelForm):
     )
     direccion = forms.CharField(
         label='Dirección',
-        required=True,
+        required=False,
         widget=forms.Textarea(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'rows': 3,
