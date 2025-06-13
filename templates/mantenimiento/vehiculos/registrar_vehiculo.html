@@ -47,4 +47,97 @@
     </div>
   </form>
 </div>
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('form');
+  if (!form) return;
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    const formData = new FormData(form);
+    fetch("", {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(resp => resp.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          html: data.message,
+          confirmButtonText: 'OK'
+        }).then(() => {
+          window.location.href = "{% url 'listar_vehiculos' %}";
+        });
+      } else {
+        let errores = '';
+        if (data.errors) {
+          for (const [campo, arr] of Object.entries(data.errors)) {
+            arr.forEach(obj => errores += (obj.message + '<br>'));
+          }
+        }
+        Swal.fire({
+          icon: 'error',
+          title: 'Error en el formulario',
+          html: errores || 'Corrige los errores.',
+          confirmButtonText: 'OK'
+        });
+      }
+    })
+    .catch(() => {
+      Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error');
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  // --- Máscaras para placa y VIN ---
+  const placaInput = document.querySelector('#id_placa');
+  if (placaInput) {
+    placaInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '').slice(0, 6);
+      e.target.value = value;
+    });
+  }
+  const vinInput = document.querySelector('#id_vin');
+  if (vinInput) {
+    vinInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 17);
+      e.target.value = value;
+    });
+  }
+  
+  // --- Validaciones y SweetAlert2 ---
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      let errores = [];
+      const placa = placaInput ? placaInput.value.trim() : '';
+      const vin = vinInput ? vinInput.value.trim() : '';
+      
+      if (!placa || placa.length !== 6) {
+        errores.push('La placa debe tener exactamente 6 dígitos.');
+      }
+      if (!vin || !/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
+        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).');
+      }
+      // Puedes agregar más validaciones aquí (año, modelo, etc.)
+
+      if (errores.length > 0) {
+        event.preventDefault();
+        Swal.fire({
+          icon: 'warning',
+          title: 'Errores en el formulario',
+          html: errores.join('<br>'),
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
 {% endblock %}

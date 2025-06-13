@@ -59,7 +59,7 @@ class Usuarios(AbstractUser):
 
 class FotografiasVehiculo(models.Model):
     id_fotografia = models.AutoField(primary_key=True)
-    id_vehiculo = models.ForeignKey('Vehiculos', models.DO_NOTHING, db_column='id_vehiculo')
+    id_vehiculo = models.ForeignKey('Vehiculos', models.CASCADE, db_column='id_vehiculo')
     url_fotografia = models.ImageField(upload_to='vehiculos/')
     tipo_fotografia = models.CharField(max_length=20)
     descripcion_foto = models.TextField(blank=True, null=True)
@@ -197,7 +197,7 @@ TIPOS_PLACA = [
 
 class Vehiculos(models.Model):
     id_vehiculo = models.AutoField(primary_key=True)
-    id_usuario_propietario = models.ForeignKey(Usuarios, models.DO_NOTHING, db_column='id_usuario_propietario')
+    id_usuario_propietario = models.ForeignKey(Usuarios, models.CASCADE, db_column='id_usuario_propietario')
     placa = models.CharField(unique=True, max_length=10)
     tipo_placa = models.CharField(max_length=4, choices=TIPOS_PLACA, default="P")
     marca = models.CharField(max_length=50)

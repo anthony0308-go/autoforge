@@ -6,7 +6,7 @@ from django.contrib.auth import update_session_auth_hash
 from autoforge_core import settings
 from .forms import *
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from .models import *
 from .utils import obtener_usuario_actual
 from django.core.paginator import Paginator
@@ -21,6 +21,7 @@ from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.forms.models import model_to_dict
 
 
 def login_view(request):
@@ -461,6 +462,37 @@ def crear_cliente_y_vehiculo(request):
     })
     
     
+
+@login_required
+def eliminar_cliente(request, cliente_id):
+    try:
+        cliente = Usuarios.objects.get(pk=cliente_id)
+        email_cliente = cliente.email
+        nombre_cliente = f"{cliente.first_name} {cliente.last_name}"
+
+        # Guarda el correo antes de eliminarlo
+        cliente.delete()
+
+        # Envía el correo (esto va después del delete, así si falla no se queda el usuario)
+        send_mail(
+            subject='Tu cuenta en AutoForge ha sido eliminada',
+            message=(
+                f"Hola {nombre_cliente},\n\n"
+                "Te informamos que tu cuenta ha sido eliminada del sistema AutoForge. "
+                "Si tienes dudas o esto fue un error, contáctanos."
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email_cliente],
+            fail_silently=False,
+        )
+
+        return JsonResponse({'success': True, 'message': f'Cliente eliminado y notificado por correo a {email_cliente}.'})
+    except Usuarios.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'El cliente no existe.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Error: {str(e)}'}, status=500)
+
+    
 @login_required
 def perfil_cliente(request):
     cliente = request.user  # Asumiendo que el usuario autenticado es el cliente
@@ -472,6 +504,7 @@ def perfil_cliente(request):
         'vehiculos': vehiculos,
         'mantenimientos': mantenimientos,
     })
+
 
 @login_required
 def editar_perfil_cliente(request):
@@ -512,7 +545,7 @@ def editar_perfil_cliente(request):
     })
     
     
-#registrar vehiculo
+@login_required
 def registrar_vehiculo(request):
     if request.method == 'POST':
         form = VehiculoForm(request.POST)
@@ -520,18 +553,69 @@ def registrar_vehiculo(request):
             vehiculo = form.save(commit=False)
             vehiculo.id_usuario_registra_vehiculo = request.user
             vehiculo.save()
-            return redirect('listar_vehiculos')
+            # Enviar correo al propietario
+            propietario = vehiculo.id_usuario_propietario
+            subject = 'Nuevo vehículo registrado a tu nombre'
+            message = (
+                f"Se ha registrado un nuevo vehículo a tu nombre:\n\n"
+                f"Placa: {vehiculo.placa}\n"
+                f"Marca: {vehiculo.marca}\n"
+                f"Modelo: {vehiculo.modelo}\n"
+                f"Año: {vehiculo.anio}\n"
+                f"Color: {vehiculo.color}\n"
+                f"Tipo de Combustible: {vehiculo.tipo_combustible}\n"
+                f"VIN: {vehiculo.vin}\n\n"
+                f"¡Gracias por confiar en AutoForge!"
+            )
+            # Si quieres puedes manejar el error con fail_silently=False para debugging
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [propietario.email],
+                fail_silently=True,
+            )
+
+            # Si es AJAX, retorna respuesta
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': f'¡Vehículo registrado correctamente! Se notificó al propietario {propietario.email}.'})
+            else:
+                messages.success(request, '¡Vehículo registrado correctamente! Se notificó al propietario por correo.')
+                return redirect('listar_vehiculos')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors.get_json_data()}, status=400)
+            messages.error(request, 'Corrige los errores del formulario.')
     else:
         form = VehiculoForm()
     return render(request, 'mantenimiento/vehiculos/registrar_vehiculo.html', {'form': form})
 
-# Editar vehículo
+
 @login_required
 def editar_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
 
     if request.method == 'POST':
         form = VehiculoForm(request.POST, request.FILES, instance=vehiculo)
+        cambios = []
+        fotos_actualizadas = []
+
+        # Compara campos modificados
+        campos_comparar = [
+            'tipo_placa', 'placa', 'marca', 'modelo', 'anio',
+            'tipo_combustible', 'vin', 'color'
+        ]
+        for campo in campos_comparar:
+            valor_anterior = getattr(vehiculo, campo)
+            valor_nuevo = form.data.get(campo) if campo in form.data else None
+            # Para campo de año (int), compara bien el tipo
+            if campo == 'anio':
+                if valor_nuevo is not None and valor_nuevo != '' and str(valor_anterior) != str(valor_nuevo):
+                    cambios.append(f"{campo.capitalize()} (antes: {valor_anterior}, ahora: {valor_nuevo})")
+            else:
+                if valor_nuevo is not None and valor_anterior != valor_nuevo:
+                    cambios.append(f"{campo.capitalize()} (antes: {valor_anterior}, ahora: {valor_nuevo})")
+
         if form.is_valid():
             with transaction.atomic():
                 vehiculo = form.save()
@@ -542,7 +626,7 @@ def editar_vehiculo(request, vehiculo_id):
                     'foto_lateral_derecha': 'lateral derecha',
                     'foto_trasera': 'trasera',
                 }
-
+                # Si se actualiza una foto, lo anotamos y la actualizamos
                 for campo, tipo in tipos_fotos.items():
                     archivo = request.FILES.get(campo)
                     if archivo:
@@ -555,11 +639,48 @@ def editar_vehiculo(request, vehiculo_id):
                                 'fecha_subida': timezone.now()
                             }
                         )
+                        fotos_actualizadas.append(tipo)
 
-                messages.success(request, 'Vehículo actualizado correctamente.')
-                return redirect('detalle_vehiculo', vehiculo_id=vehiculo.id_vehiculo)
+                # Mensaje a mostrar en sweetalert2 via AJAX (si la petición lo es)
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    if cambios or fotos_actualizadas:
+                        mensaje = "Los siguientes campos han sido modificados:<br>"
+                        if cambios:
+                            mensaje += "<b>" + ", ".join(cambios) + "</b><br>"
+                        if fotos_actualizadas:
+                            mensaje += "Fotos actualizadas: <b>" + ", ".join(fotos_actualizadas) + "</b>"
+                    else:
+                        mensaje = "No se realizaron cambios en el vehículo."
+                    # Enviar correo al propietario
+                    send_mail(
+                        subject='Vehículo actualizado',
+                        message=f'Su vehículo con placa {vehiculo.placa} ha sido actualizado.',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[vehiculo.id_usuario_propietario.email],
+                        fail_silently=True,
+                    )
+                    return JsonResponse({'success': True, 'message': mensaje})
+                # Si no es AJAX, mensaje normal
+                else:
+                    if cambios or fotos_actualizadas:
+                        messages.success(request, "Vehículo actualizado correctamente.")
+                        send_mail(
+                            subject='Vehículo actualizado',
+                            message=f'Su vehículo con placa {vehiculo.placa} ha sido actualizado.',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[vehiculo.id_usuario_propietario.email],
+                            fail_silently=True,
+                        )
+                    else:
+                        messages.info(request, "No se realizaron cambios en el vehículo.")
+                    return redirect('detalle_vehiculo', vehiculo_id=vehiculo.id_vehiculo)
         else:
-            messages.error(request, 'Corrige los errores en el formulario.')
+            # Si el formulario es inválido y es AJAX
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                errores = form.errors.get_json_data()
+                return JsonResponse({'success': False, 'errors': errores}, status=400)
+            else:
+                messages.error(request, 'Corrige los errores en el formulario.')
     else:
         form = VehiculoForm(instance=vehiculo)
 
@@ -567,17 +688,35 @@ def editar_vehiculo(request, vehiculo_id):
         'form': form,
         'vehiculo': vehiculo
     })
-
+    
+    
 
 @login_required
-def eliminar_vehiculo(request, vehiculo_id):
-    vehiculo = get_object_or_404(Vehiculos, pk=vehiculo_id)
+def eliminar_vehiculo(request, id_vehiculo):
+    try:
+        vehiculo = Vehiculos.objects.get(pk=id_vehiculo)
+        if not (request.user.is_superuser or getattr(request.user.id_rol, 'codigo_rol', None) == 'A'):
+            return HttpResponseForbidden("No autorizado.")
 
-    if request.method == 'POST':
+        # Guarda datos del propietario y placas ANTES de eliminar
+        propietario = vehiculo.id_usuario_propietario
+        placas = vehiculo.placa
+
         vehiculo.delete()
-        messages.success(request, 'Vehículo eliminado correctamente.')
-        return redirect('listar_vehiculos')
 
-    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {
-        'vehiculo': vehiculo
-    })
+        # Envía el correo al propietario
+        if propietario.email:
+            send_mail(
+                subject='Vehículo eliminado de AutoForge',
+                message=f'Hola {propietario.get_full_name()},\n\nTe informamos que el vehículo con placas {placas} ha sido eliminado de tu cuenta por un administrador. Si tienes dudas, contáctanos.',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[propietario.email],
+                fail_silently=True,
+            )
+
+        return JsonResponse({'success': True, 'message': 'Vehículo eliminado correctamente. El propietario ha sido notificado por correo.'})
+    except Vehiculos.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'El vehículo no existe.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
