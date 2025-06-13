@@ -368,7 +368,6 @@ def detalle_cliente(request, cliente_id):
     })
 
 
-#Views para cliente y vehiculo
 @login_required
 def crear_cliente_y_vehiculo(request):
     Cliente = Roles.objects.filter(codigo_rol='C').first()
@@ -385,24 +384,21 @@ def crear_cliente_y_vehiculo(request):
         cliente_form = ClienteForm(request.POST)
         vehiculo_form = VehiculoForm(request.POST, request.FILES)
 
-        try:
-            with transaction.atomic():
-                if cliente_form.is_valid() and vehiculo_form.is_valid():
-                    # Crear cliente
+        if cliente_form.is_valid() and vehiculo_form.is_valid():
+            try:
+                with transaction.atomic():
                     cliente = cliente_form.save(commit=False)
                     cliente.id_rol = Cliente
                     generated_password = get_random_string(length=10)
                     cliente.set_password(generated_password)
                     cliente.save()
 
-                    # Crear vehículo
                     vehiculo = vehiculo_form.save(commit=False)
                     vehiculo.id_usuario_propietario = cliente
                     vehiculo.id_usuario_registra_vehiculo = request.user
                     vehiculo.fecha_registro_vehiculo = timezone.now()
                     vehiculo.save()
 
-                    # Subir fotos
                     fotos = {
                         'foto_frontal': 'frontal',
                         'foto_lateral_izquierda': 'lateral izquierda',
@@ -421,7 +417,6 @@ def crear_cliente_y_vehiculo(request):
                                 id_usuario_sube_foto=request.user
                             )
 
-                    # Enviar correo
                     send_mail(
                         subject='Bienvenido a AutoForge',
                         message=f'Hola {cliente.first_name}, tu cuenta ha sido creada. Tu contraseña temporal es: {generated_password}',
@@ -430,43 +425,32 @@ def crear_cliente_y_vehiculo(request):
                         fail_silently=False,
                     )
 
-                    # RESPUESTA EXITOSA
                     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                        return JsonResponse({
-                            'success': True,
-                            'message': 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.'
-                        })
+                        return JsonResponse({'success': True, 'message': 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.'})
                     else:
                         messages.success(request, 'Cliente y vehículo registrados correctamente. Se ha enviado un correo con la contraseña temporal.')
                         return redirect('listar_clientes')
-                else:
-                    # Formulario inválido, retornar errores
-                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                        return JsonResponse({
-                            'success': False,
-                            'errors': {
-                                'cliente_form': cliente_form.errors.get_json_data(),
-                                'vehiculo_form': vehiculo_form.errors.get_json_data(),
-                            }
-                        }, status=400)
-                    messages.error(request, "Por favor corrige los errores del formulario.")
 
-        except IntegrityError as e:
-            # Errores de unicidad (DUI, email, etc.)
-            if 'usuarios_dui_key' in str(e):
-                msg = "El DUI ingresado ya está registrado para otro usuario."
-            elif 'usuarios_email_key' in str(e):
-                msg = "El correo electrónico ya está registrado para otro usuario."
-            else:
-                msg = "Ocurrió un error de integridad en los datos. Verifica que no estés duplicando información única."
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': {'general': msg}}, status=400)
-            messages.error(request, msg)
-        except Exception as e:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': {'general': f"Ocurrió un error inesperado: {str(e)}"}}, status=400)
-            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+            except IntegrityError:
+                # NO mostrar ningún error personalizado ni popup extra, ni siquiera notificar.
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False}, status=400)
+                # Si es necesario puedes poner un mensaje ultra genérico en el admin, pero nada visible para el usuario.
+            except Exception as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False}, status=400)
+                # No muestres mensajes detallados para errores generales tampoco
 
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': {
+                        'cliente_form': cliente_form.errors.get_json_data(),
+                        'vehiculo_form': vehiculo_form.errors.get_json_data(),
+                    }
+                }, status=400)
+            messages.error(request, "Por favor corrige los errores del formulario.")
     else:
         cliente_form = ClienteForm()
         vehiculo_form = VehiculoForm()
@@ -475,7 +459,8 @@ def crear_cliente_y_vehiculo(request):
         'cliente_form': cliente_form,
         'vehiculo_form': vehiculo_form,
     })
-
+    
+    
 @login_required
 def perfil_cliente(request):
     cliente = request.user  # Asumiendo que el usuario autenticado es el cliente

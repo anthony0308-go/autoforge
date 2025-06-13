@@ -179,7 +179,7 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     first_name = forms.CharField(
         label='Nombre',
-        required=False,
+        required=True,  # Debe ser obligatorio
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Nombre'
@@ -187,7 +187,7 @@ class ClienteForm(forms.ModelForm):
     )
     last_name = forms.CharField(
         label='Apellido',
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Apellido'
@@ -195,7 +195,7 @@ class ClienteForm(forms.ModelForm):
     )
     email = forms.EmailField(
         label='Correo electrónico',
-        required=False,
+        required=True,
         widget=forms.EmailInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Correo electrónico'
@@ -203,7 +203,7 @@ class ClienteForm(forms.ModelForm):
     )
     telefono = forms.CharField(
         label='Teléfono',
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Teléfono (8 dígitos)'
@@ -211,7 +211,7 @@ class ClienteForm(forms.ModelForm):
     )
     dui = forms.CharField(
         label='DUI',
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'DUI'
@@ -219,7 +219,7 @@ class ClienteForm(forms.ModelForm):
     )
     direccion = forms.CharField(
         label='Dirección',
-        required=False,
+        required=True,
         widget=forms.Textarea(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'rows': 3,
@@ -234,7 +234,6 @@ class ClienteForm(forms.ModelForm):
             'placeholder': 'Deja en blanco para mantener la contraseña actual'
         })
     )
-
     class Meta:
         model = Usuarios
         fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
@@ -255,12 +254,10 @@ class ClienteForm(forms.ModelForm):
         usuario = super().save(commit=False)
         nueva_contraseña = self.cleaned_data.get('password')
         if nueva_contraseña:
-            usuario.set_password(nueva_contraseña)  # Cifra correctamente la nueva contraseña
-        # Si el campo está vacío, NO modifica la contraseña
+            usuario.set_password(nueva_contraseña)
         if commit:
             usuario.save()
         return usuario
-
 
 class VehiculoForm(forms.ModelForm):
     tipo_placa = forms.ChoiceField(

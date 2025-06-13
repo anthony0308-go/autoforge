@@ -39,7 +39,7 @@ class UsuarioManager(BaseUserManager):
 class Usuarios(AbstractUser):
     id_rol = models.ForeignKey(Roles, on_delete=models.DO_NOTHING, db_column='id_rol', null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
-    dui = models.CharField(unique=True, max_length=20, blank=True, null=True)
+    dui = models.CharField(unique=True, max_length=20, blank=False, null=False)
     direccion = models.TextField(blank=True, null=True)
     carnet_empleado = models.CharField(unique=True, max_length=50, blank=True, null=True)
     fecha_creacion_usuario = models.DateTimeField(auto_now_add=True, blank=True, null=True)
