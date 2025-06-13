@@ -1,7 +1,17 @@
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="modal">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm transform scale-95 opacity-0 animate-fade-in-modal text-center">
     <h2 class="text-xl font-bold text-[#D7141A] mb-4">¿Eliminar repuesto?</h2>
-    <p class="mb-6 text-gray-700">¿Estás seguro de que deseas eliminar <strong>{{ repuesto.nombre_repuesto }}</strong>?</p>
+
+    {% if usos > 0 %}
+      <p class="mb-4 text-red-600 font-semibold">
+        Este repuesto está vinculado a {{ usos }} mantenimiento{{ usos|pluralize }}.<br>
+        Al eliminarlo, también se eliminarán estos registros.
+      </p>
+    {% else %}
+      <p class="mb-4 text-gray-700">
+        ¿Estás seguro de que deseas eliminar <strong>{{ repuesto.nombre_repuesto }}</strong>?
+      </p>
+    {% endif %}
 
     <form method="post"
           hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
@@ -19,15 +29,15 @@
 </div>
 
 <script>
-      function cerrarModalSuavemente() {
-        const modalContainer = document.getElementById("modal");
-        const modalContent = modalContainer.querySelector("form").parentElement;
+  function cerrarModalSuavemente() {
+    const modalContainer = document.getElementById("modal");
+    const modalContent = modalContainer.querySelector("form").parentElement;
 
-        modalContent.classList.remove("animate-fade-in-modal");
-        modalContent.classList.add("fade-out-modal");
+    modalContent.classList.remove("animate-fade-in-modal");
+    modalContent.classList.add("fade-out-modal");
 
-        setTimeout(() => {
-          modalContainer.innerHTML = '';
-        }, 300);
-      }
-    </script>
+    setTimeout(() => {
+      modalContainer.innerHTML = '';
+    }, 300);
+  }
+</script>

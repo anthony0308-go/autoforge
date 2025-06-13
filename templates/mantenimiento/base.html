@@ -6,6 +6,8 @@
   <meta charset="UTF-8">
   <title>{% block title %}AutoForge{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static 'img/logo_blanco.png' %}">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   {% block extra_head %}
@@ -15,29 +17,24 @@
         opacity: 0;
         transform: scale(0.95);
       }
-
       100% {
         opacity: 1;
         transform: scale(1);
       }
     }
-
     .animate-fade-in-modal {
       animation: fadeInModal 0.3s ease-out forwards;
     }
-
     @keyframes fadeOutModal {
       0% {
         opacity: 1;
         transform: scale(1);
       }
-
       100% {
         opacity: 0;
         transform: scale(0.95);
       }
     }
-
     .fade-out-modal {
       animation: fadeOutModal 0.3s ease-in forwards;
     }
@@ -55,18 +52,38 @@
         <img src="{% static 'img/logo_blanco.png' %}" alt="AutoForge Logo" class="h-8 w-auto">
         <span class="text-xl font-semibold">AutoForge</span>
       </a>
-
-      <nav class="flex space-x-6 text-sm font-medium">
+      <nav class="flex space-x-6 text-sm font-medium relative">
         <a href="{% url 'inicio' %}" class="hover:text-[#D7141A]">Inicio</a>
-        {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-        <a href="{% url 'listar_clientes' %}" class="hover:text-[#D7141A]">Clientes</a>
+
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+            <a href="{% url 'listar_clientes' %}" class="hover:text-[#D7141A]">Clientes</a>
+            <a href="{% url 'listar_mantenimientos' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
+            <a href="{% url 'listar_repuestos' %}" class="hover:text-[#D7141A]">Repuestos</a>
+          {% endif %}
+          <a href="{% url 'listar_vehiculos' %}" class="hover:text-[#D7141A]">Vehículos</a>
+
+          <!-- Perfil con submenú -->
+          <div class="relative group" tabindex="0">
+            <a href="{% url 'perfil_cliente' %}"
+               class="hover:text-[#D7141A] flex items-center space-x-1 focus:outline-none">
+              <span>Perfil</span>
+              <!-- Chevron Down SVG -->
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+            <!-- Submenú -->
+            <div
+              class="absolute left-0 mt-1 w-32 bg-white text-[#263238] rounded-lg shadow-lg z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible hover:opacity-100 hover:visible transition-all duration-150"
+              style="min-width: 120px; pointer-events: auto;"
+            >
+              <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-[#F2F2F2] rounded-lg transition-colors">Salir</a>
+            </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-[#D7141A]">Iniciar sesión</a>
         {% endif %}
-        <!-- Mostrar Mantenimientos -->
-        {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-        <a href="{% url 'listar_mantenimientos' %}" class="hover:text-[#D7141A]">Mantenimientos</a>
-        {% endif %}
-        <a href="{% url 'listar_vehiculos' %}" class="hover:text-[#D7141A]">Vehículos</a>
-        <a href="{% url 'logout' %}" class="hover:text-[#D7141A]">Salir</a>
       </nav>
     </div>
   </header>
@@ -84,8 +101,25 @@
 
   {% block scripts %}{% endblock %}
 
-  <!-- Script de validación del precio y stock -->
+  <!-- Script de validación del precio y stock y para el menú en móvil -->
   <script>
+    // Soporte para menú de perfil en móvil (clic para mostrar/ocultar)
+    document.addEventListener("DOMContentLoaded", function () {
+      var perfilMenu = document.querySelector(".group");
+      if (perfilMenu) {
+        var submenu = perfilMenu.querySelector("div");
+        perfilMenu.addEventListener("click", function (e) {
+          if(window.innerWidth < 768) { // Solo para móviles
+            e.preventDefault();
+            submenu.classList.toggle("opacity-0");
+            submenu.classList.toggle("invisible");
+            submenu.classList.toggle("opacity-100");
+            submenu.classList.toggle("visible");
+          }
+        });
+      }
+    });
+
     document.body.addEventListener("htmx:afterSwap", function (e) {
       if (e.target.id === "modal") {
         const precioInput = document.getElementById("id_precio_unitario_referencia");
@@ -137,6 +171,15 @@
       }
     });
   </script>
-</body>
 
+  <script>
+    document.body.addEventListener('htmx:configRequest', function (event) {
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+        if (csrfToken) {
+            event.detail.headers['X-CSRFToken'] = csrfToken;
+        }
+    });
+  </script>
+
+</body>
 </html>

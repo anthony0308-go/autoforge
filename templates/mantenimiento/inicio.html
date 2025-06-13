@@ -2,21 +2,143 @@
 {% block title %}Inicio | AutoForge{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold text-[#D7141A] mb-4">Panel de Inicio - AutoForge</h1>
 
-<p class="text-gray-700">Bienvenido, {{ usuario.nombre_completo }}.</p>
+{% if usuario.is_superuser or usuario.id_rol.codigo_rol == 'A' %}
+  <div class="flex flex-col items-center justify-center min-h-[70vh]">
+    <h1 class="text-4xl md:text-5xl font-bold text-[#D7141A] text-center mb-4">
+      ¡Bienvenido, {{ usuario.first_name }}!
+    </h1>
+    <p class="text-xl md:text-2xl text-gray-800 text-center mb-8">
+      Así está tu agenda de mantenimientos programados para hoy y próximos días.
+    </p>
 
-<div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-4 shadow rounded">
-        <h2 class="font-semibold text-lg mb-2">Clientes</h2>
-        <p>Gestiona la información de los clientes y sus vehículos.</p>
-        <a href="" class="text-blue-600 hover:underline">Ver clientes</a>
-    </div>
+    {% if mantenimientos_agendados and mantenimientos_agendados|length > 0 %}
+      <div class="w-full max-w-4xl">
+        <div class="overflow-x-auto rounded-lg shadow-lg bg-white">
+          <table class="min-w-full rounded-lg">
+            <thead>
+              <tr class="bg-[#263238] text-white">
+                <th class="px-4 py-3 text-left rounded-tl-lg">Vehículo</th>
+                <th class="px-4 py-3 text-left">Cliente</th>
+                <th class="px-4 py-3 text-left">Fecha programada</th>
+                <th class="px-4 py-3 text-left">Tipo de mantenimiento</th>
+                <th class="px-4 py-3 text-left">Notas</th>
+                <th class="px-4 py-3 text-center rounded-tr-lg">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="agendados-tbody">
+              {% for agendado in mantenimientos_agendados %}
+              <tr class="border-b hover:bg-[#F9F9F9] transition" id="row-agendado-{{ agendado.id_mantenimiento_agendado }}">
+                <td class="px-4 py-3 font-semibold">
+                  {{ agendado.id_vehiculo.placa }} ({{ agendado.id_vehiculo.marca }} {{ agendado.id_vehiculo.modelo }})
+                </td>
+                <td class="px-4 py-3">
+                  {{ agendado.id_vehiculo.id_usuario_propietario.first_name }} {{ agendado.id_vehiculo.id_usuario_propietario.last_name }}
+                </td>
+                <td class="px-4 py-3">
+                  {{ agendado.fecha_programada|date:"d/m/Y" }}
+                </td>
+                <td class="px-4 py-3">
+                  {{ agendado.id_tipo_mantenimiento_sugerido.nombre_tipo|default:"(General)" }}
+                </td>
+                <td class="px-4 py-3">
+                  {{ agendado.notas|default:"-" }}
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <button 
+                    onclick="marcarHecho({{ agendado.id_mantenimiento_agendado }})"
+                    class="bg-[#D7141A] hover:bg-[#263238] text-white px-4 py-2 rounded-lg transition font-semibold shadow text-sm"
+                    title="Marcar como hecho">
+                    Marcar como hecho
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <div class="flex flex-col items-center justify-center py-16">
+        <!-- Ícono de calendario (SVG), tamaño grande, opacidad 70% -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 mb-6 opacity-70 text-gray-400" fill="none" viewBox="0 0 48 48" stroke="currentColor">
+          <rect x="7" y="13" width="34" height="28" rx="3" fill="currentColor" opacity="0.1"/>
+          <rect x="7" y="13" width="34" height="28" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
+          <rect x="7" y="8" width="34" height="8" rx="2" fill="currentColor" opacity="0.15"/>
+          <rect x="7" y="8" width="34" height="8" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+          <rect x="15" y="21" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+          <rect x="27" y="21" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+        </svg>
+        <span class="block text-2xl md:text-3xl font-semibold text-gray-500 text-center mb-2 tracking-wide">
+          ¡PARECE QUE ESTÁS AL DÍA!
+        </span>
+        <span class="text-lg text-gray-400 text-center">
+          No tienes mantenimientos próximos pendientes.
+        </span>
+      </div>
+    {% endif %}
+  </div>
+  <script>
+    function marcarHecho(id) {
+      if (confirm('¿Confirmar que este mantenimiento ya fue realizado?')) {
+        fetch('{% url "marcar_agendado_hecho" 0 %}'.replace('0', id), {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Accept': 'application/json',
+          }
+        }).then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            // Remover la fila de la tabla
+            const row = document.getElementById('row-agendado-' + id);
+            if (row) row.remove();
+            // Si ya no quedan filas, mostrar el mensaje vacío
+            if (document.querySelectorAll('#agendados-tbody tr').length === 0) {
+              document.querySelector('.w-full.max-w-4xl').outerHTML = `
+                <div class="flex flex-col items-center justify-center py-16">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 mb-6 opacity-70 text-gray-400" fill="none" viewBox="0 0 48 48" stroke="currentColor">
+                    <rect x="7" y="13" width="34" height="28" rx="3" fill="currentColor" opacity="0.1"/>
+                    <rect x="7" y="13" width="34" height="28" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
+                    <rect x="7" y="8" width="34" height="8" rx="2" fill="currentColor" opacity="0.15"/>
+                    <rect x="7" y="8" width="34" height="8" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+                    <rect x="15" y="21" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+                    <rect x="27" y="21" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+                  </svg>
+                  <span class="block text-2xl md:text-3xl font-semibold text-gray-500 text-center mb-2 tracking-wide">
+                    ¡PARECE QUE ESTÁS AL DÍA!
+                  </span>
+                  <span class="text-lg text-gray-400 text-center">
+                    No tienes mantenimientos próximos pendientes.
+                  </span>
+                </div>`;
+            }
+          } else {
+            alert('No se pudo marcar como hecho.');
+          }
+        });
+      }
+    }
+  </script>
+{% else %}
+  <div class="flex flex-col items-center justify-center min-h-[60vh]">
+    <!-- SVG auto estilizado para bienvenida -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 mb-6 opacity-90" viewBox="0 0 64 64" fill="none">
+      <rect x="8" y="32" width="48" height="16" rx="6" fill="#D7141A" opacity="0.08"/>
+      <rect x="12" y="26" width="40" height="12" rx="5" stroke="#D7141A" stroke-width="3" fill="white"/>
+      <rect x="18" y="30" width="28" height="7" rx="3.5" fill="#D7141A" opacity="0.14"/>
+      <circle cx="18" cy="44" r="4" stroke="#D7141A" stroke-width="3" fill="white"/>
+      <circle cx="46" cy="44" r="4" stroke="#D7141A" stroke-width="3" fill="white"/>
+      <rect x="20" y="28" width="8" height="6" rx="2" fill="#D7141A" opacity="0.16"/>
+      <rect x="36" y="28" width="8" height="6" rx="2" fill="#D7141A" opacity="0.16"/>
+    </svg>
+    <h1 class="text-3xl md:text-5xl font-bold text-[#D7141A] text-center mb-4">
+      ¡Bienvenido(a), {{ usuario.first_name }}!
+    </h1>
+    <p class="text-lg text-gray-700 text-center">
+      Nos alegra tenerte en AutoForge.<br>¡Desde aquí podrás consultar tus vehículos y mantenimientos!
+    </p>
+  </div>
+{% endif %}
 
-    <div class="bg-white p-4 shadow rounded">
-        <h2 class="font-semibold text-lg mb-2">Mantenimientos</h2>
-        <p>Consulta y registra mantenimientos realizados.</p>
-        <a href="" class="text-blue-600 hover:underline">Ver mantenimientos</a>
-    </div>
-</div>
 {% endblock %}

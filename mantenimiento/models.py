@@ -76,8 +76,8 @@ class FotografiasVehiculo(models.Model):
 
 class MantenimientoRepuestos(models.Model):
     id_mantenimiento_repuesto = models.AutoField(primary_key=True)
-    id_mantenimiento = models.ForeignKey('Mantenimientos', models.DO_NOTHING, db_column='id_mantenimiento')
-    id_repuesto = models.ForeignKey('Repuestos', models.DO_NOTHING, db_column='id_repuesto')
+    id_mantenimiento = models.ForeignKey('Mantenimientos', models.CASCADE, db_column='id_mantenimiento')
+    id_repuesto = models.ForeignKey('Repuestos', models.CASCADE, db_column='id_repuesto')
     cantidad_utilizada = models.IntegerField()
     precio_unitario_al_momento = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)

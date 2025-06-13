@@ -26,6 +26,8 @@ urlpatterns = [
     path('repuestos/eliminar/<int:repuesto_id>/', views.eliminar_repuesto, name='eliminar_repuesto'),
     path('repuestos/confirmar_eliminacion/<int:repuesto_id>/', views.modal_confirmar_eliminacion, name='modal_confirmar_eliminacion'),
 
+    path('mantenimientos/agendado/<int:agendado_id>/hecho/', views.marcar_agendado_hecho, name='marcar_agendado_hecho'),
+
     path('mantenimientos/', views.listar_mantenimientos, name='listar_mantenimientos'),
     path('mantenimientos/crear/', views.crear_mantenimiento, name='crear_mantenimiento'),
     path('mantenimientos/<int:mantenimiento_id>/', views.detalle_mantenimiento, name='detalle_mantenimiento'),
@@ -36,6 +38,8 @@ urlpatterns = [
     path('clientes/crear/', views.crear_cliente_y_vehiculo, name='crear_cliente'),
     path('perfil/', views.perfil_cliente, name='perfil_cliente'),
     path('perfil/editar/', views.editar_perfil_cliente, name='editar_perfil_cliente'),
+
+
 
 
 

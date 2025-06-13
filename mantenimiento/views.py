@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-
+from django.views.decorators.http import require_POST
 from autoforge_core import settings
 from .forms import *
 from django.views.decorators.csrf import csrf_exempt
@@ -49,8 +49,16 @@ def logout_view(request):
 
 @login_required
 def inicio(request):
-    usuario = obtener_usuario_actual(request)
-    return render(request, 'mantenimiento/inicio.html', {'usuario': usuario})
+    usuario = request.user  # <-- Esta es la forma segura
+    mantenimientos_agendados = None
+    if usuario.is_superuser or (hasattr(usuario, 'id_rol') and usuario.id_rol and usuario.id_rol.codigo_rol == 'A'):
+        mantenimientos_agendados = MantenimientosAgendados.objects.filter(
+            fecha_programada__gte=timezone.now().date()
+        ).order_by('fecha_programada')
+    return render(request, 'mantenimiento/inicio.html', {
+        'usuario': usuario,
+        'mantenimientos_agendados': mantenimientos_agendados
+    })
 
 
 @login_required
@@ -149,7 +157,13 @@ def eliminar_repuesto(request, repuesto_id):
 @login_required
 def modal_confirmar_eliminacion(request, repuesto_id):
     repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
-    return render(request, 'mantenimiento/repuestos/confirmar_eliminacion.html', {'repuesto': repuesto})
+    usos = MantenimientoRepuestos.objects.filter(id_repuesto=repuesto).count()
+
+    return render(request, 'mantenimiento/repuestos/confirmar_eliminacion.html', {
+        'repuesto': repuesto,
+        'usos': usos
+    })
+
 
 
 @login_required
@@ -261,18 +275,16 @@ def crear_mantenimiento(request):
         'formset': formset,
     })
 
-
-
 @login_required
 def listar_mantenimientos(request):
     if request.user.id_rol.codigo_rol == 'A':  # admin
         mantenimientos = Mantenimientos.objects.all().order_by('-fecha_ingreso')
     else:
-        # Cliente: solo los de sus vehículos
         vehiculos_usuario = Vehiculos.objects.filter(id_usuario_propietario=request.user)
         mantenimientos = Mantenimientos.objects.filter(id_vehiculo__in=vehiculos_usuario).order_by('-fecha_ingreso')
 
-    buscar = request.GET.get('buscar', '')
+    buscar = request.GET.get('buscar', '').strip()
+
     if buscar:
         mantenimientos = mantenimientos.filter(
             Q(id_vehiculo__placa__icontains=buscar) | 
@@ -720,3 +732,14 @@ def eliminar_vehiculo(request, id_vehiculo):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
+
+@login_required
+@require_POST
+def marcar_agendado_hecho(request, agendado_id):
+    agendado = get_object_or_404(MantenimientosAgendados, pk=agendado_id)
+    # Solo admins pueden marcar como hecho
+    if not (request.user.is_superuser or (hasattr(request.user, 'id_rol') and request.user.id_rol and request.user.id_rol.codigo_rol == 'A')):
+        return JsonResponse({'ok': False, 'error': 'No autorizado.'}, status=403)
+    agendado.estado_agendamiento = 'realizado'  # o el estado que manejes
+    agendado.save()
+    return JsonResponse({'ok': True})

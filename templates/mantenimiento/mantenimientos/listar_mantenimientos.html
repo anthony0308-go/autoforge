@@ -4,14 +4,28 @@
 {% block content %}
 <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Mantenimientos</h2>
 
-<form method="get" class="mb-6 flex gap-2">
-  <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar por placa o tipo..."
-         class="flex-1 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D7141A]">
+<form method="get" class="mb-6 flex gap-2 relative">
+  <div class="relative w-full">
+    <input type="text" name="buscar" id="buscar-input"
+           value="{{ buscar }}" placeholder="Buscar por placa o tipo..."
+           class="flex-1 border border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D7141A] w-full">
+
+    {% if buscar %}
+      <button type="button"
+              onclick="limpiarBusqueda()"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 text-xl leading-none font-bold focus:outline-none">
+        &times;
+      </button>
+    {% endif %}
+  </div>
+
   <button type="submit"
-          class="px-4 py-2 bg-[#1565C0] text-white font-semibold rounded hover:bg-[#0D47A1] transition">
+          class="px-4 py-2 bg-[#D7141A] text-white font-semibold rounded hover:bg-[#B21316] transition">
     Buscar
   </button>
 </form>
+
+
 
 <div class="flex flex-wrap gap-4 mb-6">
   <a href="{% url 'crear_mantenimiento' %}"
@@ -40,7 +54,7 @@
       {% for mant in mantenimientos %}
         <tr class="border-b hover:bg-gray-50">
           <td class="py-2 px-4 font-semibold">{{ mant.id_mantenimiento }}</td>
-          <td class="py-2 px-4">{{ mant.id_vehiculo }}</td>
+          <td class="py-2 px-4">{{ mant.id_vehiculo.placa }}</td>
           <td class="py-2 px-4">{{ mant.id_tipo_mantenimiento|default:"(No especificado)" }}</td>
           <td class="py-2 px-4">{{ mant.fecha_ingreso|date:"d/m/Y H:i" }}</td>
           <td class="py-2 px-4 font-semibold">${{ mant.costo_total_mantenimiento|floatformat:2 }}</td>
@@ -57,4 +71,16 @@
     </tbody>
   </table>
 </div>
+<script>
+  function limpiarBusqueda() {
+    const input = document.getElementById("buscar-input");
+    input.value = "";
+
+    const form = input.closest("form");
+    if (form) {
+      const url = new URL(window.location.href.split('?')[0], window.location.origin);
+      window.location.href = url.toString();
+    }
+  }
+</script>
 {% endblock %}
