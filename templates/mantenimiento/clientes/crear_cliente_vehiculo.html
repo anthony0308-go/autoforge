@@ -107,58 +107,55 @@
     </form>
   </div>
 
-{% block scripts %}
+ {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Máscaras para teléfono, DUI, placa y VIN
-  const telefonoInput = document.querySelector('#id_telefono');
+  // Máscaras para teléfono, DUI y placa
+  const telefonoInput = document.querySelector('#id_telefono')
   if (telefonoInput) {
     telefonoInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '');
+      let value = e.target.value.replace(/\D/g, '')
       if (value.length > 4) {
-        value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        value = value.substring(0, 4) + '-' + value.substring(4, 8)
       }
-      e.target.value = value;
-    });
+      e.target.value = value
+    })
   }
-  const duiInput = document.querySelector('#id_dui');
+  const duiInput = document.querySelector('#id_dui')
   if (duiInput) {
     duiInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '');
+      let value = e.target.value.replace(/\D/g, '')
       if (value.length > 8) {
-        value = value.substring(0, 8) + '-' + value.substring(8, 9);
+        value = value.substring(0, 8) + '-' + value.substring(8, 9)
       }
-      e.target.value = value;
-    });
+      e.target.value = value
+    })
   }
-  const placaInput = document.querySelector('#id_placa');
+  const placaInput = document.querySelector('#id_placa')
   if (placaInput) {
     placaInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '').slice(0, 6);
-      e.target.value = value;
-    });
+      let value = e.target.value.replace(/\D/g, '').slice(0, 6)
+      e.target.value = value
+    })
   }
-  const vinInput = document.querySelector('#id_vin');
+  const vinInput = document.querySelector('#id_vin')
   if (vinInput) {
     vinInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 17);
-      e.target.value = value;
-    });
+      let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 17)
+      e.target.value = value
+    })
   }
 
-  // --- AJAX y validaciones ---
-    const form = document.getElementById('crearClienteVehiculoForm');
-  let submitEnProgreso = false;
+  // Validación y AJAX para envío de formulario
+  const form = document.getElementById('crearClienteVehiculoForm')
   if (form) {
     form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      if (submitEnProgreso) return;
-      submitEnProgreso = true;
+      event.preventDefault()
       const submitButton = form.querySelector('button[type="submit"]');
-      if (submitButton) submitButton.disabled = true;
+      submitButton.disabled = true;
 
-      // 1. Cliente
+      // --- 1. Validar campos de cliente ---
       const camposCliente = [
         { id: 'id_first_name', label: 'Nombre' },
         { id: 'id_last_name', label: 'Apellido' },
@@ -166,16 +163,38 @@ document.addEventListener('DOMContentLoaded', function () {
         { id: 'id_telefono', label: 'Teléfono' },
         { id: 'id_dui', label: 'DUI' },
         { id: 'id_direccion', label: 'Dirección' }
-      ];
-      let camposVaciosCliente = [];
+      ]
+      let camposVaciosCliente = []
+      let errores = []
+
       for (const campo of camposCliente) {
-        const input = document.getElementById(campo.id);
+        const input = document.getElementById(campo.id)
         if (input && !input.value.trim()) {
-          camposVaciosCliente.push(campo.label);
+          camposVaciosCliente.push(campo.label)
         }
       }
 
-      // 2. Vehículo
+      // Validar correo
+      const emailInput = document.getElementById('id_email')
+      if (emailInput && emailInput.value.trim()) {
+        const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+        if (!re.test(emailInput.value.trim())) {
+          errores.push('El correo electrónico no es válido.')
+        }
+      }
+
+      // Validar teléfono
+      const telInput = document.getElementById('id_telefono')
+      if (telInput && telInput.value.trim() && !/^\d{4}-\d{4}$/.test(telInput.value.trim())) {
+        errores.push('El teléfono debe tener el formato 1234-5678.')
+      }
+
+      // Validar DUI
+      if (duiInput && duiInput.value.trim() && !/^\d{8}-\d{1}$/.test(duiInput.value.trim())) {
+        errores.push('El DUI debe tener el formato 12345678-9.')
+      }
+
+      // --- 2. Validar campos del Vehículo ---
       const camposVehiculo = [
         { id: 'id_tipo_placa', label: 'Tipo de placa' },
         { id: 'id_placa', label: 'Placa' },
@@ -185,87 +204,80 @@ document.addEventListener('DOMContentLoaded', function () {
         { id: 'id_color', label: 'Color' },
         { id: 'id_tipo_combustible', label: 'Tipo de combustible' },
         { id: 'id_vin', label: 'VIN' }
-      ];
-      let camposVaciosVehiculo = [];
+      ]
+      let camposVaciosVehiculo = []
       for (const campo of camposVehiculo) {
-        const input = document.getElementById(campo.id);
+        const input = document.getElementById(campo.id)
         if (input && !input.value.trim()) {
-          camposVaciosVehiculo.push(campo.label);
+          camposVaciosVehiculo.push(campo.label)
         }
       }
 
-      // 3. Fotos
+      // Validar placa (6 dígitos)
+      if (placaInput && placaInput.value.trim() && !/^\d{6}$/.test(placaInput.value.trim())) {
+        errores.push('La placa debe tener exactamente 6 dígitos numéricos.')
+      }
+
+      // Validar VIN (17 caracteres alfanuméricos)
+      if (vinInput && vinInput.value.trim() && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vinInput.value.trim())) {
+        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).')
+      }
+
+      // --- 3. Validar fotos ---
       const camposFotos = [
         { id: 'id_foto_frontal', label: 'Foto frontal' },
         { id: 'id_foto_lateral_izquierda', label: 'Foto lateral izquierda' },
         { id: 'id_foto_lateral_derecha', label: 'Foto lateral derecha' },
         { id: 'id_foto_trasera', label: 'Foto trasera' }
-      ];
-      let faltantes = [];
+      ]
+      let faltantes = []
       for (const campo of camposFotos) {
-        const input = document.getElementById(campo.id);
+        const input = document.getElementById(campo.id)
         if (input && !input.value) {
-          faltantes.push(campo.label);
+          faltantes.push(campo.label)
         }
       }
 
-      // 4. Errores de formato (opcional, como en tu código actual)
-      let errores = [];
-      const emailInput = document.getElementById('id_email');
-      if (emailInput && emailInput.value.trim()) {
-        const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-        if (!re.test(emailInput.value.trim())) {
-          errores.push('El correo electrónico no es válido.');
-        }
-      }
-      const telInput = document.getElementById('id_telefono');
-      if (telInput && telInput.value.trim() && !/^\d{4}-\d{4}$/.test(telInput.value.trim())) {
-        errores.push('El teléfono debe tener el formato 1234-5678.');
-      }
-      const duiInput = document.getElementById('id_dui');
-      if (duiInput && duiInput.value.trim() && !/^\d{8}-\d{1}$/.test(duiInput.value.trim())) {
-        errores.push('El DUI debe tener el formato 12345678-9.');
-      }
-      const placaInput = document.getElementById('id_placa');
-      if (placaInput && placaInput.value.trim() && !/^\d{6}$/.test(placaInput.value.trim())) {
-        errores.push('La placa debe tener exactamente 6 dígitos numéricos.');
-      }
-      const vinInput = document.getElementById('id_vin');
-      if (vinInput && vinInput.value.trim() && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vinInput.value.trim())) {
-        errores.push('El VIN debe tener exactamente 17 caracteres alfanuméricos (sin I, O, Q).');
-      }
-
-      // 5. Alertas
-      if (
-        camposVaciosCliente.length > 0 ||
-        camposVaciosVehiculo.length > 0 ||
-        faltantes.length > 0 ||
-        errores.length > 0
-      ) {
-        let mensajes = [];
-        if (camposVaciosCliente.length > 0) {
-          mensajes.push('<b>Completa los datos obligatorios del cliente:</b> ' + camposVaciosCliente.join(', '));
-        }
-        if (camposVaciosVehiculo.length > 0) {
-          mensajes.push('<b>Completa los datos obligatorios del vehículo:</b> ' + camposVaciosVehiculo.join(', '));
-        }
-        if (faltantes.length > 0) {
-          mensajes.push('<b>Faltan fotografías:</b> ' + faltantes.join(', '));
-        }
-        if (errores.length > 0) {
-          mensajes.push('<b>Errores de formato:</b><br>' + errores.join('<br>'));
-        }
+      // --- ALERTAS visuales (NO se envía AJAX si hay errores visuales) ---
+      if (camposVaciosCliente.length > 0) {
         Swal.fire({
           icon: 'warning',
-          title: 'Campos requeridos',
-          html: mensajes.join('<br><br>'),
+          title: 'Campos requeridos - Cliente',
+          html: 'Debes completar los siguientes campos:<br><b>' + camposVaciosCliente.join(', ') + '</b>',
           confirmButtonText: 'OK'
-        }).then(() => { submitEnProgreso = false; if (submitButton) submitButton.disabled = false; });
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (camposVaciosVehiculo.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos - Vehículo',
+          html: 'Debes completar los siguientes campos:<br><b>' + camposVaciosVehiculo.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (errores.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Errores de formato',
+          html: errores.join('<br>'),
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
+        return;
+      }
+      if (faltantes.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan fotografías',
+          html: 'Debes seleccionar las siguientes fotos:<br><b>' + faltantes.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => { submitButton.disabled = false; });
         return;
       }
 
-      // --- AJAX real (tu código normal) ---
-      const formData = new FormData(form);
+      // --- 4. Enviar por AJAX ---
+      const formData = new FormData(form)
       fetch("{% url 'crear_cliente' %}", {
         method: 'POST',
         body: formData,
@@ -275,8 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
           if (!data) {
             Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
-              submitEnProgreso = false;
-              if (submitButton) submitButton.disabled = false;
+              submitButton.disabled = false;
             });
             return;
           }
@@ -287,50 +298,43 @@ document.addEventListener('DOMContentLoaded', function () {
               icon: 'success',
               confirmButtonText: 'OK'
             }).then(() => {
-              window.location.href = "{% url 'listar_clientes' %}";
+              window.location.href = "{% url 'listar_clientes' %}"
             });
           } else {
-            let errorMessages = '';
+            let errorMessages = ''
             if (data.errors) {
               if (data.errors.cliente_form) {
                 for (const [field, errors] of Object.entries(data.errors.cliente_form)) {
-                  errors.forEach(e => (errorMessages += `Cliente - ${field}: ${e.message}<br>`));
+                  errors.forEach(e => (errorMessages += `Cliente - ${field}: ${e.message}<br>`))
                 }
               }
               if (data.errors.vehiculo_form) {
                 for (const [field, errors] of Object.entries(data.errors.vehiculo_form)) {
-                  errors.forEach(e => (errorMessages += `Vehículo - ${field}: ${e.message}<br>`));
+                  errors.forEach(e => (errorMessages += `Vehículo - ${field}: ${e.message}<br>`))
                 }
               }
               if (data.errors.general) {
-                errorMessages += data.errors.general + '<br>';
+                errorMessages += data.errors.general + '<br>'
               }
             }
-            if (errorMessages) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                html: errorMessages,
-                confirmButtonText: 'OK'
-              }).then(() => {
-                submitEnProgreso = false;
-                if (submitButton) submitButton.disabled = false;
-              });
-            } else {
-              submitEnProgreso = false;
-              if (submitButton) submitButton.disabled = false;
-            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              html: errorMessages || 'Revisa los campos obligatorios.',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              submitButton.disabled = false;
+            });
           }
         })
         .catch(() => {
           Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
-            submitEnProgreso = false;
-            if (submitButton) submitButton.disabled = false;
+            submitButton.disabled = false;
           });
         });
-    });
+    })
   }
-});
+})
 </script>
 {% endblock %}
 {% endblock %}

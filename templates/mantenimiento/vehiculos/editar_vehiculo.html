@@ -5,7 +5,7 @@
 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
   <h2 class="text-3xl font-bold mb-6 text-[#1565C0]">Editar Vehículo</h2>
 
-  <form id="editarVehiculoForm" method="post" enctype="multipart/form-data" class="space-y-6">
+  <form method="post" enctype="multipart/form-data"class="space-y-6">
     <p class="text-gray-700 mb-4">
       Estás editando el vehículo con placa <strong>{{ vehiculo.placa }}</strong> ({{ vehiculo.marca }} {{ vehiculo.modelo }}).
       Asegúrate de que todos los campos sean correctos antes de guardar los cambios.
@@ -27,55 +27,4 @@
     </div>
   </form>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const form = document.getElementById('editarVehiculoForm');
-  if (!form) return;
-
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    const formData = new FormData(form);
-    fetch("", { // misma url, por eso ""
-      method: 'POST',
-      body: formData,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(resp => resp.json())
-    .then(data => {
-      if (data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: '¡Actualizado!',
-          html: data.message || 'Vehículo actualizado correctamente.',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          window.location.href = "{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}";
-        });
-      } else {
-        let errores = '';
-        if (data.errors) {
-          for (const [campo, arr] of Object.entries(data.errors)) {
-            arr.forEach(obj => errores += (obj.message + '<br>'));
-          }
-        } else if (data.error) {
-          errores = data.error;
-        }
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al actualizar',
-          html: errores || 'Verifica los campos del formulario.',
-          confirmButtonText: 'OK'
-        });
-      }
-    })
-    .catch(() => {
-      Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error');
-    });
-  });
-});
-</script>
 {% endblock %}

@@ -28,18 +28,12 @@
     </thead>
     <tbody class="text-sm text-gray-800">
       {% for cliente in clientes %}
-        <tr class="border-b hover:bg-gray-50" id="cliente-row-{{ cliente.id }}">
+        <tr class="border-b hover:bg-gray-50">
           <td class="py-2 px-4">{{ cliente.get_full_name }}</td>
           <td class="py-2 px-4">{{ cliente.email }}</td>
           <td class="py-2 px-4">{{ cliente.telefono }}</td>
-          <td class="py-2 px-4 flex gap-2">
+          <td class="py-2 px-4">
             <a href="{% url 'detalle_cliente' cliente.id %}" class="text-[#1565C0] font-semibold hover:underline">Ver</a>
-            <button type="button"
-                    class="text-[#D7141A] font-semibold hover:underline btn-eliminar-cliente"
-                    data-cliente-id="{{ cliente.id }}"
-                    data-cliente-nombre="{{ cliente.get_full_name }}">
-              Eliminar
-            </button>
           </td>
         </tr>
       {% empty %}
@@ -50,57 +44,5 @@
     </tbody>
   </table>
 </div>
-{% endblock %}
 
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Botón eliminar cliente
-  document.querySelectorAll('.btn-eliminar-cliente').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const clienteId = this.getAttribute('data-cliente-id');
-      const clienteNombre = this.getAttribute('data-cliente-nombre');
-      Swal.fire({
-        title: '¿Eliminar cliente?',
-        html: `<b>${clienteNombre}</b> será eliminado.<br>Esta acción no se puede deshacer.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#D7141A',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch(`/clientes/${clienteId}/eliminar/`, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': '{{ csrf_token }}',
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire({
-                title: '¡Eliminado!',
-                text: data.message,
-                icon: 'success'
-              }).then(() => {
-                // Eliminar la fila de la tabla
-                const row = document.getElementById(`cliente-row-${clienteId}`);
-                if (row) row.remove();
-              });
-            } else {
-              Swal.fire('Error', data.error || 'No se pudo eliminar el cliente.', 'error');
-            }
-          })
-          .catch(() => {
-            Swal.fire('Error', 'No se pudo procesar la solicitud.', 'error');
-          });
-        }
-      });
-    });
-  });
-});
-</script>
 {% endblock %}

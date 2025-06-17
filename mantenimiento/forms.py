@@ -123,6 +123,7 @@ class RepuestoForm(forms.ModelForm):
 class MantenimientoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Personaliza la opción vacía del select
         self.fields['id_vehiculo'].empty_label = "Seleccionar vehículo"
         self.fields['id_tipo_mantenimiento'].empty_label = "Seleccionar tipo de mantenimiento"
 
@@ -178,7 +179,7 @@ class MantenimientoAgendadoForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     first_name = forms.CharField(
         label='Nombre',
-        required=False,  
+        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Nombre'
@@ -186,7 +187,7 @@ class ClienteForm(forms.ModelForm):
     )
     last_name = forms.CharField(
         label='Apellido',
-        required=False,  
+        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full rounded-md bg-transparent border border-gray-300 px-3 py-2',
             'placeholder': 'Apellido'
@@ -233,6 +234,7 @@ class ClienteForm(forms.ModelForm):
             'placeholder': 'Deja en blanco para mantener la contraseña actual'
         })
     )
+
     class Meta:
         model = Usuarios
         fields = ['first_name', 'last_name', 'email', 'telefono', 'dui', 'direccion']
@@ -253,17 +255,14 @@ class ClienteForm(forms.ModelForm):
         usuario = super().save(commit=False)
         nueva_contraseña = self.cleaned_data.get('password')
         if nueva_contraseña:
-            usuario.set_password(nueva_contraseña)
+            usuario.set_password(nueva_contraseña)  # Cifra correctamente la nueva contraseña
+        # Si el campo está vacío, NO modifica la contraseña
         if commit:
             usuario.save()
         return usuario
 
+
 class VehiculoForm(forms.ModelForm):
-    id_usuario_propietario = forms.ModelChoiceField(
-        queryset=Usuarios.objects.filter(id_rol__codigo_rol='C'),
-        label="Propietario",
-        widget=forms.Select(attrs={'class': 'form-input'})
-    )
     tipo_placa = forms.ChoiceField(
         label="Tipo de Placa",
         choices=Vehiculos._meta.get_field('tipo_placa').choices,
@@ -335,13 +334,11 @@ class VehiculoForm(forms.ModelForm):
 
     class Meta:
         model = Vehiculos
-        exclude = ['id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
+        exclude = ['id_usuario_propietario', 'id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
+        # No necesitas widgets aquí, ya que todos los campos se declaran arriba con sus widgets y required=False
 
     def clean(self):
         cleaned_data = super().clean()
-        errores = {}
-
-        # Requeridos siempre (excepto fotos)
         campos_obligatorios = [
             ('tipo_placa', 'Tipo de Placa'),
             ('placa', 'Placa'),
@@ -351,40 +348,22 @@ class VehiculoForm(forms.ModelForm):
             ('tipo_combustible', 'Tipo de combustible'),
             ('vin', 'VIN'),
             ('color', 'Color'),
+            ('foto_frontal', 'Foto frontal'),
+            ('foto_lateral_izquierda', 'Foto lateral izquierda'),
+            ('foto_lateral_derecha', 'Foto lateral derecha'),
+            ('foto_trasera', 'Foto trasera'),
         ]
+        errores = {}
         for campo, label in campos_obligatorios:
             valor = cleaned_data.get(campo)
             if not valor:
                 errores[campo] = f'El campo "{label}" es obligatorio.'
 
-        # --- FOTOS: solo obligatorias si (es registro) o (no existe esa foto en edición)
-        foto_campos = [
-            ('foto_frontal', 'Foto frontal', 'frontal'),
-            ('foto_lateral_izquierda', 'Foto lateral izquierda', 'lateral izquierda'),
-            ('foto_lateral_derecha', 'Foto lateral derecha', 'lateral derecha'),
-            ('foto_trasera', 'Foto trasera', 'trasera'),
-        ]
-        es_nuevo = self.instance.pk is None
-
-        for campo, label, tipo_foto in foto_campos:
-            archivo = cleaned_data.get(campo)
-            if es_nuevo:
-                # Registro: obligatorio
-                if not archivo:
-                    errores[campo] = f'El campo "{label}" es obligatorio.'
-            else:
-                # Edición: obligatorio solo si no existe esa foto ya guardada
-                tiene_foto = FotografiasVehiculo.objects.filter(
-                    id_vehiculo=self.instance.pk,
-                    tipo_fotografia=tipo_foto
-                ).exists()
-                if not archivo and not tiene_foto:
-                    errores[campo] = f'El campo "{label}" es obligatorio.'
-
         if errores:
             raise forms.ValidationError(errores)
         return cleaned_data
 
+    # Validación adicional opcional en el backend
     def clean_placa(self):
         placa = self.cleaned_data.get('placa')
         if placa and not placa.isdigit():
@@ -401,3 +380,5 @@ class VehiculoForm(forms.ModelForm):
             if len(vin) != 17:
                 raise forms.ValidationError("El VIN debe tener exactamente 17 caracteres.")
         return vin
+        
+    

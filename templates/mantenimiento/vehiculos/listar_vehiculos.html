@@ -5,10 +5,11 @@
 <div class="max-w-6xl mx-auto px-4 py-8">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-bold text-[#D7141A]">Listado de Vehículos</h1>
+
     {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-      <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#1565C0] text-white rounded-md shadow hover:bg-[#0D47A1] transition">
-        + Registrar Vehículo
-      </a>
+    <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#1565C0] text-white rounded-md shadow hover:bg-[#0D47A1] transition">
+      + Registrar Vehículo
+    </a>
     {% endif %}
   </div>
 
@@ -37,9 +38,9 @@
           <td class="px-6 py-4">{{ vehiculo.anio }}</td>
           <td class="px-6 py-4">{{ vehiculo.placa }}</td>
           <td class="px-6 py-4 space-x-2">
-            {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+            {% if request.user.is_superuser and request.user.id_rol.codigo_rol == 'A' %}
               <a href="{% url 'editar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#1565C0] hover:underline">Editar</a>
-              <a href="#" class="text-[#D7141A] hover:underline eliminar-vehiculo" data-id="{{ vehiculo.id_vehiculo }}">Eliminar</a>
+              <a href="{% url 'eliminar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#D7141A] hover:underline">Eliminar</a>
             {% endif %}
             <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="text-[#4CAF50] hover:underline">Ver Detalle</a>
           </td>
@@ -53,51 +54,4 @@
     </table>
   </div>
 </div>
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Eliminar vehículo (AJAX + SweetAlert2)
-  document.querySelectorAll('.eliminar-vehiculo').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const idVehiculo = this.dataset.id;
-
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: '¡Esta acción eliminará el vehículo y todas sus fotografías asociadas!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch(`/vehiculos/${idVehiculo}/eliminar/`, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': '{{ csrf_token }}',
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          })
-          .then(resp => resp.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Eliminado', data.message, 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', data.error || 'No se pudo eliminar el vehículo.', 'error');
-            }
-          })
-          .catch(() => {
-            Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
-          });
-        }
-      });
-    });
-  });
-});
-</script>
-{% endblock %}
 {% endblock %}
