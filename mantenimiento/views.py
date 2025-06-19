@@ -62,8 +62,22 @@ def inicio(request):
 
 @login_required
 def listar_clientes(request):
+    buscar = request.GET.get('buscar', '')
     clientes = Usuarios.objects.filter(id_rol__nombre_rol='Cliente')
-    return render(request, 'mantenimiento/clientes/listar_clientes.html', {'clientes': clientes})
+    if buscar:
+        clientes = clientes.filter(
+            Q(first_name__icontains=buscar) |
+            Q(last_name__icontains=buscar) |
+            Q(email__icontains=buscar)
+        )
+    paginator = Paginator(clientes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'mantenimiento/clientes/listar_clientes.html', {
+        'clientes': page_obj,
+        'buscar': buscar,
+        'page_obj': page_obj,
+    })
 
 @login_required
 def listar_vehiculos(request):
