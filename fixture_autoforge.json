@@ -45,8 +45,16 @@
     "model": "mantenimiento.tiposmantenimiento",
     "pk": 1,
     "fields": {
-      "nombre_tipo": "Cambio de aceite",
-      "descripcion": "Mantenimiento básico para el motor"
+      "nombre_tipo": "Preventivo",
+      "descripcion": "Mantenimiento preventivo para evitar fallas"
+    }
+  },
+  {
+    "model": "mantenimiento.tiposmantenimiento",
+    "pk": 2,
+    "fields": {
+      "nombre_tipo": "Correctivo",
+      "descripcion": "Mantenimiento correctivo para reparar fallas"
     }
   },
   {
@@ -96,69 +104,6 @@
       "color": "Blanco",
       "fecha_registro_vehiculo": "2025-06-08 04:44:47.520467",
       "id_usuario_registra_vehiculo": 2
-    }
-  },
-  {
-    "model": "mantenimiento.mantenimientos",
-    "pk": 1,
-    "fields": {
-      "id_vehiculo": 1,
-      "id_tipo_mantenimiento": 1,
-      "fecha_ingreso": "2025-06-03 04:44:47.520652",
-      "fecha_salida": "2025-06-05 04:44:47.520661",
-      "fecha_proximo_mantenimiento_preventivo": "2025-09-06",
-      "descripcion_problema_cliente": "Ruido extraño en el motor",
-      "diagnostico_taller": "Bomba de agua dañada",
-      "trabajos_realizados": "Cambio de bomba de agua",
-      "observaciones_mantenimiento": "Se recomienda revisión de correa",
-      "costo_mano_obra": "45.00",
-      "costo_total_repuestos": "75.00",
-      "otros_cargos": "0.00",
-      "descuentos": "0.00",
-      "costo_total_mantenimiento": "120.00",
-      "kilometraje_actual": 85000,
-      "estado": "Completado",
-      "id_usuario_abre_orden": 2,
-      "id_usuario_mecanico_asignado": 2
-    }
-  },
-  {
-    "model": "mantenimiento.mantenimientorepuestos",
-    "pk": 1,
-    "fields": {
-      "id_mantenimiento": 1,
-      "id_repuesto": 1,
-      "cantidad_utilizada": 1,
-      "precio_unitario_al_momento": "58.67",
-      "subtotal": "58.67",
-      "id_usuario_agrega_repuesto": 2
-    }
-  },
-  {
-    "model": "mantenimiento.mantenimientorepuestos",
-    "pk": 2,
-    "fields": {
-      "id_mantenimiento": 1,
-      "id_repuesto": 2,
-      "cantidad_utilizada": 1,
-      "precio_unitario_al_momento": "16.53",
-      "subtotal": "16.53",
-      "id_usuario_agrega_repuesto": 2
-    }
-  },
-  {
-    "model": "mantenimiento.mantenimientosagendados",
-    "pk": 1,
-    "fields": {
-      "id_vehiculo": 1,
-      "id_tipo_mantenimiento_sugerido": 1,
-      "fecha_programada": "2025-09-06",
-      "kilometraje_programado": 90000,
-      "notas": "Próxima revisión general",
-      "estado_agendamiento": "Pendiente",
-      "id_mantenimiento_realizado": 1,
-      "id_usuario_agenda": 2,
-      "fecha_creacion_agenda": "2025-06-08 04:44:47.520941"
     }
   }
 ]

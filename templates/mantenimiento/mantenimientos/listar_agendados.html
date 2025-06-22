@@ -1,0 +1,115 @@
+{% extends 'mantenimiento/base.html' %}
+{% block title %}Mantenimientos Agendados{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-[#D7141A]">Mantenimientos Agendados</h1>
+    {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+    <a href="{% url 'agendar_mantenimiento_manual' %}" class="px-5 py-2 bg-[#D7141A] text-white rounded-md shadow hover:bg-red-700 transition">
+      + Agendar Mantenimiento
+    </a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="mb-6 flex gap-4 items-end relative">
+    <div class="relative">
+      <label for="vehiculo" class="block text-sm font-medium text-gray-700">Buscar por vehículo (placa)</label>
+      <input type="text" name="vehiculo" id="vehiculo" value="{{ buscar_vehiculo }}" placeholder="Placa del vehículo"
+             class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D7141A] pr-8">
+      {% if buscar_vehiculo %}
+      <button type="button" onclick="limpiarCampo('vehiculo')" class="absolute right-2 top-8 text-gray-500 hover:text-red-600 text-xl font-bold leading-none focus:outline-none">&times;</button>
+      {% endif %}
+    </div>
+    <div class="relative">
+      <label for="fecha" class="block text-sm font-medium text-gray-700">Buscar por fecha</label>
+      <input type="date" name="fecha" id="fecha" value="{{ buscar_fecha }}"
+             class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D7141A] pr-8">
+      {% if buscar_fecha %}
+      <button type="button" onclick="limpiarCampo('fecha')" class="absolute right-2 top-8 text-gray-500 hover:text-red-600 text-xl font-bold leading-none focus:outline-none">&times;</button>
+      {% endif %}
+    </div>
+    <div>
+      <button type="submit" class="px-4 py-2 bg-[#D7141A] text-white rounded hover:bg-red-700 transition font-semibold">Buscar</button>
+    </div>
+  </form>
+
+  <div class="overflow-x-auto bg-white rounded-2xl shadow-lg">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+        <tr>
+          {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+            <th class="px-6 py-3 text-left">ID</th>
+          {% endif %}
+          <th class="px-6 py-3 text-left">Vehículo</th>
+          <th class="px-6 py-3 text-left">Fecha Programada</th>
+          <th class="px-6 py-3 text-left">Tipo de Mantenimiento</th>
+          <th class="px-6 py-3 text-left">Kilometraje Programado</th>
+          <th class="px-6 py-3 text-left">Notas</th>
+          <th class="px-6 py-3 text-left">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for agendado in agendados %}
+        <tr class="hover:bg-gray-50 transition-colors">
+          {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+            <td class="px-6 py-4 font-medium text-gray-700">{{ agendado.id_mantenimiento_agendado }}</td>
+          {% endif %}
+          <td class="px-6 py-4">
+            {{ agendado.id_vehiculo.marca }} {{ agendado.id_vehiculo.modelo }} ({{ agendado.id_vehiculo.placa }})
+          </td>
+          <td class="px-6 py-4">{{ agendado.fecha_programada }}</td>
+          <td class="px-6 py-4">
+            {% if agendado.id_tipo_mantenimiento_sugerido %}
+              {{ agendado.id_tipo_mantenimiento_sugerido.nombre_tipo }}
+            {% else %}
+              General
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">{{ agendado.kilometraje_programado|default:"N/D" }}</td>
+          <td class="px-6 py-4">{{ agendado.notas|default:"Sin notas" }}</td>
+          <td class="px-6 py-4 space-x-2">
+            <a href="{% url 'detalle_mantenimiento' agendado.id_mantenimiento_agendado %}" class="text-[#4CAF50] hover:underline">Ver Detalle</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-6 text-gray-500">No hay mantenimientos agendados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-6 flex justify-center space-x-2">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&vehiculo={{ buscar_vehiculo }}&fecha={{ buscar_fecha }}" class="px-3 py-1 border rounded hover:bg-gray-100">Anterior</a>
+    {% else %}
+      <span class="px-3 py-1 border rounded text-gray-400 cursor-not-allowed">Anterior</span>
+    {% endif %}
+
+    <span class="px-3 py-1 border rounded bg-gray-200">{{ page_obj.number }}</span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&vehiculo={{ buscar_vehiculo }}&fecha={{ buscar_fecha }}" class="px-3 py-1 border rounded hover:bg-gray-100">Siguiente</a>
+    {% else %}
+      <span class="px-3 py-1 border rounded text-gray-400 cursor-not-allowed">Siguiente</span>
+    {% endif %}
+  </nav>
+  {% endif %}
+</div>
+
+<script>
+  function limpiarCampo(id) {
+    const input = document.getElementById(id);
+    if (input) {
+      input.value = '';
+      const form = input.closest('form');
+      if (form) {
+        form.submit();
+      }
+    }
+  }
+</script>
+{% endblock %}

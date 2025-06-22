@@ -361,13 +361,32 @@ def agendar_mantenimiento(request, vehiculo_id=None):
 
 @login_required
 def listar_mantenimientos_agendados(request):
+    buscar_vehiculo = request.GET.get('vehiculo', '').strip()
+    buscar_fecha = request.GET.get('fecha', '').strip()
+
     if request.user.id_rol.codigo_rol == 'A':
-        agendados = MantenimientosAgendados.objects.all().order_by('-fecha_programada')
+        agendados = MantenimientosAgendados.objects.all()
     else:
         vehiculos_usuario = Vehiculos.objects.filter(id_usuario_propietario=request.user)
-        agendados = MantenimientosAgendados.objects.filter(id_vehiculo__in=vehiculos_usuario).order_by('-fecha_programada')
+        agendados = MantenimientosAgendados.objects.filter(id_vehiculo__in=vehiculos_usuario)
 
-    return render(request, 'mantenimiento/mantenimientos/listar_agendados.html', {'agendados': agendados})
+    if buscar_vehiculo:
+        agendados = agendados.filter(id_vehiculo__placa__icontains=buscar_vehiculo)
+    if buscar_fecha:
+        agendados = agendados.filter(fecha_programada=buscar_fecha)
+
+    agendados = agendados.order_by('-fecha_programada')
+
+    paginator = Paginator(agendados, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'mantenimiento/mantenimientos/listar_agendados.html', {
+        'agendados': page_obj,
+        'buscar_vehiculo': buscar_vehiculo,
+        'buscar_fecha': buscar_fecha,
+        'page_obj': page_obj,
+    })
 
 
 @login_required

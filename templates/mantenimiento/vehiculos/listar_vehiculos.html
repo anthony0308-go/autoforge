@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-bold text-[#D7141A]">Listado de Vehículos</h1>
 
     {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-    <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#1565C0] text-white rounded-md shadow hover:bg-[#0D47A1] transition">
+    <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#D7141A] text-white rounded-md shadow hover:bg-red-700 transition">
       + Registrar Vehículo
     </a>
     {% endif %}
