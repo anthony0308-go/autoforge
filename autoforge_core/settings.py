@@ -152,5 +152,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'autoforge.manager@gmail.com'
 EMAIL_HOST_PASSWORD = 'gkyx bnxk phtu iaoa'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True #Para seguridad y que no se pueda interceptar la info
 DEFAULT_FROM_EMAIL = 'Taller AutoForge <noreply@autoforge.com>'

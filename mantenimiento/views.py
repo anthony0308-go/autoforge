@@ -48,7 +48,7 @@ def logout_view(request):
 
 @login_required
 def inicio(request):
-    usuario = request.user  # <-- Esta es la forma segura
+    usuario = request.user  
     mantenimientos_agendados = None
     if usuario.is_superuser or (hasattr(usuario, 'id_rol') and usuario.id_rol and usuario.id_rol.codigo_rol == 'A'):
         mantenimientos_agendados = MantenimientosAgendados.objects.filter(
@@ -150,7 +150,6 @@ def modal_registrar_repuesto(request):
             form.save()
             return HttpResponse('<script>window.location.reload();</script>')
         else:
-            # ⚠️ Formulario inválido: lo volvemos a renderizar con errores
             return render(request, 'mantenimiento/repuestos/_form_modal.html', {'form': form})
     else:
         form = RepuestoForm()
