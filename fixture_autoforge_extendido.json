@@ -1,109 +1,394 @@
 [
+
   {
-    "model": "mantenimiento.usuarios",
+    "model": "mantenimiento.roles",
     "pk": 1,
-    "fields": {
-      "password": "pbkdf2_sha256$216000$...",
-      "last_login": null,
-      "is_superuser": false,
-      "first_name": "Amy",
-      "last_name": "Quinn",
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2020-03-21 03:47:44",
-      "id_rol": 1,
-      "telefono": "+1-623-925-9673",
-      "dui": "24507206-1",
-      "direccion": "388 Jackson Islands\nBrownbury, IN 07528",
-      "carnet_empleado": null,
-      "fecha_creacion_usuario": "2025-06-08 04:44:47.518365",
-      "email": "emma31@yahoo.com"
-    }
+    "fields": {"nombre_rol": "Administrador", "codigo_rol": "A"}
   },
   {
-    "model": "mantenimiento.usuarios",
+    "model": "mantenimiento.roles",
     "pk": 2,
-    "fields": {
-      "password": "pbkdf2_sha256$216000$...",
-      "last_login": null,
-      "is_superuser": false,
-      "first_name": "Cynthia",
-      "last_name": "Castro",
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2024-04-10 15:01:30",
-      "id_rol": 2,
-      "telefono": "868.064.7785x21354",
-      "dui": "11554269-5",
-      "direccion": "9988 Campbell Hollow\nSouth Ellenfurt, VA 56947",
-      "carnet_empleado": "EMP351",
-      "fecha_creacion_usuario": "2025-06-08 04:44:47.519509",
-      "email": "webbmark@foster.net"
-    }
+    "fields": {"nombre_rol": "Cliente", "codigo_rol": "C"}
   },
+
+
   {
     "model": "mantenimiento.tiposmantenimiento",
     "pk": 1,
-    "fields": {
-      "nombre_tipo": "Preventivo",
-      "descripcion": "Mantenimiento preventivo para evitar fallas"
-    }
+    "fields": {"nombre_tipo": "Preventivo", "descripcion": "Mantenimiento programado para prevenir fallas"}
   },
   {
     "model": "mantenimiento.tiposmantenimiento",
     "pk": 2,
-    "fields": {
-      "nombre_tipo": "Correctivo",
-      "descripcion": "Mantenimiento correctivo para reparar fallas"
-    }
+    "fields": {"nombre_tipo": "Correctivo", "descripcion": "Mantenimiento por reparación de fallas"}
   },
+
+
   {
     "model": "mantenimiento.repuestos",
     "pk": 1,
     "fields": {
-      "nombre_repuesto": "Repuesto 1",
-      "marca_repuesto": "GENERIC",
-      "descripcion": "Descripción del repuesto 1",
-      "precio_unitario_referencia": "58.67",
-      "stock": 39
+      "nombre_repuesto": "Filtro de aceite",
+      "marca_repuesto": "Bosch",
+      "descripcion": "Filtro de aceite compatible con sedanes",
+      "precio_unitario_referencia": "8.75",
+      "stock": 20
     }
   },
   {
     "model": "mantenimiento.repuestos",
     "pk": 2,
     "fields": {
-      "nombre_repuesto": "Repuesto 2",
-      "marca_repuesto": "GENERIC",
-      "descripcion": "Descripción del repuesto 2",
-      "precio_unitario_referencia": "16.53",
-      "stock": 25
+      "nombre_repuesto": "Aceite 5W-30",
+      "marca_repuesto": "Mobil",
+      "descripcion": "Aceite sintético 1 galón",
+      "precio_unitario_referencia": "26.99",
+      "stock": 30
     }
   },
   {
     "model": "mantenimiento.repuestos",
     "pk": 3,
     "fields": {
-      "nombre_repuesto": "Repuesto 3",
-      "marca_repuesto": "GENERIC",
-      "descripcion": "Descripción del repuesto 3",
-      "precio_unitario_referencia": "40.81",
-      "stock": 13
+      "nombre_repuesto": "Pastillas de freno",
+      "marca_repuesto": "Brembo",
+      "descripcion": "Juego delantero para compacto",
+      "precio_unitario_referencia": "38.00",
+      "stock": 18
     }
   },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 4,
+    "fields": {
+      "nombre_repuesto": "Filtro de aire",
+      "marca_repuesto": "Toyota",
+      "descripcion": "Filtro de aire original",
+      "precio_unitario_referencia": "14.50",
+      "stock": 25
+    }
+  },
+  {
+    "model": "mantenimiento.repuestos",
+    "pk": 5,
+    "fields": {
+      "nombre_repuesto": "Bujías",
+      "marca_repuesto": "NGK",
+      "descripcion": "Juego de 4 bujías estándar",
+      "precio_unitario_referencia": "16.00",
+      "stock": 32
+    }
+  },
+
+
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$pruebaadmin$E2m...xx",
+      "last_login": null,
+      "is_superuser": true,
+      "first_name": "Admin",
+      "last_name": "Sistema",
+      "email": "admin@autoforge.com",
+      "telefono": "2222-0000",
+      "dui": "00000000-0",
+      "direccion": "Oficinas AutoForge",
+      "carnet_empleado": "AF0001",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T08:00:00Z",
+      "id_rol": 1
+    }
+  },
+
+
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$cliente$xxxxxx",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Andrea",
+      "last_name": "Gómez",
+      "email": "andrea.gomez1@example.com",
+      "telefono": "7012-1234",
+      "dui": "02345678-9",
+      "direccion": "Av. Primavera, Santa Tecla",
+      "carnet_empleado": null,
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-06-01T08:00:00Z",
+      "id_rol": 2
+    }
+  },
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$cliente$xxxxxx",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Luis",
+      "last_name": "Méndez",
+      "email": "luis.mendez2@example.com",
+      "telefono": "7013-2345",
+      "dui": "03456789-0",
+      "direccion": "Col. Médica, SS",
+      "carnet_empleado": null,
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-06-02T08:00:00Z",
+      "id_rol": 2
+    }
+  },
+  {
+    "model": "mantenimiento.usuarios",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$260000$cliente$xxxxxx",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "María",
+      "last_name": "Flores",
+      "email": "maria.flores3@example.com",
+      "telefono": "7014-3456",
+      "dui": "04567890-1",
+      "direccion": "Res. Lirios, SS",
+      "carnet_empleado": null,
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-06-03T08:00:00Z",
+      "id_rol": 2
+    }
+  },
+
+
   {
     "model": "mantenimiento.vehiculos",
     "pk": 1,
     "fields": {
-      "id_usuario_propietario": 1,
-      "placa": "P123456",
+      "id_usuario_propietario": 2,
+      "placa": "BAD 38",
+      "tipo_placa": "P",
       "marca": "Toyota",
       "modelo": "Corolla",
-      "anio": 2015,
+      "anio": 2018,
       "tipo_combustible": "Gasolina",
-      "vin": "1HGCM82633A082349",
+      "vin": "JH4KA2650MC100001",
       "color": "Blanco",
-      "fecha_registro_vehiculo": "2025-06-08 04:44:47.520467",
-      "id_usuario_registra_vehiculo": 2
+      "fecha_registro_vehiculo": "2024-06-12T10:00:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 2,
+    "fields": {
+      "id_usuario_propietario": 2,
+      "placa": "HE e03R",
+      "tipo_placa": "P",
+      "marca": "Mazda",
+      "modelo": "3",
+      "anio": 2020,
+      "tipo_combustible": "Gasolina",
+      "vin": "JM1BM1W30E1100011",
+      "color": "Rojo",
+      "fecha_registro_vehiculo": "2024-06-12T10:01:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+
+
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 3,
+    "fields": {
+      "id_usuario_propietario": 3,
+      "placa": "720 340",
+      "tipo_placa": "P",
+      "marca": "Honda",
+      "modelo": "Civic",
+      "anio": 2019,
+      "tipo_combustible": "Gasolina",
+      "vin": "2HGES16555H200002",
+      "color": "Negro",
+      "fecha_registro_vehiculo": "2024-06-12T10:02:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 4,
+    "fields": {
+      "id_usuario_propietario": 3,
+      "placa": "F5R 68",
+      "tipo_placa": "P",
+      "marca": "Hyundai",
+      "modelo": "Elantra",
+      "anio": 2017,
+      "tipo_combustible": "Gasolina",
+      "vin": "KMHD84LF6JU600022",
+      "color": "Gris",
+      "fecha_registro_vehiculo": "2024-06-12T10:03:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+
+
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 5,
+    "fields": {
+      "id_usuario_propietario": 4,
+      "placa": "333331",
+      "tipo_placa": "P",
+      "marca": "Kia",
+      "modelo": "Rio",
+      "anio": 2016,
+      "tipo_combustible": "Gasolina",
+      "vin": "KNADH4A37G6900001",
+      "color": "Azul",
+      "fecha_registro_vehiculo": "2024-06-12T10:04:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+  {
+    "model": "mantenimiento.vehiculos",
+    "pk": 6,
+    "fields": {
+      "id_usuario_propietario": 4,
+      "placa": "893 572",
+      "tipo_placa": "P",
+      "marca": "Nissan",
+      "modelo": "Versa",
+      "anio": 2018,
+      "tipo_combustible": "Gasolina",
+      "vin": "3N1CN7AD2JL900011",
+      "color": "Plateado",
+      "fecha_registro_vehiculo": "2024-06-12T10:05:00Z",
+      "id_usuario_registra_vehiculo": 1
+    }
+  },
+
+ 
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 1,
+      "fecha_ingreso": "2024-06-15T08:00:00Z",
+      "fecha_salida": "2024-06-15T12:00:00Z",
+      "fecha_proximo_mantenimiento_preventivo": "2024-12-15",
+      "descripcion_problema_cliente": "Mantenimiento preventivo completo.",
+      "diagnostico_taller": "Todo en orden.",
+      "trabajos_realizados": "Cambio de aceite y filtro.",
+      "observaciones_mantenimiento": "",
+      "costo_mano_obra": "22.00",
+      "costo_total_repuestos": "35.74",
+      "otros_cargos": "0.00",
+      "descuentos": "0.00",
+      "costo_total_mantenimiento": "57.74",
+      "kilometraje_actual": 49000,
+      "estado": "completado",
+      "id_usuario_abre_orden": 1,
+      "id_usuario_mecanico_asignado": null
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 1,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 1,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "8.75",
+      "subtotal": "8.75",
+      "id_usuario_agrega_repuesto": 1
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 2,
+    "fields": {
+      "id_mantenimiento": 1,
+      "id_repuesto": 2,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "26.99",
+      "subtotal": "26.99",
+      "id_usuario_agrega_repuesto": 1
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientos",
+    "pk": 2,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento": 2,
+      "fecha_ingreso": "2024-05-20T09:00:00Z",
+      "fecha_salida": "2024-05-20T13:00:00Z",
+      "fecha_proximo_mantenimiento_preventivo": "2024-11-20",
+      "descripcion_problema_cliente": "Ruidos al frenar.",
+      "diagnostico_taller": "Pastillas de freno desgastadas.",
+      "trabajos_realizados": "Cambio de pastillas de freno.",
+      "observaciones_mantenimiento": "",
+      "costo_mano_obra": "18.00",
+      "costo_total_repuestos": "38.00",
+      "otros_cargos": "0.00",
+      "descuentos": "0.00",
+      "costo_total_mantenimiento": "56.00",
+      "kilometraje_actual": 47000,
+      "estado": "completado",
+      "id_usuario_abre_orden": 1,
+      "id_usuario_mecanico_asignado": null
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientorepuestos",
+    "pk": 3,
+    "fields": {
+      "id_mantenimiento": 2,
+      "id_repuesto": 3,
+      "cantidad_utilizada": 1,
+      "precio_unitario_al_momento": "38.00",
+      "subtotal": "38.00",
+      "id_usuario_agrega_repuesto": 1
+    }
+  },
+
+
+  {
+    "model": "mantenimiento.mantenimientosagendados",
+    "pk": 1,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento_sugerido": 1,
+      "fecha_programada": "2024-08-10",
+      "kilometraje_programado": 51000,
+      "notas": "Cambio de aceite y filtro.",
+      "estado_agendamiento": "pendiente",
+      "id_mantenimiento_realizado": null,
+      "id_usuario_agenda": 1,
+      "fecha_creacion_agenda": "2024-06-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "mantenimiento.mantenimientosagendados",
+    "pk": 2,
+    "fields": {
+      "id_vehiculo": 1,
+      "id_tipo_mantenimiento_sugerido": 2,
+      "fecha_programada": "2024-09-05",
+      "kilometraje_programado": 53000,
+      "notas": "Revisión de frenos.",
+      "estado_agendamiento": "pendiente",
+      "id_mantenimiento_realizado": null,
+      "id_usuario_agenda": 1,
+      "fecha_creacion_agenda": "2024-06-21T12:01:00Z"
     }
   }
+
+  
 ]

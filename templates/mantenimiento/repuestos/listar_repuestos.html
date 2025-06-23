@@ -36,7 +36,6 @@
   </a>
 </div>
 
-
 <!-- Tabla con ID para HTMX -->
 <div id="tabla-repuestos">
   <div class="overflow-x-auto">
@@ -53,7 +52,7 @@
       </thead>
       <tbody>
         {% for repuesto in repuestos %}
-        <tr id="repuesto-{{ repuesto.id_repuesto }}" class="border-t hover:bg-gray-50">
+        <tr id="repuesto-{{ repuesto.id_repuesto }}" class="border-t hover:bg-gray-50 js-repuesto-row">
           <td class="px-4 py-2">{{ forloop.counter }}</td>
           <td class="px-4 py-2">{{ repuesto.nombre_repuesto }}</td>
           <td class="px-4 py-2">{{ repuesto.marca_repuesto }}</td>
@@ -61,7 +60,7 @@
           <td class="px-4 py-2">{{ repuesto.stock }}</td>
           <td class="px-4 py-2 space-x-2 flex">
             <button 
-              class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm font-medium inline-flex items-center gap-1"
+              class="js-btn-editar bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm font-medium inline-flex items-center gap-1"
               hx-get="{% url 'modal_editar_repuesto' repuesto.id_repuesto %}"
               hx-target="#modal"
               hx-swap="innerHTML">
@@ -72,14 +71,21 @@
             </button>
             <button
               type="button"
+              class="js-btn-eliminar bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium inline-flex items-center gap-1"
               hx-get="{% url 'modal_confirmar_eliminacion' repuesto.id_repuesto %}"
               hx-target="#modal"
-              hx-swap="innerHTML"
-              class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium inline-flex items-center gap-1">
+              hx-swap="innerHTML">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 stroke-white" fill="none" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
               </svg>
               Eliminar
+            </button>
+            <!-- Botón Habilitar/Deshabilitar visual -->
+            <button
+              type="button"
+              class="js-toggle-habilitar bg-yellow-500 text-white px-3 py-1 rounded text-sm font-medium inline-flex items-center gap-1"
+              data-id="{{ repuesto.id_repuesto }}">
+              <span class="js-habilitar-label">Deshabilitar</span>
             </button>
           </td>
         </tr>
@@ -119,7 +125,8 @@
 
 <!-- Contenedor para el modal -->
 <div id="modal"></div>
-<!-- Script para limpiar el campo de búsqueda -->
+
+<!-- Script para limpiar el campo de búsqueda y para deshabilitar visualmente -->
 <script>
   function limpiarBusqueda() {
     const input = document.getElementById("buscar-input");
@@ -131,5 +138,70 @@
       window.location.href = url.toString();
     }
   }
+
+  // Habilitar/Deshabilitar visual (solo HTML/JS)
+  function getRepuestosDeshabilitados() {
+    return JSON.parse(localStorage.getItem('repuestosDeshabilitados') || '[]');
+  }
+  function setRepuestosDeshabilitados(ids) {
+    localStorage.setItem('repuestosDeshabilitados', JSON.stringify(ids));
+  }
+
+  function actualizarVistaDeshabilitados() {
+    const ids = getRepuestosDeshabilitados();
+    document.querySelectorAll('.js-repuesto-row').forEach(row => {
+      const id = row.id.replace('repuesto-', '');
+      const btn = row.querySelector('.js-toggle-habilitar');
+      const label = row.querySelector('.js-habilitar-label');
+      const btnEditar = row.querySelector('.js-btn-editar');
+      const btnEliminar = row.querySelector('.js-btn-eliminar');
+      if (ids.includes(Number(id))) {
+        row.classList.add('opacity-60', 'bg-yellow-100');
+        // Botón habilitar activo, otros desactivados
+        if (btn) {
+          btn.classList.remove('bg-yellow-500');
+          btn.classList.add('bg-green-600');
+          label.textContent = "Habilitar";
+        }
+        if (btnEditar) {
+          btnEditar.classList.add('pointer-events-none', 'opacity-40', 'cursor-not-allowed');
+        }
+        if (btnEliminar) {
+          btnEliminar.classList.add('pointer-events-none', 'opacity-40', 'cursor-not-allowed');
+        }
+      } else {
+        row.classList.remove('opacity-60', 'bg-yellow-100');
+        if (btn) {
+          btn.classList.add('bg-yellow-500');
+          btn.classList.remove('bg-green-600');
+          label.textContent = "Deshabilitar";
+        }
+        if (btnEditar) {
+          btnEditar.classList.remove('pointer-events-none', 'opacity-40', 'cursor-not-allowed');
+        }
+        if (btnEliminar) {
+          btnEliminar.classList.remove('pointer-events-none', 'opacity-40', 'cursor-not-allowed');
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    actualizarVistaDeshabilitados();
+
+    document.querySelectorAll('.js-toggle-habilitar').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = Number(this.dataset.id);
+        let ids = getRepuestosDeshabilitados();
+        if (ids.includes(id)) {
+          ids = ids.filter(i => i !== id);
+        } else {
+          ids.push(id);
+        }
+        setRepuestosDeshabilitados(ids);
+        actualizarVistaDeshabilitados();
+      });
+    });
+  });
 </script>
 {% endblock %}

@@ -5,37 +5,39 @@
     {% if usos > 0 %}
       <p class="mb-4 text-red-600 font-semibold">
         Este repuesto está vinculado a {{ usos }} mantenimiento{{ usos|pluralize }}.<br>
-        Al eliminarlo, también se eliminarán estos registros.
+        <span class="block mt-2">No es posible eliminarlo porque forma parte del historial de mantenimientos.</span>
       </p>
+      <div class="flex justify-center gap-4">
+        <button type="button" onclick="cerrarModalSuavemente()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 font-semibold">
+          Cerrar
+        </button>
+      </div>
     {% else %}
       <p class="mb-4 text-gray-700">
         ¿Estás seguro de que deseas eliminar <strong>{{ repuesto.nombre_repuesto }}</strong>?
       </p>
+      <form method="post"
+            hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
+            hx-target="#modal"
+            hx-swap="innerHTML">
+        {% csrf_token %}
+        <div class="flex justify-center gap-4">
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">
+            Sí, eliminar
+          </button>
+          <button type="button" onclick="cerrarModalSuavemente()" class="text-gray-600 hover:underline">Cancelar</button>
+        </div>
+      </form>
     {% endif %}
-
-    <form method="post"
-          hx-post="{% url 'eliminar_repuesto' repuesto.id_repuesto %}"
-          hx-target="#modal"
-          hx-swap="innerHTML">
-      {% csrf_token %}
-      <div class="flex justify-center gap-4">
-        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold">
-          Sí, eliminar
-        </button>
-        <button type="button" onclick="cerrarModalSuavemente()" class="text-gray-600 hover:underline">Cancelar</button>
-      </div>
-    </form>
   </div>
 </div>
 
 <script>
   function cerrarModalSuavemente() {
     const modalContainer = document.getElementById("modal");
-    const modalContent = modalContainer.querySelector("form").parentElement;
-
+    const modalContent = modalContainer.querySelector("div");
     modalContent.classList.remove("animate-fade-in-modal");
     modalContent.classList.add("fade-out-modal");
-
     setTimeout(() => {
       modalContainer.innerHTML = '';
     }, 300);

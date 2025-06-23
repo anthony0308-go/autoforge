@@ -2,6 +2,16 @@
 {% block title %}Nuevo Mantenimiento{% endblock %}
 
 {% block content %}
+
+<!-- Diccionario de precios para el autocompletado -->
+<script>
+  var PRECIOS_REPUESTOS = {
+    {% for repuesto in repuestos %}
+      "{{ repuesto.id_repuesto }}": "{{ repuesto.precio_unitario_referencia|floatformat:2 }}",
+    {% endfor %}
+  };
+</script>
+
 <div class="max-w-5xl mx-auto bg-white rounded-lg shadow p-8 mt-6">
   <h2 class="text-3xl font-bold mb-8 text-[#D7141A]">Registrar Mantenimiento</h2>
 
@@ -83,7 +93,9 @@
               <tr class="fila-repuesto border-b">
                 <td class="px-3 py-2">{{ repform.id_repuesto }}</td>
                 <td class="px-3 py-2">{{ repform.cantidad_utilizada }}</td>
-                <td class="px-3 py-2">{{ repform.precio_unitario_al_momento }}</td>
+                <td class="px-3 py-2">
+                  {{ repform.precio_unitario_al_momento }}
+                </td>
                 <td class="px-3 py-2 text-center">
                   {% if repform.instance.pk %}{{ repform.DELETE }}{% endif %}
                 </td>
@@ -136,7 +148,6 @@
   </div>
 </div>
 {% endblock %}
-
 
 {% block scripts %}
 <script>
@@ -197,6 +208,53 @@
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  // Siempre marca los precios como readonly al cargar la página
+  document.querySelectorAll("input[name$='precio_unitario_al_momento']").forEach(function(input){
+    input.readOnly = true;
+  });
+
+  function setPrecioHandler() {
+    document.querySelectorAll("select[name$='id_repuesto']").forEach(function(select) {
+      // Si el select está vacío, selecciona la primera opción (excepto el option vacío)
+      if (!select.value || select.value === "") {
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value) {
+            select.selectedIndex = i;
+            found = true;
+            break;
+          }
+        }
+        if (found) {
+          select.dispatchEvent(new Event('change'));
+        }
+      }
+
+      select.addEventListener("change", function() {
+        var idRepuesto = this.value;
+        var parentRow = this.closest('tr') || this.closest('.form-row');
+        if (!parentRow) return;
+        var precioInput = parentRow.querySelector("input[name$='precio_unitario_al_momento']");
+        if (precioInput) {
+          if (PRECIOS_REPUESTOS[idRepuesto]) {
+            precioInput.value = PRECIOS_REPUESTOS[idRepuesto];
+          } else {
+            precioInput.value = "";
+          }
+          precioInput.readOnly = true;
+        }
+      });
+      // Dispara el cambio siempre para inicializar si ya hay uno seleccionado
+      select.dispatchEvent(new Event('change'));
+    });
+    // Por seguridad, fuerza readonly en todos los campos de precio
+    document.querySelectorAll("input[name$='precio_unitario_al_momento']").forEach(function(input){
+      input.readOnly = true;
+    });
+  }
+  setPrecioHandler();
+
+  // Al agregar repuestos, vuelve a asignar handlers
   const tabla = document.getElementById("tabla-repuestos").querySelector("tbody");
   const btnAgregar = document.getElementById("agregar-repuesto");
   const btnEliminar = document.getElementById("eliminar-repuesto");
@@ -207,19 +265,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const lastRow = tabla.querySelector("tr:last-child");
     const newRow = lastRow.cloneNode(true);
 
-    // Actualiza los atributos name/id para que sean únicos
     newRow.querySelectorAll("input, select").forEach(function (input) {
       const name = input.name.replace(/\d+/, formCount);
       const id = input.id.replace(/\d+/, formCount);
       input.name = name;
       input.id = id;
-      input.value = "";
+      if (input.type === 'text' || input.type === 'number') input.value = "";
+      if (input.name.endsWith('precio_unitario_al_momento')) input.readOnly = true;
     });
 
     tabla.appendChild(newRow);
     totalForms.value = formCount + 1;
 
-    actualizarFactura();  // Actualiza total
+    setTimeout(setPrecioHandler, 100);
   });
 
   btnEliminar.addEventListener("click", function () {
@@ -227,7 +285,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (rows.length > 1) {
       tabla.removeChild(rows[rows.length - 1]);
       totalForms.value = parseInt(totalForms.value) - 1;
-      actualizarFactura();
     }
   });
 });

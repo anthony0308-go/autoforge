@@ -166,8 +166,16 @@ def modal_registrar_repuesto(request):
 
 @login_required
 def eliminar_repuesto(request, repuesto_id):
+    repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
+    usos = MantenimientoRepuestos.objects.filter(id_repuesto=repuesto).count()
+
     if request.method == 'POST':
-        repuesto = get_object_or_404(Repuestos, pk=repuesto_id)
+        if usos > 0:
+            # No permitir eliminación si hay usos
+            return HttpResponse(
+                "No se puede eliminar este repuesto porque está registrado en uno o más mantenimientos.",
+                status=400
+            )
         repuesto.delete()
         return HttpResponse(status=204, headers={"HX-Refresh": "true"})
     return HttpResponse(status=405)
@@ -290,9 +298,13 @@ def crear_mantenimiento(request):
         form = MantenimientoForm(initial={'fecha_ingreso': now})
         formset = MantenimientoRepuestoFormSet()
 
+    # ← Aquí agregas el queryset de repuestos para usarlo en el template (para autocompletar precio)
+    repuestos = Repuestos.objects.all()
+
     return render(request, 'mantenimiento/mantenimientos/crear_mantenimiento.html', {
         'form': form,
         'formset': formset,
+        'repuestos': repuestos,  # ← ESTA LÍNEA ES LA NUEVA
     })
 
 @login_required
