@@ -300,32 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then(() => {
               window.location.href = "{% url 'listar_clientes' %}"
             });
-          } else {
-            let errorMessages = ''
-            if (data.errors) {
-              if (data.errors.cliente_form) {
-                for (const [field, errors] of Object.entries(data.errors.cliente_form)) {
-                  errors.forEach(e => (errorMessages += `Cliente - ${field}: ${e.message}<br>`))
-                }
-              }
-              if (data.errors.vehiculo_form) {
-                for (const [field, errors] of Object.entries(data.errors.vehiculo_form)) {
-                  errors.forEach(e => (errorMessages += `Vehículo - ${field}: ${e.message}<br>`))
-                }
-              }
-              if (data.errors.general) {
-                errorMessages += data.errors.general + '<br>'
-              }
-            }
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              html: errorMessages || 'Revisa los campos obligatorios.',
-              confirmButtonText: 'OK'
-            }).then(() => {
-              submitButton.disabled = false;
-            });
-          }
+          } 
         })
         .catch(() => {
           Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {

@@ -317,7 +317,7 @@ class VehiculoForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-input'})
     )
 
-    # --- Solo dejar los campos de fotos si realmente quieres validar en este form
+    
     foto_frontal = forms.ImageField(
         label="Foto Frontal",
         required=False,
@@ -341,15 +341,13 @@ class VehiculoForm(forms.ModelForm):
 
     class Meta:
         model = Vehiculos
-        exclude = ['id_usuario_propietario', 'id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
-        # No necesitas widgets aquí, ya que todos los campos se declaran arriba con sus widgets y required=False
+        exclude = ['id_usuario_registra_vehiculo', 'fecha_registro_vehiculo']
 
     def clean(self):
         cleaned_data = super().clean()
         errores = {}
 
         campos_obligatorios = [
-            ('id_usuario_propietario', 'Propietario'),
             ('tipo_placa', 'Tipo de Placa'),
             ('placa', 'Placa'),
             ('marca', 'Marca'),
@@ -384,6 +382,7 @@ class VehiculoForm(forms.ModelForm):
                     errores[campo] = f'El campo "{label}" es obligatorio.'
             else:
                 # Solo obligatorio si no existe ya
+                # Solo obligatorio si no existe ya
                 tiene_foto = FotografiasVehiculo.objects.filter(
                     id_vehiculo=self.instance.pk,
                     tipo_fotografia=tipo_foto
@@ -404,6 +403,7 @@ class VehiculoForm(forms.ModelForm):
             raise forms.ValidationError("La placa debe tener exactamente 6 dígitos.")
         return placa
 
+
     def clean_vin(self):
         vin = self.cleaned_data.get('vin')
         if vin:
@@ -412,5 +412,6 @@ class VehiculoForm(forms.ModelForm):
             if len(vin) != 17:
                 raise forms.ValidationError("El VIN debe tener exactamente 17 caracteres.")
         return vin
+
         
     
