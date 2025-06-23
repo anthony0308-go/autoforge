@@ -1,4 +1,6 @@
 {% extends 'mantenimiento/base.html' %}
+{% load static %}
+
 {% block title %}Listado de Vehículos{% endblock %}
 
 {% block content %}
@@ -7,9 +9,10 @@
     <h1 class="text-3xl font-bold text-[#D7141A]">Listado de Vehículos</h1>
 
     {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-    <a href="{% url 'registrar_vehiculo' %}" class="px-5 py-2 bg-[#D7141A] text-white rounded-md shadow hover:bg-red-700 transition">
-      + Registrar Vehículo
-    </a>
+      <a href="{% url 'registrar_vehiculo' %}"
+         class="px-5 py-2 bg-[#D7141A] text-white rounded-md shadow hover:bg-red-700 transition">
+        + Registrar Vehículo
+      </a>
     {% endif %}
   </div>
 
@@ -29,29 +32,57 @@
       </thead>
       <tbody class="divide-y divide-gray-200">
         {% for vehiculo in vehiculos %}
-        <tr class="hover:bg-gray-50 transition-colors">
-          {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
-            <td class="px-6 py-4 font-medium text-gray-700">{{ vehiculo.id_vehiculo }}</td>
-          {% endif %}
-          <td class="px-6 py-4">{{ vehiculo.marca }}</td>
-          <td class="px-6 py-4">{{ vehiculo.modelo }}</td>
-          <td class="px-6 py-4">{{ vehiculo.anio }}</td>
-          <td class="px-6 py-4">{{ vehiculo.placa }}</td>
-          <td class="px-6 py-4 space-x-2">
-            {% if request.user.is_superuser and request.user.id_rol.codigo_rol == 'A' %}
-              <a href="{% url 'editar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#1565C0] hover:underline">Editar</a>
-              <a href="{% url 'eliminar_vehiculo' vehiculo.id_vehiculo %}" class="text-[#D7141A] hover:underline">Eliminar</a>
+          <tr class="hover:bg-gray-50 transition-colors">
+            {% if request.user.is_superuser or request.user.id_rol.codigo_rol == 'A' %}
+              <td class="px-6 py-4 font-medium text-gray-700">{{ vehiculo.id_vehiculo }}</td>
             {% endif %}
-            <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}" class="text-[#4CAF50] hover:underline">Ver Detalle</a>
-          </td>
-        </tr>
+            <td class="px-6 py-4">{{ vehiculo.marca }}</td>
+            <td class="px-6 py-4">{{ vehiculo.modelo }}</td>
+            <td class="px-6 py-4">{{ vehiculo.anio }}</td>
+            <td class="px-6 py-4">{{ vehiculo.placa }}</td>
+            <td class="px-6 py-4 space-x-2">
+              {% if request.user.is_superuser and request.user.id_rol.codigo_rol == 'A' %}
+                <a href="{% url 'editar_vehiculo' vehiculo.id_vehiculo %}"
+                   class="text-[#1565C0] hover:underline">Editar</a>
+                <a href="{% url 'eliminar_vehiculo' vehiculo.id_vehiculo %}"
+                   class="text-[#D7141A] hover:underline">Eliminar</a>
+              {% endif %}
+              <a href="{% url 'detalle_vehiculo' vehiculo.id_vehiculo %}"
+                 class="text-[#4CAF50] hover:underline">Ver Detalle</a>
+            </td>
+          </tr>
         {% empty %}
-        <tr>
-          <td colspan="6" class="text-center py-6 text-gray-500">No hay vehículos registrados.</td>
-        </tr>
+          <tr>
+            <td colspan="6" class="text-center py-6 text-gray-500">No hay vehículos registrados.</td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  {% if messages %}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        {% for message in messages %}
+          Swal.fire({
+            icon: (() => {
+              const tag = '{{ message.tags }}';
+              if (tag.includes('success')) return 'success';
+              if (tag.includes('error'))   return 'error';
+              if (tag.includes('warning')) return 'warning';
+              return 'info';
+            })(),
+            title: '{{ message.tags|capfirst }}',
+            text: '{{ message|escapejs }}',
+            confirmButtonText: 'OK'
+          });
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
 {% endblock %}

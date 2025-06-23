@@ -59,7 +59,7 @@ class Usuarios(AbstractUser):
 
 class FotografiasVehiculo(models.Model):
     id_fotografia = models.AutoField(primary_key=True)
-    id_vehiculo = models.ForeignKey('Vehiculos', models.DO_NOTHING, db_column='id_vehiculo')
+    id_vehiculo = models.ForeignKey('Vehiculos',on_delete=models.SET_NULL,db_column='id_vehiculo',null=True,blank=True)
     url_fotografia = models.ImageField(upload_to='vehiculos/')
     tipo_fotografia = models.CharField(max_length=20)
     descripcion_foto = models.TextField(blank=True, null=True)
@@ -93,7 +93,7 @@ class MantenimientoRepuestos(models.Model):
 
 class Mantenimientos(models.Model):
     id_mantenimiento = models.AutoField(primary_key=True)
-    id_vehiculo = models.ForeignKey('Vehiculos', models.DO_NOTHING, db_column='id_vehiculo')
+    id_vehiculo = models.ForeignKey('Vehiculos',on_delete=models.SET_NULL,db_column='id_vehiculo',null=True,blank=True)
     id_tipo_mantenimiento = models.ForeignKey('TiposMantenimiento', models.DO_NOTHING, db_column='id_tipo_mantenimiento', blank=True, null=True)
     fecha_ingreso = models.DateTimeField()
     fecha_salida = models.DateTimeField(blank=True, null=True)
@@ -122,7 +122,7 @@ class Mantenimientos(models.Model):
 
 class MantenimientosAgendados(models.Model):
     id_mantenimiento_agendado = models.AutoField(primary_key=True)
-    id_vehiculo = models.ForeignKey('Vehiculos', models.DO_NOTHING, db_column='id_vehiculo')
+    id_vehiculo = models.ForeignKey('Vehiculos',on_delete=models.SET_NULL,db_column='id_vehiculo',null=True,blank=True)
     id_tipo_mantenimiento_sugerido = models.ForeignKey('TiposMantenimiento', models.DO_NOTHING, db_column='id_tipo_mantenimiento_sugerido', blank=True, null=True)
     fecha_programada = models.DateField()
     kilometraje_programado = models.IntegerField(blank=True, null=True)

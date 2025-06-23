@@ -740,21 +740,23 @@ def editar_vehiculo(request, vehiculo_id):
         'vehiculo': vehiculo
     })
     
-
+    
 @login_required
 def eliminar_vehiculo(request, id_vehiculo):
-    try:
-        vehiculo = Vehiculos.objects.get(pk=id_vehiculo)
-        if not (request.user.is_superuser or getattr(request.user.id_rol, 'codigo_rol', None) == 'A'):
-            return HttpResponseForbidden("No autorizado.")
+    vehiculo = Vehiculos.objects.get(pk=id_vehiculo)
 
-        # Guarda datos del propietario y placas ANTES de eliminar
+    if not (request.user.is_superuser or getattr(request.user.id_rol, 'codigo_rol', None) == 'A'):
+        return HttpResponseForbidden("No autorizado.")
+
+    # Verifica si hay mantenimientos asociados
+    tiene_mantenimientos = Mantenimientos.objects.filter(id_vehiculo=vehiculo).exists()
+
+    if request.method == 'POST':
         propietario = vehiculo.id_usuario_propietario
         placas = vehiculo.placa
 
-        vehiculo.delete()
+        vehiculo.delete()  # ← Elimina el vehículo (aunque tenga mantenimientos)
 
-        # Envía el correo al propietario
         if propietario.email:
             send_mail(
                 subject='Vehículo eliminado de AutoForge',
@@ -764,13 +766,20 @@ def eliminar_vehiculo(request, id_vehiculo):
                 fail_silently=True,
             )
 
-        return JsonResponse({'success': True, 'message': 'Vehículo eliminado correctamente. El propietario ha sido notificado por correo.'})
-    except Vehiculos.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'El vehículo no existe.'}, status=404)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        # Mensaje SweetAlert para avisar
+        if tiene_mantenimientos:
+            messages.info(request, "El vehículo fue eliminado, pero conserva mantenimientos registrados.")
+        else:
+            messages.success(request, "Vehículo eliminado correctamente.")
+
+        return redirect('listar_vehiculos')
+
+    return render(request, 'mantenimiento/vehiculos/eliminar_vehiculo.html', {
+        'vehiculo': vehiculo
+    })
     
-    s
+    
+    
 @login_required
 @require_POST
 def marcar_agendado_hecho(request, agendado_id):
