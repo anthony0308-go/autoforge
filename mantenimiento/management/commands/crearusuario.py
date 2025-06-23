@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from mantenimiento.models import Usuarios, Roles
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
 class Command(BaseCommand):
     help = 'Crea un usuario seleccionando rol por código (A/C)'
@@ -10,6 +11,16 @@ class Command(BaseCommand):
         email = input('Correo electrónico: ').strip()
         first_name = input('Nombre: ').strip()
         last_name = input('Apellidos: ').strip()
+
+        # Pedir y validar DUI (obligatorio y único)
+        while True:
+            dui = input('DUI (sin guiones): ').strip()
+            if not dui:
+                print("⚠️  El DUI es obligatorio.")
+            elif Usuarios.objects.filter(dui=dui).exists():
+                print("⚠️  Ya existe un usuario con ese DUI.")
+            else:
+                break
 
         # Mostrar roles disponibles
         print('\nRoles disponibles:')
@@ -27,18 +38,21 @@ class Command(BaseCommand):
 
         password = input('Contraseña: ').strip()
 
-        usuario = Usuarios.objects.create_user(
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            id_rol=rol
-        )
-        # Si quieres que los admins creados sean superusuarios y staff:
-        if codigo_rol == 'A':
-            usuario.is_superuser = True
-            usuario.is_staff = True
-            usuario.save()
-            self.stdout.write(self.style.SUCCESS('Usuario administrador creado exitosamente.'))
-        else:
-            self.stdout.write(self.style.SUCCESS('Usuario cliente creado exitosamente.'))
+        try:
+            usuario = Usuarios.objects.create_user(
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                dui=dui,
+                id_rol=rol
+            )
+            if codigo_rol == 'A':
+                usuario.is_superuser = True
+                usuario.is_staff = True
+                usuario.save()
+                self.stdout.write(self.style.SUCCESS('✅ Usuario administrador creado exitosamente.'))
+            else:
+                self.stdout.write(self.style.SUCCESS('✅ Usuario cliente creado exitosamente.'))
+        except IntegrityError as e:
+            self.stderr.write(self.style.ERROR(f"❌ Error de integridad al crear el usuario: {str(e)}"))

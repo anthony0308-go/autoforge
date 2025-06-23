@@ -21,6 +21,8 @@ from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
 
 
 def login_view(request):
@@ -62,17 +64,23 @@ def inicio(request):
 
 @login_required
 def listar_clientes(request):
-    buscar = request.GET.get('buscar', '')
+    buscar = request.GET.get('buscar', '').strip()
     clientes = Usuarios.objects.filter(id_rol__nombre_rol='Cliente')
+
     if buscar:
-        clientes = clientes.filter(
-            Q(first_name__icontains=buscar) |
-            Q(last_name__icontains=buscar) |
-            Q(email__icontains=buscar)
+        # Annotate full name for searching
+        clientes = clientes.annotate(
+            full_name=Concat('first_name', Value(' '), 'last_name', output_field=CharField())
+        ).filter(
+            Q(full_name__icontains=buscar) |
+            Q(email__icontains=buscar) |
+            Q(telefono__icontains=buscar)
         )
+
     paginator = Paginator(clientes, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     return render(request, 'mantenimiento/clientes/listar_clientes.html', {
         'clientes': page_obj,
         'buscar': buscar,
@@ -572,14 +580,65 @@ def editar_perfil_cliente(request):
     
     
 #registrar vehiculo
+    
+@login_required
 def registrar_vehiculo(request):
     if request.method == 'POST':
-        form = VehiculoForm(request.POST)
+        form = VehiculoForm(request.POST, request.FILES)
         if form.is_valid():
             vehiculo = form.save(commit=False)
             vehiculo.id_usuario_registra_vehiculo = request.user
             vehiculo.save()
             return redirect('listar_vehiculos')
+            try:
+                with transaction.atomic():
+                    vehiculo = form.save(commit=False)
+                    vehiculo.id_usuario_registra_vehiculo = request.user
+                    vehiculo.save()
+
+                    # Guardar fotos
+                    fotos = {
+                        'foto_frontal': 'frontal',
+                        'foto_lateral_izquierda': 'lateral izquierda',
+                        'foto_lateral_derecha': 'lateral derecha',
+                        'foto_trasera': 'trasera'
+                    }
+                    for campo, tipo in fotos.items():
+                        archivo = request.FILES.get(campo)
+                        if archivo:
+                            FotografiasVehiculo.objects.create(
+                                id_vehiculo=vehiculo,
+                                tipo_fotografia=tipo,
+                                url_fotografia=archivo,
+                                descripcion_foto=f"Foto {tipo}",
+                                fecha_subida=vehiculo.fecha_registro_vehiculo,
+                                id_usuario_sube_foto=request.user
+                            )
+
+                    # Enviar correo al propietario
+                    propietario = vehiculo.id_usuario_propietario
+                    send_mail(
+                        subject='Nuevo vehículo registrado',
+                        message=f'Hola {propietario.first_name}, se ha registrado un nuevo vehículo a tu nombre.\n\n'
+                                f'Detalles:\nPlaca: {vehiculo.placa}\nMarca: {vehiculo.marca}\nModelo: {vehiculo.modelo}\n'
+                                f'Año: {vehiculo.anio}\nTipo de placa: {vehiculo.get_tipo_placa_display()}\nVIN: {vehiculo.vin}\nColor: {vehiculo.color}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[propietario.email],
+                        fail_silently=True
+                    )
+
+                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                        return JsonResponse({'success': True, 'message': 'Vehículo registrado correctamente. Se notificó al propietario.'})
+                    else:
+                        return redirect('listar_vehiculos')
+            except Exception as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': {'general': str(e)}})
+                else:
+                    form.add_error(None, str(e))
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors.get_json_data()})
     else:
         form = VehiculoForm()
     return render(request, 'mantenimiento/vehiculos/registrar_vehiculo.html', {'form': form})

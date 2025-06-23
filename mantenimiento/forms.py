@@ -263,6 +263,12 @@ class ClienteForm(forms.ModelForm):
 
 
 class VehiculoForm(forms.ModelForm):
+    id_usuario_propietario = forms.ModelChoiceField(
+        queryset=Usuarios.objects.filter(id_rol__codigo_rol='C'),
+        label="Propietario",
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-input'})
+    )
     tipo_placa = forms.ChoiceField(
         label="Tipo de Placa",
         choices=Vehiculos._meta.get_field('tipo_placa').choices,
@@ -311,6 +317,7 @@ class VehiculoForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-input'})
     )
 
+    # --- Solo dejar los campos de fotos si realmente quieres validar en este form
     foto_frontal = forms.ImageField(
         label="Foto Frontal",
         required=False,
@@ -339,7 +346,10 @@ class VehiculoForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        errores = {}
+
         campos_obligatorios = [
+            ('id_usuario_propietario', 'Propietario'),
             ('tipo_placa', 'Tipo de Placa'),
             ('placa', 'Placa'),
             ('marca', 'Marca'),
@@ -359,6 +369,28 @@ class VehiculoForm(forms.ModelForm):
             if not valor:
                 errores[campo] = f'El campo "{label}" es obligatorio.'
 
+        # --- Fotos: solo obligatorias al crear (si editas, solo si no existe esa foto)
+        foto_campos = [
+            ('foto_frontal', 'Foto frontal', 'frontal'),
+            ('foto_lateral_izquierda', 'Foto lateral izquierda', 'lateral izquierda'),
+            ('foto_lateral_derecha', 'Foto lateral derecha', 'lateral derecha'),
+            ('foto_trasera', 'Foto trasera', 'trasera'),
+        ]
+        es_nuevo = self.instance.pk is None
+        for campo, label, tipo_foto in foto_campos:
+            archivo = cleaned_data.get(campo)
+            if es_nuevo:
+                if not archivo:
+                    errores[campo] = f'El campo "{label}" es obligatorio.'
+            else:
+                # Solo obligatorio si no existe ya
+                tiene_foto = FotografiasVehiculo.objects.filter(
+                    id_vehiculo=self.instance.pk,
+                    tipo_fotografia=tipo_foto
+                ).exists()
+                if not archivo and not tiene_foto:
+                    errores[campo] = f'El campo "{label}" es obligatorio.'
+
         if errores:
             raise forms.ValidationError(errores)
         return cleaned_data
@@ -371,7 +403,7 @@ class VehiculoForm(forms.ModelForm):
         if placa and len(placa) != 6:
             raise forms.ValidationError("La placa debe tener exactamente 6 dígitos.")
         return placa
-    
+
     def clean_vin(self):
         vin = self.cleaned_data.get('vin')
         if vin:

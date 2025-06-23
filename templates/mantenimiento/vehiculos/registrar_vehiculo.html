@@ -4,12 +4,16 @@
 {% block content %}
 <div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-8 mt-6">
   <h2 class="text-3xl font-bold mb-6 text-[#D7141A]">Registrar Nuevo Vehículo</h2>
-  <form method="post">
+  <form id="registrarVehiculoForm" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label class="block font-semibold mb-1 text-gray-700">Propietario</label>
         {{ form.id_usuario_propietario }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Tipo de Placa</label>
+        {{ form.tipo_placa }}
       </div>
       <div>
         <label class="block font-semibold mb-1 text-gray-700">Placa</label>
@@ -40,6 +44,28 @@
         {{ form.color }}
       </div>
     </div>
+
+    <hr class="my-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Foto frontal</label>
+        {{ form.foto_frontal }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Foto lateral izquierda</label>
+        {{ form.foto_lateral_izquierda }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Foto lateral derecha</label>
+        {{ form.foto_lateral_derecha }}
+      </div>
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">Foto trasera</label>
+        {{ form.foto_trasera }}
+      </div>
+    </div>
+
     <div class="text-right mt-6">
       <button type="submit" class="px-6 py-2 bg-[#1565C0] text-white rounded hover:bg-[#0D47A1] transition">
         💾 Guardar Vehículo
@@ -47,4 +73,128 @@
     </div>
   </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Máscara para placa y VIN
+  const placaInput = document.querySelector('#id_placa');
+  if (placaInput) {
+    placaInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '').slice(0, 6);
+      e.target.value = value;
+    });
+  }
+  const vinInput = document.querySelector('#id_vin');
+  if (vinInput) {
+    vinInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 17);
+      e.target.value = value;
+    });
+  }
+
+  const form = document.getElementById('registrarVehiculoForm');
+  let submitEnProgreso = false;
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (submitEnProgreso) return;
+      submitEnProgreso = true;
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
+
+      // Validación rápida visual
+      const campos = [
+        {id: 'id_id_usuario_propietario', label: 'Propietario'},
+        {id: 'id_tipo_placa', label: 'Tipo de Placa'},
+        {id: 'id_placa', label: 'Placa'},
+        {id: 'id_marca', label: 'Marca'},
+        {id: 'id_modelo', label: 'Modelo'},
+        {id: 'id_anio', label: 'Año'},
+        {id: 'id_tipo_combustible', label: 'Tipo de Combustible'},
+        {id: 'id_vin', label: 'VIN'},
+        {id: 'id_color', label: 'Color'},
+        {id: 'id_foto_frontal', label: 'Foto Frontal'},
+        {id: 'id_foto_lateral_izquierda', label: 'Foto Lateral Izquierda'},
+        {id: 'id_foto_lateral_derecha', label: 'Foto Lateral Derecha'},
+        {id: 'id_foto_trasera', label: 'Foto Trasera'},
+      ];
+      let camposVacios = [];
+      for (const campo of campos) {
+        const input = document.getElementById(campo.id);
+        if (input && !input.value.trim()) {
+          camposVacios.push(campo.label);
+        }
+      }
+      if (camposVacios.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos',
+          html: 'Debes completar los siguientes campos:<br><b>' + camposVacios.join(', ') + '</b>',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          submitEnProgreso = false;
+          if (submitButton) submitButton.disabled = false;
+        });
+        return;
+      }
+
+      // Envío AJAX real
+      const formData = new FormData(form);
+      fetch("{% url 'registrar_vehiculo' %}", {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(response => response.json().catch(() => null))
+      .then(data => {
+        if (!data) {
+          Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
+            submitEnProgreso = false;
+            if (submitButton) submitButton.disabled = false;
+          });
+          return;
+        }
+        if (data.success) {
+          Swal.fire({
+            title: '¡Éxito!',
+            text: data.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            window.location.href = "{% url 'listar_vehiculos' %}";
+          });
+        } else {
+          let errorMessages = '';
+          if (data.errors) {
+            for (const [field, errors] of Object.entries(data.errors)) {
+              errors.forEach(e => (errorMessages += e.message + "<br>"));
+            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Error en el formulario',
+              html: errorMessages,
+              confirmButtonText: 'OK'
+            }).then(() => {
+              submitEnProgreso = false;
+              if (submitButton) submitButton.disabled = false;
+            });
+          } else {
+            submitEnProgreso = false;
+            if (submitButton) submitButton.disabled = false;
+          }
+        }
+      })
+      .catch(() => {
+        Swal.fire('Error', 'Error inesperado. Inténtalo de nuevo.', 'error').then(() => {
+          submitEnProgreso = false;
+          if (submitButton) submitButton.disabled = false;
+        });
+      });
+    });
+  }
+});
+</script>
 {% endblock %}
